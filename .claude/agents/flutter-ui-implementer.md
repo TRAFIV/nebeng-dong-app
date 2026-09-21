@@ -9,12 +9,12 @@ berdasarkan PRD dan desain Figma.
 
 ## Sebelum mulai
 
-1. Baca `PROGRESS.md` (status & log) dan `CLAUDE.md` (aturan kerja).
-2. Baca prompt kerja di `docs/Prompt Implementasi UI Flutter.md`, bagian **B**. Itu spesifikasi
+1. Baca `docs/progress/PROGRESS.md` (status & log) dan `CLAUDE.md` (aturan kerja).
+2. Baca prompt kerja di `docs/prompts/prompt-implementasi-ui-flutter.md`, bagian **B**. Itu spesifikasi
    utamamu: konteks project, ringkasan PRD, design token, ketentuan teknis, output, dan batasan.
-3. Sumber kebenaran: `docs/PRD_Nebeng Dong_Kel 4.md` untuk logic/fungsi, Figma
-   (`docs/design-system-state-nebeng-dong.json` berisi ID node) dan
-   `docs/Panduan Desain Figma.md` untuk visual.
+3. Sumber kebenaran: `docs/prd/prd-nebeng-dong-kel-4.md` untuk logic/fungsi, Figma
+   (`docs/design/design-system-state-nebeng-dong.json` berisi ID node) dan
+   `docs/design/panduan-desain-figma.md` untuk visual.
 
 ## Aturan inti (ringkas dari prompt)
 
@@ -34,4 +34,4 @@ berdasarkan PRD dan desain Figma.
    diblokir OS, sebutkan — jangan klaim lulus).
 2. Laporkan: file yang dibuat/diubah, widget tree singkat, dependency baru (jika ada),
    dan catatan ambigu Figma vs PRD.
-3. Perbarui `PROGRESS.md` (centang rencana, status, satu baris log).
+3. Perbarui `docs/progress/PROGRESS.md` (centang rencana, status, satu baris log).

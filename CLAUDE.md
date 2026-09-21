@@ -8,23 +8,23 @@ Act as a senior software engineer responsible for producing maintainable, produc
 
 - Product: **Nebeng Dong**, a campus carpooling application for students.
 - Repository: https://github.com/TRAFIV/nebeng-dong-app (branch `main`). This folder is both the repo root and the Flutter app (package `praktikum_mobile`).
-- Product documentation: `docs/PRD_Nebeng Dong_Kel 4.md`.
-- Course/module instructions: `docs/Modul 1 Pemrograman Mobile.md`.
-- Design guide: `docs/Panduan Desain Figma.md`. Figma file: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum
-- Figma workflow state (node IDs): `docs/design-system-state-nebeng-dong.json`.
-- UI implementation prompt: `docs/Prompt Implementasi UI Flutter.md` (A = module framework, B = filled for this PRD).
+- Product documentation: `docs/prd/prd-nebeng-dong-kel-4.md`.
+- Course/module instructions: `docs/modul/modul-1-pemrograman-mobile.md`.
+- Design guide: `docs/design/panduan-desain-figma.md`. Figma file: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum
+- Figma workflow state (node IDs): `docs/design/design-system-state-nebeng-dong.json`.
+- UI implementation prompt: `docs/prompts/prompt-implementasi-ui-flutter.md` (A = module framework, B = filled for this PRD).
 - Primary language for user-facing product copy: Indonesian, casual tone (santai, tidak formal), e.g. "Gas Masuk!", "Cariin Tebengan!".
 
 ## Handoff Log
 
-- Read `PROGRESS.md` before starting any work; it holds the plan, current status, and change log.
-- After every change (code, Figma, docs), update `PROGRESS.md`: tick the plan, update status, append one log line.
+- Read `docs/progress/PROGRESS.md` before starting any work; it holds the plan, current status, and change log.
+- After every change (code, Figma, docs), update `docs/progress/PROGRESS.md`: tick the plan, update status, append one log line.
 - Scope is the course module task only (3 screens); do not expand scope without the user's instruction.
 
 ## AI Agents
 
-- Claude Code: for Flutter UI work (new screens, syncing Figma to code), use the `flutter-ui-implementer` subagent in `.claude/agents/`, or follow the same prompt (`docs/Prompt Implementasi UI Flutter.md`, section B) directly.
-- Other agents (Codex, etc.) read `AGENTS.md`, which points back to this file and `PROGRESS.md`.
+- Claude Code: for Flutter UI work (new screens, syncing Figma to code), use the `flutter-ui-implementer` subagent in `.claude/agents/`, or follow the same prompt (`docs/prompts/prompt-implementasi-ui-flutter.md`, section B) directly.
+- Other agents (Codex, etc.) read `AGENTS.md`, which points back to this file and `docs/progress/PROGRESS.md`.
 
 ## Documentation Source of Truth
 
@@ -70,11 +70,11 @@ Act as a senior software engineer responsible for producing maintainable, produc
 
 ## Figma and Design Consistency
 
-- Use `docs/PRD_Nebeng Dong_Kel 4.md` as the product source of truth.
+- Use `docs/prd/prd-nebeng-dong-kel-4.md` as the product source of truth.
 - Use reusable components, Auto Layout, variables, text styles, and effect styles.
 - Use Roboto unless the project documentation or implementation defines another font.
 - Keep Figma token names and Flutter theme names traceable to each other.
-- Update `docs/design-system-state-nebeng-dong.json` after every successful Figma creation step.
+- Update `docs/design/design-system-state-nebeng-dong.json` after every successful Figma creation step.
 - Validate created screens visually and structurally before implementing them in Flutter.
 
 ## Testing and Quality Gates
@@ -96,6 +96,7 @@ For UI changes, also verify the primary flow on the connected Android device whe
 - Do not use destructive Git commands unless explicitly authorized; never force-push to the shared `main`.
 - Do not edit generated output under `build/` or `.dart_tool/`.
 - Commit and push only when asked; keep commits focused.
+- No AI attribution in commits or pull requests: no `Co-Authored-By` trailer and no "Generated with ..." footer.
 - Never delete source documentation merely because a converted version exists.
 
 ## Definition of Done
@@ -106,5 +107,5 @@ Work is complete only when:
 - Code is formatted and relevant checks pass.
 - Reusable UI follows the shared design tokens.
 - Error and edge states are considered.
-- Documentation, `PROGRESS.md`, or workflow state is updated when affected.
+- Documentation, `docs/progress/PROGRESS.md`, or workflow state is updated when affected.
 - The final report clearly states what changed and what remains.

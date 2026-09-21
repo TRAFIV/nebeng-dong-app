@@ -48,16 +48,16 @@ lib/
   utils/      fungsi bantu (format rupiah)
   widgets/    komponen reusable (AppButton, AppTextField, RideCard, UserAvatar)
 assets/images/  aset WebP (1x, 2.0x/, 3.0x/)
-docs/           PRD, modul, panduan desain, prompt AI, state Figma
+docs/           prd/, modul/, design/, prompts/, progress/ (lihat docs/README.md)
 test/           widget test
 ```
 
 ## Dokumen
 
-- [PRD](docs/PRD_Nebeng%20Dong_Kel%204.md) — kebutuhan produk (sumber kebenaran).
-- [Modul 1](docs/Modul%201%20Pemrograman%20Mobile.md) — instruksi praktikum.
-- [Panduan Desain Figma](docs/Panduan%20Desain%20Figma.md) — Auto Layout, spacing, tipografi, komponen.
-- [Prompt Implementasi UI Flutter](docs/Prompt%20Implementasi%20UI%20Flutter.md) — kerangka prompt dan versi yang kami isi.
+- [PRD](docs/prd/prd-nebeng-dong-kel-4.md) — kebutuhan produk (sumber kebenaran).
+- [Modul 1](docs/modul/modul-1-pemrograman-mobile.md) — instruksi praktikum.
+- [Panduan Desain Figma](docs/design/panduan-desain-figma.md) — Auto Layout, spacing, tipografi, komponen.
+- [Prompt Implementasi UI Flutter](docs/prompts/prompt-implementasi-ui-flutter.md) — kerangka prompt dan versi yang kami isi.
 - Desain Figma: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum
 
 ## Kerja dengan AI
@@ -65,7 +65,7 @@ test/           widget test
 - `CLAUDE.md` — aturan kerja untuk Claude Code.
 - `.claude/agents/flutter-ui-implementer.md` — subagent Claude untuk implementasi UI dari PRD + Figma.
 - `AGENTS.md` — aturan untuk AI lain (Codex, dll.).
-- `PROGRESS.md` — rencana, status, dan log perubahan; dibaca setiap ganti AI.
+- `docs/progress/PROGRESS.md` — rencana, status, dan log perubahan; dibaca setiap ganti AI.
 
 ## Lisensi
 

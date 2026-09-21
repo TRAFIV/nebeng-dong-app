@@ -5,17 +5,17 @@
 > Semua path di file ini relatif terhadap root repo (folder `praktikum_mobile/` di laptop Mikail).
 
 ## Konteks singkat
-- Aplikasi: Nebeng Dong (nebeng antar-mahasiswa). PRD: `docs/PRD_Nebeng Dong_Kel 4.md`
-- Tugas: `docs/Modul 1 Pemrograman Mobile.md` (bagian C, D, E, dan Bagian 2)
+- Aplikasi: Nebeng Dong (nebeng antar-mahasiswa). PRD: `docs/prd/prd-nebeng-dong-kel-4.md`
+- Tugas: `docs/modul/modul-1-pemrograman-mobile.md` (bagian C, D, E, dan Bagian 2)
 - Repo: https://github.com/TRAFIV/nebeng-dong-app (branch `main`) — root repo = project Flutter
 - Figma: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum (akun `smyth`)
 - Aturan kerja: `CLAUDE.md` (Claude) · `AGENTS.md` (AI lain)
-- Prompt implementasi UI: `docs/Prompt Implementasi UI Flutter.md` · subagent `.claude/agents/flutter-ui-implementer.md`
+- Prompt implementasi UI: `docs/prompts/prompt-implementasi-ui-flutter.md` · subagent `.claude/agents/flutter-ui-implementer.md`
 
 ## Rencana (sesuai tugas)
 - [x] 1. Setup environment + NDK, project jalan di HP
 - [x] 2. Pilih 3 layar: **Login**, **Home (cari tebengan)**, **Detail Tebengan**
-- [x] 3. Panduan design Figma (Prompt 2) → `docs/Panduan Desain Figma.md`
+- [x] 3. Panduan design Figma (Prompt 2) → `docs/design/panduan-desain-figma.md`
 - [x] 4. Desain 3 layar di Figma + prototype antarlayar (halaman `07 Product Screens`)
 - [x] 5. Implementasi Flutter (Prompt 3): tema (`lib/theme/`), model + contoh data, widget reusable, 3 screen
 - [ ] 6. Review & debug (overflow, responsif), uji alur lengkap di HP
@@ -37,7 +37,7 @@
   ganti kotak "ND" + judul di Login (Flutter + Figma node 22:2).
 - Figma selesai: komponen Button (21:6), Input Field (21:7), Ride Card (21:11), Bottom Navigation (21:24);
   layar Login (22:2), Home (22:22), Detail Tebengan (22:81); prototype Login→Home→Detail→Home.
-  Semua ID ada di `docs/design-system-state-nebeng-dong.json`. Token & ukuran di `docs/Panduan Desain Figma.md`.
+  Semua ID ada di `docs/design/design-system-state-nebeng-dong.json`. Token & ukuran di `docs/design/panduan-desain-figma.md`.
   Catatan: `get_metadata` tanpa nodeId hanya menampilkan halaman pertama — pakai `use_figma` untuk cek daftar halaman.
 - Belum ada: ikon asli di Figma (masih kotak/lingkaran placeholder), foto avatar.
 
@@ -54,9 +54,10 @@ Format: `YYYY-MM-DD — [AI] — apa yang dikerjakan — file/objek yang berubah
 - 2026-09-15 — Codex — Perbaiki NDK 28.2, CMake, Build Tools 36; app jalan di HP; Figma terhubung.
 - 2026-09-15 — (AI sebelumnya) — Buat `CLAUDE.md` dan `design-system-state-nebeng-dong.json`.
 - 2026-09-15 — Claude — Cek Figma; buat `PROGRESS.md` dan `AGENTS.md`; tambah aturan log di `CLAUDE.md`.
-- 2026-09-15 — Claude — Tulis `docs/Panduan Desain Figma.md` (disesuaikan dengan token Figma yang ada).
+- 2026-09-15 — Claude — Tulis `docs/design/panduan-desain-figma.md` (disesuaikan dengan token Figma yang ada).
 - 2026-09-15 — Claude — Figma: buat 4 komponen (halaman 03–06), 3 layar + prototype (halaman 07); update state JSON.
 - 2026-09-15 — Claude — Implementasi Flutter 3 layar + tema/komponen; ganti test counter dengan test alur. analyze OK, test diblokir Windows.
 - 2026-09-15 — Claude — Build debug & install ke HP Infinix X6855 (Android 16) berhasil; app terbuka tanpa error.
 - 2026-09-15 — Claude — Semua teks UI diganti gaya santai/tidak formal (Flutter + Figma + test). Contoh: "Gas Masuk!", "Cariin Tebengan!", "Ikut Nebeng!".
-- 2026-09-21 — Claude — `docs/`, state Figma, `CLAUDE.md`, `AGENTS.md`, `PROGRESS.md` dipindah ke dalam repo Flutter; tambah `docs/Prompt Implementasi UI Flutter.md` (kerangka + versi terisi), subagent `.claude/agents/flutter-ui-implementer.md`, `README.md` proyek, folder `assets/images/2.0x|3.0x`; hubungkan ke GitHub TRAFIV/nebeng-dong-app dan push.
+- 2026-09-21 — Claude — `docs/`, state Figma, `CLAUDE.md`, `AGENTS.md`, `PROGRESS.md` dipindah ke dalam repo Flutter; tambah `docs/prompts/prompt-implementasi-ui-flutter.md` (kerangka + versi terisi), subagent `.claude/agents/flutter-ui-implementer.md`, `README.md` proyek, folder `assets/images/2.0x|3.0x`; hubungkan ke GitHub TRAFIV/nebeng-dong-app dan push.
+- 2026-09-21 — AI — Rapikan docs ke subfolder (`docs/prd`, `docs/modul`, `docs/design`, `docs/prompts`, `docs/progress`), nama file tanpa spasi, tambah `docs/README.md`; hapus atribusi AI dari commit (force-push aman) dan tambah aturan tanpa atribusi AI di `CLAUDE.md`.

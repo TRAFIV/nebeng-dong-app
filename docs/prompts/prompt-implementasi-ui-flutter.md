@@ -6,7 +6,7 @@ bagian **B** adalah versi yang sudah kami isi sesuai PRD Nebeng Dong, dan
 bagian **C** adalah ringkasan hasilnya.
 
 Di Claude Code, prompt versi B dijalankan lewat subagent
-[`flutter-ui-implementer`](../.claude/agents/flutter-ui-implementer.md).
+[`flutter-ui-implementer`](../../.claude/agents/flutter-ui-implementer.md).
 
 ---
 
@@ -78,7 +78,7 @@ Kamu adalah AI coding assistant yang bertugas mengimplementasikan UI Flutter ber
   test/          → widget_test.dart
 
 ## SUMBER DESAIN
-1. PRD (docs/PRD_Nebeng Dong_Kel 4.md), ringkasan:
+1. PRD (docs/prd/prd-nebeng-dong-kel-4.md), ringkasan:
    - Masalah: mahasiswa searah ke kampus berangkat sendiri-sendiri → ongkos mahal, sulit cari tumpangan aman.
    - Pengguna: mahasiswa aktif, dengan peran pemberi tebengan dan pencari tebengan.
    - Fitur inti: (1) pencocokan rute searah, (2) pemesanan & koordinasi, (3) berbagi ongkos, (4) reputasi & riwayat.
@@ -90,7 +90,7 @@ Kamu adalah AI coding assistant yang bertugas mengimplementasikan UI Flutter ber
    - Alur pencari: masuk (email kampus) → masukkan tujuan → lihat tebengan searah → ajukan gabung & titik jemput → tunggu konfirmasi.
    - Batasan: Android + Flutter, backend REST API sendiri, aplikasi tidak memproses pembayaran.
 2. Figma: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum (halaman "07 Product Screens")
-   Design token (lihat docs/Panduan Desain Figma.md):
+   Design token (lihat docs/design/panduan-desain-figma.md):
    - Warna: brand #0F766E, brand-subtle #CCFBF1, accent #F59E0B, text-primary #102A2A,
      text-secondary #64748B, border #E2E8F0, background #FFFFFF
    - Spacing: 8 / 16 / 24; radius 12; bayangan kartu y4 blur12 10%
