@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens/login_screen.dart';
+import 'routes/app_routes.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -16,7 +16,13 @@ class NebengDongApp extends StatelessWidget {
       title: 'Nebeng Dong',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const LoginScreen(),
+
+      // Diubah: halaman awal ditentukan melalui named route.
+      initialRoute: AppRoutes.login,
+
+      // Ditambahkan: gunakan pengaturan navigasi dari AppRoutes.
+      onGenerateRoute: AppRoutes.onGenerateRoute,
+      onUnknownRoute: AppRoutes.onUnknownRoute,
     );
   }
 }

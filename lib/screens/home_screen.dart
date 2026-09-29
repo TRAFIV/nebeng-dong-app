@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../data/sample_rides.dart';
+import '../data/ride_repository.dart';
 import '../models/ride.dart';
+import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/ride_card.dart';
+import '../widgets/state_views.dart';
 import '../widgets/user_avatar.dart';
-import 'ride_detail_screen.dart';
 
-/// Beranda: cari tebengan berdasarkan lokasi asal dan tujuan (FR-02).
+/// Beranda: cari tebengan berdasarkan lokasi asal dan tujuan.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({
-    super.key,
-    required this.userName,
-    this.rides = sampleRides,
-  });
+  const HomeScreen({super.key, required this.userName, this.rides});
 
   final String userName;
-  final List<Ride> rides;
+
+  // Opsional untuk pengujian; biasanya data dari repository.
+  final List<Ride>? rides;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -29,8 +28,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _originController = TextEditingController();
   final _destinationController = TextEditingController();
-  late List<Ride> _results = widget.rides;
+
+  final _repository = RideRepository();
+  List<Ride> _rides = [];
+  List<Ride> _results = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+
   int _selectedTab = 0;
+
+  // Ubah ke true untuk menguji error.
+  bool get _simulateError => false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRides();
+  }
 
   @override
   void dispose() {
@@ -39,25 +53,57 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _search() {
+  Future<void> _loadRides() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final rides = await _repository.fetchRides(simulateError: _simulateError);
+
+      if (!mounted) return;
+
+      _rides = widget.rides ?? rides;
+      _results = _filterRides();
+    } catch (error) {
+      if (!mounted) return;
+
+      _errorMessage = error.toString().replaceFirst('Exception: ', '');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  List<Ride> _filterRides() {
     final origin = _originController.text.trim().toLowerCase();
     final destination = _destinationController.text.trim().toLowerCase();
+
+    return _rides.where((ride) {
+      return ride.origin.toLowerCase().contains(origin) &&
+          ride.destination.toLowerCase().contains(destination);
+    }).toList();
+  }
+
+  void _search() {
     FocusScope.of(context).unfocus();
+
+    if (_isLoading || _errorMessage != null) return;
+
     setState(() {
-      _results = widget.rides
-          .where(
-            (ride) =>
-                ride.origin.toLowerCase().contains(origin) &&
-                ride.destination.toLowerCase().contains(destination),
-          )
-          .toList();
+      _results = _filterRides();
     });
   }
 
   void _openDetail(Ride ride) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => RideDetailScreen(ride: ride)),
-    );
+    // Diubah: kirim objek Ride menggunakan named route.
+    Navigator.pushNamed<void>(context, AppRoutes.detail, arguments: ride);
   }
 
   @override
@@ -68,7 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedTab,
-        onDestinationSelected: (index) => setState(() => _selectedTab = index),
+        onDestinationSelected: (index) {
+          setState(() => _selectedTab = index);
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -108,20 +156,42 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: AppSpacing.lg),
         const Text('Yang searah sama kamu', style: AppTextStyles.headingMedium),
         const SizedBox(height: AppSpacing.md),
-        if (_results.isEmpty)
-          Text(
-            'Yah, belum ada yang searah. Coba ganti lokasinya, deh!',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          )
-        else
-          for (final ride in _results) ...[
-            RideCard(ride: ride, onTap: () => _openDetail(ride)),
-            const SizedBox(height: AppSpacing.md),
-          ],
+        ..._buildContent(),
       ],
     );
+  }
+
+  List<Widget> _buildContent() {
+    if (_isLoading) {
+      return [const LoadingView()];
+    }
+
+    final errorMessage = _errorMessage;
+    if (errorMessage != null) {
+      return [ErrorView(message: errorMessage, onRetry: _loadRides)];
+    }
+
+    if (_rides.isEmpty) {
+      return [const EmptyView(message: 'Belum ada data.')];
+    }
+
+    if (_results.isEmpty) {
+      return [
+        Text(
+          'Yah, belum ada yang searah. Coba ganti lokasinya, deh!',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ];
+    }
+
+    return [
+      for (final ride in _results) ...[
+        RideCard(ride: ride, onTap: () => _openDetail(ride)),
+        const SizedBox(height: AppSpacing.md),
+      ],
+    ];
   }
 }
 

@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../utils/validators.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
-import 'home_screen.dart';
-
-/// Domain email kampus yang diizinkan (FR-17).
-/// Asumsi: Universitas Andalas, termasuk subdomain seperti student.unand.ac.id.
-const campusEmailDomain = 'unand.ac.id';
-
-final _campusEmailPattern = RegExp(
-  '^[^@\\s]+@([a-z0-9-]+\\.)*${RegExp.escape(campusEmailDomain)}\$',
-  caseSensitive: false,
-);
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,22 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  String? _validateEmail(String? value) {
-    final email = value?.trim() ?? '';
-    if (email.isEmpty) return 'Email kampusnya diisi dulu, ya';
-    if (!_campusEmailPattern.hasMatch(email)) {
-      return 'Pakai email kampus ($campusEmailDomain), ya!';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password-nya jangan dikosongin, dong';
-    }
-    return null;
-  }
-
   /// "mikail.samyth@student.unand.ac.id" → "Mikail".
   String _displayNameFromEmail(String email) {
     final firstPart = email.split('@').first.split('.').first;
@@ -61,10 +37,14 @@ class _LoginScreenState extends State<LoginScreen> {
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    // Backend (REST API) belum tersedia, jadi login langsung menuju Home.
     final userName = _displayNameFromEmail(_emailController.text.trim());
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => HomeScreen(userName: userName)),
+
+    // Diubah: named route mengganti Login dengan Home.
+    // Ditambahkan: kirim nama pengguna melalui arguments.
+    Navigator.pushReplacementNamed(
+      context,
+      AppRoutes.home,
+      arguments: userName,
     );
   }
 
@@ -84,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
               0.0,
               double.infinity,
             );
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: ConstrainedBox(
@@ -93,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     constraints: const BoxConstraints(maxWidth: 420),
                     child: Form(
                       key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -105,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            validator: _validateEmail,
+                            validator: Validators.campusEmail,
                           ),
                           const SizedBox(height: AppSpacing.md),
                           AppTextField(
@@ -114,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _passwordController,
                             obscureText: true,
                             textInputAction: TextInputAction.done,
-                            validator: _validatePassword,
+                            validator: Validators.password,
                             onFieldSubmitted: (_) => _submit(),
                           ),
                           const SizedBox(height: AppSpacing.lg),

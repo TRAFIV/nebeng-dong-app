@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/ride.dart';
+import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
@@ -9,8 +10,7 @@ import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/user_avatar.dart';
 
-/// Detail tebengan: kursi, ongkos, titik jemput, dan ajukan gabung
-/// (FR-04, FR-05, FR-06, FR-09).
+/// Detail tebengan: kursi, ongkos, titik jemput, dan ajukan gabung.
 class RideDetailScreen extends StatefulWidget {
   const RideDetailScreen({super.key, required this.ride});
 
@@ -24,6 +24,9 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pickupController = TextEditingController();
   bool _requestSent = false;
+
+  // Ditambahkan: menyimpan hasil yang dikembalikan Form Catatan.
+  String? _catatan;
 
   @override
   void dispose() {
@@ -41,8 +44,9 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
   void _requestToJoin() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    // Backend belum tersedia: status permintaan hanya disimpan di layar ini.
+    // Backend belum tersedia: status hanya disimpan di layar ini.
     setState(() => _requestSent = true);
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Sip! Permintaanmu udah dikirim, tinggal nunggu di-ACC.'),
@@ -50,10 +54,34 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
     );
   }
 
+  // Ditambahkan: buka form dan tunggu teks yang dikembalikannya.
+  Future<void> _bukaFormCatatan() async {
+    final hasil = await Navigator.pushNamed<String>(
+      context,
+      AppRoutes.catatanForm,
+    );
+
+    // Jangan memperbarui halaman yang sudah ditutup.
+    if (!mounted) return;
+
+    // null berarti pengguna kembali tanpa menyimpan.
+    // Catatan sebelumnya tetap dipertahankan.
+    if (hasil == null) return;
+
+    setState(() {
+      _catatan = hasil;
+    });
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Catatan berhasil disimpan')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final ride = widget.ride;
     final String buttonLabel;
+
     if (ride.isFull) {
       buttonLabel = 'Yah, Udah Penuh';
     } else if (_requestSent) {
@@ -61,6 +89,7 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
     } else {
       buttonLabel = 'Ikut Nebeng!';
     }
+
     final canRequest = !ride.isFull && !_requestSent;
 
     return Scaffold(
@@ -104,6 +133,17 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
                 textInputAction: TextInputAction.done,
                 validator: _validatePickup,
               ),
+
+              // Ditambahkan: tampilkan catatan dari form.
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                _catatan == null ? 'Belum ada catatan.' : 'Catatan: $_catatan',
+                style: AppTextStyles.bodyMedium,
+              ),
+              const SizedBox(height: AppSpacing.md),
+
+              // Ditambahkan: buka halaman Form Catatan.
+              AppButton(label: 'Tulis Catatan', onPressed: _bukaFormCatatan),
             ],
           ),
         ),
