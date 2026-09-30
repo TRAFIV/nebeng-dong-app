@@ -6,6 +6,6 @@
 | [`modul/`](modul/modul-1-pemrograman-mobile.md) | Modul 1 Pemrograman Mobile (Markdown + PDF) — instruksi praktikum |
 | [`design/`](design/panduan-desain-figma.md) | Panduan desain Figma dan `design-system-state-nebeng-dong.json` (ID node Figma) |
 | [`prompts/`](prompts/prompt-implementasi-ui-flutter.md) | Prompt implementasi UI Flutter: kerangka dari modul + versi yang kami isi |
-| [`progress/`](progress/PROGRESS.md) | Rencana, status, dan log perubahan — dibaca setiap ganti AI |
+| [`progress/`](progress/PROGRESS.md) | Rencana, status, log perubahan, dan [pembagian tugas](progress/pembagian-tugas.md) per anggota |
 
 Selalu baca versi `.md`; PDF hanya arsip.

@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/rupiah_format.dart';
+import 'status_badge.dart';
 import 'user_avatar.dart';
 
 /// Kartu tebengan pada daftar Home (komponen Figma `Ride Card`).
@@ -64,7 +65,14 @@ class RideCard extends StatelessWidget {
                 const SizedBox(height: AppSpacing.md),
                 Row(
                   children: [
-                    _SeatBadge(ride: ride),
+                    StatusBadge(
+                      label: ride.isFull
+                          ? 'Udah penuh'
+                          : 'Sisa ${ride.seatsAvailable} kursi',
+                      tone: ride.isFull
+                          ? StatusTone.neutral
+                          : StatusTone.success,
+                    ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: Text(
@@ -78,33 +86,6 @@ class RideCard extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SeatBadge extends StatelessWidget {
-  const _SeatBadge({required this.ride});
-
-  final Ride ride;
-
-  @override
-  Widget build(BuildContext context) {
-    final isFull = ride.isFull;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: isFull ? AppColors.border : AppColors.brandSubtle,
-        borderRadius: AppRadius.mdAll,
-      ),
-      child: Text(
-        isFull ? 'Udah penuh' : 'Sisa ${ride.seatsAvailable} kursi',
-        style: AppTextStyles.labelLarge.copyWith(
-          color: isFull ? AppColors.textSecondary : AppColors.brand,
         ),
       ),
     );

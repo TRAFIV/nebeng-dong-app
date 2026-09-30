@@ -12,7 +12,7 @@ abstract final class AppSpacing {
 
 /// Sudut membulat, sama dengan variabel Figma `radius/md`.
 abstract final class AppRadius {
-  static const double md = 12;
+  static const double md = 20;
   static const BorderRadius mdAll = BorderRadius.all(Radius.circular(md));
 }
 
@@ -26,21 +26,20 @@ abstract final class AppSizes {
 abstract final class AppDecorations {
   /// Kartu dengan bayangan `Elevation/Card`.
   static const card = BoxDecoration(
-    color: AppColors.background,
+    color: AppColors.surface,
     borderRadius: AppRadius.mdAll,
-    border: Border.fromBorderSide(BorderSide(color: AppColors.border)),
     boxShadow: [
       BoxShadow(
         color: AppColors.cardShadow,
-        blurRadius: 12,
-        offset: Offset(0, 4),
+        blurRadius: 16,
+        offset: Offset(0, 6),
       ),
     ],
   );
 
   /// Kartu bergaris tepi tanpa bayangan.
   static const outlined = BoxDecoration(
-    color: AppColors.background,
+    color: AppColors.surface,
     borderRadius: AppRadius.mdAll,
     border: Border.fromBorderSide(BorderSide(color: AppColors.border)),
   );

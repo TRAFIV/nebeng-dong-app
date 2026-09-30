@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../routes/app_routes.dart';
+import '../utils/validators.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
-import 'home_screen.dart';
 
 /// Domain email kampus yang diizinkan (FR-17).
 /// Asumsi: Universitas Andalas, termasuk subdomain seperti student.unand.ac.id.
@@ -36,8 +37,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   String? _validateEmail(String? value) {
+    final emailError = Validators.email(value);
+    if (emailError != null) return emailError;
+
     final email = value?.trim() ?? '';
-    if (email.isEmpty) return 'Email kampusnya diisi dulu, ya';
     if (!_campusEmailPattern.hasMatch(email)) {
       return 'Pakai email kampus ($campusEmailDomain), ya!';
     }
@@ -45,10 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password-nya jangan dikosongin, dong';
-    }
-    return null;
+    return Validators.password(value);
   }
 
   /// "mikail.samyth@student.unand.ac.id" → "Mikail".
@@ -63,8 +63,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Backend (REST API) belum tersedia, jadi login langsung menuju Home.
     final userName = _displayNameFromEmail(_emailController.text.trim());
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => HomeScreen(userName: userName)),
+    Navigator.pushReplacementNamed(
+      context,
+      AppRoutes.home,
+      arguments: userName,
     );
   }
 
@@ -93,6 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     constraints: const BoxConstraints(maxWidth: 420),
                     child: Form(
                       key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -18,7 +18,7 @@ class UserAvatar extends StatelessWidget {
       backgroundColor: AppColors.brandSubtle,
       child: Text(
         initial,
-        style: AppTextStyles.labelLarge.copyWith(color: AppColors.brand),
+        style: AppTextStyles.labelLarge.copyWith(color: AppColors.brandStrong),
       ),
     );
   }

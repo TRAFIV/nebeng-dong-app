@@ -1,7 +1,7 @@
 {
   "runId": "nebeng-dong-v1-2026-09-15",
-  "phase": "phase3",
-  "step": "screens-and-prototype-created",
+  "phase": "phase4",
+  "step": "modul-1-screens-designed",
   "fileKey": "8N2dvFV6aO7NJkAnFSbNRq",
   "entities": {
     "collections": {
@@ -10,21 +10,28 @@
       "Dimensions": "VariableCollectionId:9:4"
     },
     "variables": {
-      "teal/700": "VariableID:10:2",
-      "teal/100": "VariableID:10:3",
-      "amber/500": "VariableID:10:4",
-      "amber/100": "VariableID:10:5",
-      "neutral/900": "VariableID:10:6",
-      "neutral/600": "VariableID:10:7",
-      "neutral/200": "VariableID:10:8",
+      "ink/900": "VariableID:34:2",
+      "cloud/100": "VariableID:34:3",
+      "cloud/200": "VariableID:34:4",
+      "coral/500": "VariableID:34:5",
+      "coral/600": "VariableID:34:6",
+      "coral/100": "VariableID:34:7",
+      "green/500": "VariableID:34:8",
+      "green/100": "VariableID:38:2",
+      "green/700": "VariableID:38:3",
+      "yellow/400": "VariableID:34:9",
+      "slate/500": "VariableID:34:10",
       "white/1000": "VariableID:10:9",
       "color/bg/default": "VariableID:13:2",
+      "color/bg/surface": "VariableID:34:11",
       "color/bg/brand": "VariableID:13:3",
       "color/bg/brand-subtle": "VariableID:13:4",
       "color/bg/accent-subtle": "VariableID:13:5",
+      "color/bg/success-subtle": "VariableID:38:4",
       "color/text/primary": "VariableID:13:6",
       "color/text/secondary": "VariableID:13:7",
       "color/text/on-brand": "VariableID:13:8",
+      "color/text/success": "VariableID:38:5",
       "color/border/default": "VariableID:13:9",
       "color/icon/brand": "VariableID:13:10",
       "color/accent/default": "VariableID:13:11",
@@ -51,7 +58,9 @@
       "05 Ride Card": "18:7",
       "06 Bottom Navigation": "18:8",
       "— Screens —": "18:9",
-      "07 Product Screens": "18:10"
+      "07 Product Screens": "18:10",
+      "08 Tugas Tim": "31:2",
+      "09 Komponen Tambahan": "42:2"
     },
     "components": {
       "Button": "21:6",
@@ -59,17 +68,32 @@
       "Button/Type=Secondary": "21:4",
       "Input Field": "21:7",
       "Ride Card": "21:11",
-      "Bottom Navigation": "21:24"
+      "Bottom Navigation": "21:24",
+      "Avatar": "42:3",
+      "Badge": "42:11",
+      "Info Tile": "42:18",
+      "Top Bar": "42:19",
+      "Section Header": "42:23"
     },
     "screens": {
       "Login": "22:2",
       "Home": "22:22",
-      "Detail Tebengan": "22:81"
+      "Detail Tebengan": "22:81",
+      "M1 Posting Rute": "31:13",
+      "M1 Rute Saya": "31:17",
+      "M1 Filter Pencarian": "31:21"
     },
     "prototype": {
       "Login/Button Masuk -> Home": "22:17",
       "Home/Ride Card -> Detail Tebengan": "22:42",
-      "Detail/Back Button -> Home": "22:83"
+      "Detail/Back Button -> Home": "22:83",
+      "Rute Saya/Bikin Rute Baru -> Posting Rute": "46:136"
+    },
+    "sections": {
+      "Modul 1 — Mikail": "50:71",
+      "Modul 2 — Taris": "50:72",
+      "Modul 3 — Shiddiq": "50:73",
+      "Modul 4 — Duha": "50:74"
     }
   },
   "pendingValidations": [
@@ -91,5 +115,10 @@
     "P1.f",
     "P1.g",
     "P1.h"
-  ]
+  ],
+  "notes": {
+    "palette": "Tema terang: latar cloud/100, kartu white/1000 (color/bg/surface), aksi coral/500, badge sukses green/100 + green/700, radius 20.",
+    "components": "Layar di halaman 07 tersusun dari instance komponen. Komponen dasar di halaman 03-06, komponen tambahan di halaman 09.",
+    "tugas": "Halaman 08 memakai Section per anggota (bukan frame) supaya frame layar di dalamnya tetap top-level dan bisa diberi prototype."
+  }
 }

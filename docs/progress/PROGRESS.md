@@ -20,16 +20,20 @@
 - [x] 5. Implementasi Flutter (Prompt 3): tema (`lib/theme/`), model + contoh data, widget reusable, 3 screen
 - [ ] 6. Review & debug (overflow, responsif), uji alur lengkap di HP
 - [ ] 7. GitHub kelompok + collaborator — repo terhubung & sudah di-push; **collaborator** ditambahkan oleh pemilik repo (TRAFIV/Taris), karena akun `samythh` hanya punya akses WRITE
+- [x] 8. Latihan Praktikum 2 — validasi reusable, state loading/kosong/error, named routes, data passing, form catatan, dan halaman 404
 
 ## Status saat ini
 - Langkah aktif: **6 — review & uji di HP**, dan **7 — collaborator** (menunggu pemilik repo)
+- Latihan Praktikum 2 dikerjakan di branch `Latihan2-2411523016`; analisis bersih dan seluruh widget test lulus.
 - Flutter: `lib/theme/` (token = variabel Figma), `lib/models/ride.dart`, `lib/data/sample_rides.dart`
   (contoh data sampai REST API ada), `lib/widgets/` (AppButton, AppTextField, RideCard, UserAvatar),
   `lib/screens/` (login, home, ride_detail). Alur: Login (validasi email `unand.ac.id`) → Home (cari asal/tujuan)
   → Detail (validasi titik jemput, tombol "Ikut Nebeng!"). Tab selain Beranda = "belum tersedia".
 - Teks UI gaya santai (Flutter + Figma + test sudah sama).
-- `flutter analyze` bersih. ⚠️ `flutter test` diblokir Windows Application Control (`flutter_tester.exe`)
-  di laptop Mikail — bukan error kode. Test ada di `test/widget_test.dart`.
+- Palet: tema terang (latar #F6F7FB, kartu putih) dengan aksi coral #F2603F, badge sukses hijau #DCF3E8/#0F7A52,
+  aksen hijau #22A06B dan kuning #FFC542, radius 20, bayangan lembut tanpa garis tepi pada kartu.
+  Primitive Figma: ink/cloud/coral/green/yellow/slate (teal, amber, neutral, navy, orange sudah tidak dipakai).
+- `flutter analyze` bersih dan seluruh 7 pengujian `flutter test` lulus. Test ada di `test/widget_test.dart`.
 - Uji HP (Infinix X6855, Android 16): app terpasang & dipakai tanpa overflow/exception di log.
   Teks santai belum dicek ulang di HP.
 - **Logo**: gambar sudah ada (dua mahasiswa bonceng motor + tulisan "Nebeng Dong!") tapi **belum disimpan sebagai file**.
@@ -46,6 +50,7 @@
 - Font Roboto; teks UI bahasa Indonesia gaya santai.
 - State management: `setState` (belum perlu Provider/Riverpod/Bloc).
 - Domain email kampus diasumsikan `unand.ac.id` (belum ada di PRD).
+- Pembagian tugas: 1 modul PRD per anggota — Mikail (Modul 1), Taris (Modul 2), Shiddiq (Modul 3), Duha (Modul 4). Detail: `docs/progress/pembagian-tugas.md`, placeholder desain di Figma halaman `08 Tugas Tim`.
 - Semua docs (PRD, Modul, PDF) ikut di-push ke repo publik — keputusan Mikail, 2026-09-21.
 
 ## Log perubahan
@@ -61,3 +66,10 @@ Format: `YYYY-MM-DD — [AI] — apa yang dikerjakan — file/objek yang berubah
 - 2026-09-15 — Claude — Semua teks UI diganti gaya santai/tidak formal (Flutter + Figma + test). Contoh: "Gas Masuk!", "Cariin Tebengan!", "Ikut Nebeng!".
 - 2026-09-21 — Claude — `docs/`, state Figma, `CLAUDE.md`, `AGENTS.md`, `PROGRESS.md` dipindah ke dalam repo Flutter; tambah `docs/prompts/prompt-implementasi-ui-flutter.md` (kerangka + versi terisi), subagent `.claude/agents/flutter-ui-implementer.md`, `README.md` proyek, folder `assets/images/2.0x|3.0x`; hubungkan ke GitHub TRAFIV/nebeng-dong-app dan push.
 - 2026-09-21 — AI — Rapikan docs ke subfolder (`docs/prd`, `docs/modul`, `docs/design`, `docs/prompts`, `docs/progress`), nama file tanpa spasi, tambah `docs/README.md`; hapus atribusi AI dari commit (force-push aman) dan tambah aturan tanpa atribusi AI di `CLAUDE.md`.
+- 2026-09-26 — AI — Bagi 4 modul PRD ke 4 anggota; buat halaman Figma `08 Tugas Tim` (31:2) berisi 4 blok tugas + 12 frame kosong 360x800; tambah `docs/progress/pembagian-tugas.md`.
+- 2026-09-26 — AI — Ganti palet seluruh aplikasi ke tema gelap oranye (referensi gambar): variabel Figma, komponen 03–06, layar 07, halaman 08, dan tema Flutter (`lib/theme/`), badge kursi jadi hijau. analyze bersih.
+- 2026-09-26 — AI — Palet diganti lagi ke tema terang coral (referensi kedua): variabel Figma, komponen, layar 07, halaman 08, dan tema Flutter. analyze bersih.
+- 2026-09-26 — AI — Tambah komponen Avatar, Badge, Info Tile, Top Bar, Section Header (halaman Figma `09 Komponen Tambahan`, 42:2); layar 07 ditukar memakai instance komponen; Flutter dapat widget pasangannya (`StatusBadge`, `InfoTile`, `SectionHeader`). analyze bersih.
+- 2026-09-26 — AI — Desain Modul 1 (tugas Mikail) di halaman `08 Tugas Tim`: Posting Rute (31:13), Rute Saya (31:17), Filter Pencarian (31:21), semuanya dari komponen + prototype Rute Saya <-> Posting Rute. Implementasi Flutter-nya belum.
+- 2026-09-26 — AI — Blok tugas di halaman 08 diubah jadi Section (50:71–50:74) supaya frame layar tetap top-level dan bisa di-prototype.
+- 2026-09-30 — Codex — Selesaikan Latihan Praktikum 2: repository async + UI states, validator, named routes, data passing Ride, form catatan, fallback 404, dan widget test — `lib/`, `test/widget_test.dart`.

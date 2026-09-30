@@ -58,6 +58,7 @@ test/           widget test
 - [Modul 1](docs/modul/modul-1-pemrograman-mobile.md) — instruksi praktikum.
 - [Panduan Desain Figma](docs/design/panduan-desain-figma.md) — Auto Layout, spacing, tipografi, komponen.
 - [Prompt Implementasi UI Flutter](docs/prompts/prompt-implementasi-ui-flutter.md) — kerangka prompt dan versi yang kami isi.
+- [Pembagian Tugas](docs/progress/pembagian-tugas.md) — modul PRD per anggota + layar yang didesain.
 - Desain Figma: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum
 
 ## Kerja dengan AI

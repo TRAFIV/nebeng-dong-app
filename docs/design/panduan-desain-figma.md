@@ -18,17 +18,23 @@ Jawaban **Instruksi Prompt 2: Panduan Design Figma** (Modul 1, Bagian E) berdasa
 
 | Variabel Figma | Hex | Pemakaian |
 |---|---|---|
-| `color/bg/brand` | `#0F766E` | tombol utama, ikon aktif |
-| `color/bg/brand-subtle` | `#CCFBF1` | badge kursi, avatar |
-| `color/accent/default` | `#F59E0B` | rating/highlight |
-| `color/text/primary` | `#102A2A` | judul & isi |
-| `color/text/secondary` | `#64748B` | subjudul, keterangan |
-| `color/border/default` | `#E2E8F0` | garis input & kartu |
-| `color/bg/default` | `#FFFFFF` | latar layar, kartu |
+| `color/bg/default` | `#F6F7FB` | latar layar |
+| `color/bg/surface` | `#FFFFFF` | kartu, input, bottom navigation |
+| `color/bg/brand` | `#F2603F` | tombol utama (coral) |
+| `color/icon/brand` | `#D9491F` | ikon dan teks aksi di latar terang |
+| `color/bg/brand-subtle` | `#FFE9E2` | chip, avatar, kotak info |
+| `color/bg/success-subtle` | `#DCF3E8` | latar badge sisa kursi |
+| `color/text/success` | `#0F7A52` | teks badge sisa kursi |
+| `color/accent/default` | `#22A06B` | aksen hijau |
+| `color/bg/accent-subtle` | `#FFC542` | aksen kuning |
+| `color/text/primary` | `#1B2440` | judul dan isi |
+| `color/text/secondary` | `#7A8299` | subjudul dan keterangan |
+| `color/text/on-brand` | `#FFFFFF` | teks di atas coral |
+| `color/border/default` | `#E7E9F2` | garis input dan kartu |
 
 - **Spacing:** `spacing/sm` 8 · `spacing/md` 16 · `spacing/lg` 24
-- **Radius:** `radius/md` 12
-- **Bayangan kartu:** `Elevation/Card` (y 4, blur 12, 10%)
+- **Radius:** `radius/md` 20
+- **Bayangan kartu:** `Elevation/Card` (y 6, blur 16, navy 8%) — kartu tanpa garis tepi
 
 ## 1. Auto Layout
 
@@ -66,12 +72,20 @@ Per layar:
 
 ## 4. Komponen Reusable (dibuat terlebih dahulu)
 
-| Komponen | Varian / Properti | Dipakai di |
-|---|---|---|
-| **Button** | Type = Primary, Secondary · teks Label | Login, Home, Detail |
-| **Input Field** | teks Label, Placeholder | Login, Home, Detail |
-| **Ride Card** | Driver, Meta, Origin, Destination, Seats, Fare | Home |
-| **Bottom Navigation** | Beranda, Riwayat, Ongkos, Profil | Home |
+| Komponen | Varian / Properti | Halaman Figma | Flutter |
+|---|---|---|---|
+| **Button** | Type = Primary, Secondary · Label | 03 | `AppButton` |
+| **Input Field** | Label, Placeholder | 04 | `AppTextField` |
+| **Ride Card** | Driver, Meta, Origin, Destination, Fare | 05 | `RideCard` |
+| **Bottom Navigation** | 4 menu | 06 | `NavigationBar` |
+| **Avatar** | Initial | 09 | `UserAvatar` |
+| **Badge** | Type = Success, Brand, Neutral · Label | 09 | `StatusBadge` |
+| **Info Tile** | Type = Brand, Success · Label, Value | 09 | `InfoTile` |
+| **Top Bar** | Title | 09 | `AppBar` |
+| **Section Header** | Title, Action | 09 | `SectionHeader` |
+
+Ketiga layar di halaman `07 Product Screens` sudah tersusun dari komponen ini, bukan elemen lepas.
+Komponen baru dibuat di halaman `09 Komponen Tambahan` agar bisa dipakai semua anggota.
 
 ## Alur Prototype
 

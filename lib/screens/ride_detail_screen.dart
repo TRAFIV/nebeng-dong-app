@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../models/ride.dart';
+import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/rupiah_format.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
+import '../widgets/info_tile.dart';
 import '../widgets/user_avatar.dart';
 
 /// Detail tebengan: kursi, ongkos, titik jemput, dan ajukan gabung
@@ -24,6 +26,7 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pickupController = TextEditingController();
   bool _requestSent = false;
+  String? _catatan;
 
   @override
   void dispose() {
@@ -48,6 +51,19 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
         content: Text('Sip! Permintaanmu udah dikirim, tinggal nunggu di-ACC.'),
       ),
     );
+  }
+
+  Future<void> _openNoteForm() async {
+    final result = await Navigator.pushNamed<String>(
+      context,
+      AppRoutes.catatanForm,
+    );
+    if (!mounted || result == null) return;
+
+    setState(() => _catatan = result);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Catatan berhasil disimpan')));
   }
 
   @override
@@ -80,7 +96,8 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                      child: _InfoTile(
+                      child: InfoTile(
+                        positive: true,
                         label: 'Sisa kursi',
                         value:
                             '${ride.seatsAvailable} dari ${ride.seatCapacity}',
@@ -88,7 +105,7 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
-                      child: _InfoTile(
+                      child: InfoTile(
                         label: 'Patungan per orang',
                         value: formatRupiah(ride.farePerPerson),
                       ),
@@ -104,13 +121,39 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
                 textInputAction: TextInputAction.done,
                 validator: _validatePickup,
               ),
+              const SizedBox(height: AppSpacing.md),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: AppDecorations.outlined,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text('Catatan', style: AppTextStyles.labelLarge),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      _catatan ?? 'Belum ada catatan.',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: _catatan == null
+                            ? AppColors.textSecondary
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    AppButton(
+                      label: 'Tulis Catatan',
+                      onPressed: _openNoteForm,
+                      variant: AppButtonVariant.secondary,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(
-          color: AppColors.background,
+          color: AppColors.surface,
           border: Border(top: BorderSide(color: AppColors.border)),
         ),
         child: SafeArea(
@@ -208,40 +251,6 @@ class _RouteRow extends StatelessWidget {
         ),
         Text(value, style: AppTextStyles.bodyLarge),
       ],
-    );
-  }
-}
-
-class _InfoTile extends StatelessWidget {
-  const _InfoTile({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: const BoxDecoration(
-        color: AppColors.brandSubtle,
-        borderRadius: AppRadius.mdAll,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            value,
-            style: AppTextStyles.headingMedium.copyWith(color: AppColors.brand),
-          ),
-        ],
-      ),
     );
   }
 }

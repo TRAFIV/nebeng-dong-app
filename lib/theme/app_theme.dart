@@ -4,7 +4,7 @@ import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_text_styles.dart';
 
-/// ThemeData aplikasi yang dibangun dari design token Figma.
+/// ThemeData aplikasi yang dibangun dari design token Figma (tema terang).
 abstract final class AppTheme {
   static ThemeData get light {
     const inputBorder = OutlineInputBorder(
@@ -14,12 +14,16 @@ abstract final class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.brand,
+      brightness: Brightness.light,
+      colorScheme: const ColorScheme.light(
         primary: AppColors.brand,
         onPrimary: AppColors.onBrand,
+        secondary: AppColors.accent,
+        onSecondary: AppColors.onBrand,
         surface: AppColors.background,
         onSurface: AppColors.textPrimary,
+        surfaceContainerHighest: AppColors.surface,
+        outline: AppColors.border,
       ),
       scaffoldBackgroundColor: AppColors.background,
       textTheme: const TextTheme(
@@ -38,7 +42,7 @@ abstract final class AppTheme {
       ),
       inputDecorationTheme: InputDecorationThemeData(
         filled: true,
-        fillColor: AppColors.background,
+        fillColor: AppColors.surface,
         hintStyle: AppTextStyles.bodyMedium.copyWith(
           color: AppColors.textSecondary,
         ),
@@ -56,6 +60,8 @@ abstract final class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.brand,
           foregroundColor: AppColors.onBrand,
+          disabledBackgroundColor: AppColors.border,
+          disabledForegroundColor: AppColors.textSecondary,
           minimumSize: const Size.fromHeight(AppSizes.touchTarget),
           shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
           textStyle: AppTextStyles.labelLarge,
@@ -63,19 +69,40 @@ abstract final class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.brand,
+          foregroundColor: AppColors.brandStrong,
           side: const BorderSide(color: AppColors.brand),
           minimumSize: const Size.fromHeight(AppSizes.touchTarget),
           shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
           textStyle: AppTextStyles.labelLarge,
         ),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.brandStrong,
+          textStyle: AppTextStyles.labelLarge,
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.textPrimary,
+        contentTextStyle: AppTextStyles.bodyMedium.copyWith(
+          color: AppColors.onBrand,
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+      ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.surface,
         indicatorColor: AppColors.brandSubtle,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? AppColors.brandStrong
+                : AppColors.textSecondary,
+          ),
+        ),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? AppTextStyles.labelLarge.copyWith(color: AppColors.brand)
+              ? AppTextStyles.labelLarge.copyWith(color: AppColors.brandStrong)
               : AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),

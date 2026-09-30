@@ -73,7 +73,8 @@ Kamu adalah AI coding assistant yang bertugas mengimplementasikan UI Flutter ber
     screens/     → login_screen.dart, home_screen.dart, ride_detail_screen.dart
     theme/       → app_colors.dart, app_text_styles.dart, app_spacing.dart, app_theme.dart
     utils/       → rupiah_format.dart
-    widgets/     → app_button.dart, app_text_field.dart, ride_card.dart, user_avatar.dart
+    widgets/     → app_button.dart, app_text_field.dart, ride_card.dart, user_avatar.dart,
+                   status_badge.dart, info_tile.dart, section_header.dart
   assets/images/ → 2.0x/, 3.0x/
   test/          → widget_test.dart
 
@@ -91,11 +92,13 @@ Kamu adalah AI coding assistant yang bertugas mengimplementasikan UI Flutter ber
    - Batasan: Android + Flutter, backend REST API sendiri, aplikasi tidak memproses pembayaran.
 2. Figma: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum (halaman "07 Product Screens")
    Design token (lihat docs/design/panduan-desain-figma.md):
-   - Warna: brand #0F766E, brand-subtle #CCFBF1, accent #F59E0B, text-primary #102A2A,
-     text-secondary #64748B, border #E2E8F0, background #FFFFFF
-   - Spacing: 8 / 16 / 24; radius 12; bayangan kartu y4 blur12 10%
+   - Tema terang. Warna: background #F6F7FB, surface #FFFFFF (kartu/input), brand coral #F2603F,
+     brand-strong #D9491F, brand-subtle #FFE9E2, success #DCF3E8 / #0F7A52, accent hijau #22A06B,
+     kuning #FFC542, text-primary #1B2440, text-secondary #7A8299, text-on-brand #FFFFFF, border #E7E9F2
+   - Spacing: 8 / 16 / 24; radius 20; bayangan kartu y6 blur16 navy 8% (kartu tanpa garis tepi)
    - Tipografi Roboto: Heading L 28 Bold, Heading M 22 Bold, Body L 16, Body M 14, Label 14 Medium
-   - Komponen: Button (Primary/Secondary), Input Field, Ride Card, Bottom Navigation
+   - Komponen: Button (Primary/Secondary), Input Field, Ride Card, Bottom Navigation,
+     Avatar, Badge (Success/Brand/Neutral), Info Tile (Brand/Success), Top Bar, Section Header
    - Gaya bahasa UI: santai, tidak formal (contoh: "Gas Masuk!", "Cariin Tebengan!", "Ikut Nebeng!")
 
 ## TUGAS
