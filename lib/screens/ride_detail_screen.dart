@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../routes/app_routes.dart';
+
 import '../models/ride.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -24,6 +26,7 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pickupController = TextEditingController();
   bool _requestSent = false;
+  String? _catatan;
 
   @override
   void dispose() {
@@ -36,6 +39,18 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
       return 'Titik jemputnya diisi dulu, ya';
     }
     return null;
+  }
+
+  Future<void> _bukaFormCatatan() async {
+    final hasil = await Navigator.pushNamed<String>(
+      context,
+      AppRoutes.catatanForm,
+    );
+    if (!mounted || hasil == null) return;
+    setState(() => _catatan = hasil);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Catatan berhasil disimpan')),
+    );
   }
 
   void _requestToJoin() {
@@ -95,6 +110,16 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                _catatan == null ? 'Belum ada catatan.' : 'Catatan: $_catatan',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              FilledButton.icon(
+                onPressed: _bukaFormCatatan,
+                icon: const Icon(Icons.edit_note),
+                label: const Text('Tulis Catatan'),
               ),
               const SizedBox(height: AppSpacing.md),
               AppTextField(

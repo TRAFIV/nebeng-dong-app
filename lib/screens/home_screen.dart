@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../data/sample_rides.dart';
+import '../data/ride_repository.dart';
 import '../models/ride.dart';
+import '../routes/app_routes.dart';
+import '../widgets/state_views.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
@@ -9,28 +11,60 @@ import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/ride_card.dart';
 import '../widgets/user_avatar.dart';
-import 'ride_detail_screen.dart';
+
+enum ViewStatus { loading, success, error }
 
 /// Beranda: cari tebengan berdasarkan lokasi asal dan tujuan (FR-02).
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.userName,
-    this.rides = sampleRides,
   });
 
   final String userName;
-  final List<Ride> rides;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _repository = RideRepository();
+  ViewStatus _status = ViewStatus.loading;
+  List<Ride> _rides = [];
+  List<Ride> _results = [];
+  String _errorMessage = '';
+  final bool _simulateError = false;
+
   final _originController = TextEditingController();
   final _destinationController = TextEditingController();
-  late List<Ride> _results = widget.rides;
   int _selectedTab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  Future<void> _loadItems() async {
+    if (_status != ViewStatus.loading) {
+      setState(() => _status = ViewStatus.loading);
+    }
+    try {
+      final rides = await _repository.fetchRides(simulateError: _simulateError);
+      if (!mounted) return;
+      setState(() {
+        _rides = rides;
+        _results = rides;
+        _status = ViewStatus.success;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        _status = ViewStatus.error;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -44,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final destination = _destinationController.text.trim().toLowerCase();
     FocusScope.of(context).unfocus();
     setState(() {
-      _results = widget.rides
+      _results = _rides
           .where(
             (ride) =>
                 ride.origin.toLowerCase().contains(origin) &&
@@ -55,8 +89,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openDetail(Ride ride) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => RideDetailScreen(ride: ride)),
+    Navigator.pushNamed(
+      context,
+      AppRoutes.detail,
+      arguments: ride,
     );
   }
 
@@ -108,18 +144,29 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: AppSpacing.lg),
         const Text('Yang searah sama kamu', style: AppTextStyles.headingMedium),
         const SizedBox(height: AppSpacing.md),
-        if (_results.isEmpty)
-          Text(
-            'Yah, belum ada yang searah. Coba ganti lokasinya, deh!',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          )
-        else
-          for (final ride in _results) ...[
-            RideCard(ride: ride, onTap: () => _openDetail(ride)),
-            const SizedBox(height: AppSpacing.md),
-          ],
+        _buildContent(),
+      ],
+    );
+  }
+
+  Widget _buildContent() {
+    return switch (_status) {
+      ViewStatus.loading => const LoadingView(),
+      ViewStatus.error => ErrorView(message: _errorMessage, onRetry: _loadItems),
+      ViewStatus.success => _buildList(),
+    };
+  }
+
+  Widget _buildList() {
+    if (_results.isEmpty) {
+      return const EmptyView(message: 'Yah, belum ada yang searah. Coba ganti lokasinya, deh!');
+    }
+    return Column(
+      children: [
+        for (final ride in _results) ...[
+          RideCard(ride: ride, onTap: () => _openDetail(ride)),
+          const SizedBox(height: AppSpacing.md),
+        ],
       ],
     );
   }
