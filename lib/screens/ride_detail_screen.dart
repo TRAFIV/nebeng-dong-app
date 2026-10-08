@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/ride.dart';
+import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
@@ -25,6 +26,9 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
   final _pickupController = TextEditingController();
   bool _requestSent = false;
 
+  /// Catatan untuk pengemudi, dikirim balik dari form catatan.
+  String? _catatan;
+
   @override
   void dispose() {
     _pickupController.dispose();
@@ -36,6 +40,20 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
       return 'Titik jemputnya diisi dulu, ya';
     }
     return null;
+  }
+
+  /// Buka form catatan, tunggu hasilnya, lalu tampilkan di layar ini.
+  Future<void> _bukaFormCatatan() async {
+    final hasil = await Navigator.pushNamed<String>(
+      context,
+      AppRoutes.catatanForm,
+    );
+    if (!mounted || hasil == null) return; // null = pengguna batal
+
+    setState(() => _catatan = hasil);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Catatan berhasil disimpan')));
   }
 
   void _requestToJoin() {
@@ -103,6 +121,21 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
                 controller: _pickupController,
                 textInputAction: TextInputAction.done,
                 validator: _validatePickup,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                _catatan == null
+                    ? 'Belum ada catatan buat pengemudi.'
+                    : 'Catatan: $_catatan',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              AppButton(
+                label: 'Tulis Catatan',
+                onPressed: _bukaFormCatatan,
+                variant: AppButtonVariant.secondary,
               ),
             ],
           ),

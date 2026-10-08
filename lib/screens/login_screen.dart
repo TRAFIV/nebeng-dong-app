@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../utils/validators.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
-import 'home_screen.dart';
 
 /// Domain email kampus yang diizinkan (FR-17).
 /// Asumsi: Universitas Andalas, termasuk subdomain seperti student.unand.ac.id.
@@ -35,18 +36,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /// Format email dicek [Validators.email]; lalu harus domain kampus (FR-17).
   String? _validateEmail(String? value) {
-    final email = value?.trim() ?? '';
-    if (email.isEmpty) return 'Email kampusnya diisi dulu, ya';
-    if (!_campusEmailPattern.hasMatch(email)) {
+    final formatError = Validators.email(value);
+    if (formatError != null) return formatError;
+    if (!_campusEmailPattern.hasMatch(value!.trim())) {
       return 'Pakai email kampus ($campusEmailDomain), ya!';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password-nya jangan dikosongin, dong';
     }
     return null;
   }
@@ -63,8 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Backend (REST API) belum tersedia, jadi login langsung menuju Home.
     final userName = _displayNameFromEmail(_emailController.text.trim());
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => HomeScreen(userName: userName)),
+    Navigator.pushReplacementNamed(
+      context,
+      AppRoutes.home,
+      arguments: userName,
     );
   }
 
@@ -93,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     constraints: const BoxConstraints(maxWidth: 420),
                     child: Form(
                       key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -114,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _passwordController,
                             obscureText: true,
                             textInputAction: TextInputAction.done,
-                            validator: _validatePassword,
+                            validator: Validators.password,
                             onFieldSubmitted: (_) => _submit(),
                           ),
                           const SizedBox(height: AppSpacing.lg),

@@ -18,6 +18,7 @@
 - [x] 3. Panduan design Figma (Prompt 2) → `docs/design/panduan-desain-figma.md`
 - [x] 4. Desain 3 layar di Figma + prototype antarlayar (halaman `07 Product Screens`)
 - [x] 5. Implementasi Flutter (Prompt 3): tema (`lib/theme/`), model + contoh data, widget reusable, 3 screen
+- [x] 5b. Latihan Praktikum 2 (branch `latihan2-Shiddiq`): validasi form, UI states, named routes, data passing
 - [ ] 6. Review & debug (overflow, responsif), uji alur lengkap di HP
 - [ ] 7. GitHub kelompok + collaborator — repo terhubung & sudah di-push; **collaborator** ditambahkan oleh pemilik repo (TRAFIV/Taris), karena akun `samythh` hanya punya akses WRITE
 
@@ -61,3 +62,4 @@ Format: `YYYY-MM-DD — [AI] — apa yang dikerjakan — file/objek yang berubah
 - 2026-09-15 — Claude — Semua teks UI diganti gaya santai/tidak formal (Flutter + Figma + test). Contoh: "Gas Masuk!", "Cariin Tebengan!", "Ikut Nebeng!".
 - 2026-09-21 — Claude — `docs/`, state Figma, `CLAUDE.md`, `AGENTS.md`, `PROGRESS.md` dipindah ke dalam repo Flutter; tambah `docs/prompts/prompt-implementasi-ui-flutter.md` (kerangka + versi terisi), subagent `.claude/agents/flutter-ui-implementer.md`, `README.md` proyek, folder `assets/images/2.0x|3.0x`; hubungkan ke GitHub TRAFIV/nebeng-dong-app dan push.
 - 2026-09-21 — AI — Rapikan docs ke subfolder (`docs/prd`, `docs/modul`, `docs/design`, `docs/prompts`, `docs/progress`), nama file tanpa spasi, tambah `docs/README.md`; hapus atribusi AI dari commit (force-push aman) dan tambah aturan tanpa atribusi AI di `CLAUDE.md`.
+- 2026-09-29 — Claude — Latihan Praktikum 2: tambah `utils/validators.dart`, `widgets/state_views.dart`, `screens/not_found_screen.dart`, `screens/catatan_form_screen.dart`, `routes/app_routes.dart`, `data/ride_repository.dart` (contoh data + delay 2 dtk, `simulateError`); Login pakai `Validators` + named route; Home punya status loading/error/kosong; Home→Detail kirim `Ride` lewat route; Detail→Form Catatan→Detail (data balik). Test diperbarui (6 lulus). analyze bersih, `flutter test` jalan di laptop ini. Belum dicoba di HP.
