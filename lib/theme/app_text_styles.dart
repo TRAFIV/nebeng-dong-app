@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'app_colors.dart';
+import 'package:praktikum_mobile/theme/app_colors.dart';
 
 /// Hierarki teks, sama dengan text style Figma (font Roboto bawaan Android).
 abstract final class AppTextStyles {

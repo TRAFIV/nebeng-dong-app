@@ -1,274 +1,171 @@
-# PRD_Nebeng Dong_Kel 4
+# PRD — Nebeng Dong (Kelompok 4)
 
-## Halaman 1
+| Informasi | Nilai |
+|---|---|
+| Produk | Nebeng Dong: Aplikasi Pencari Tebengan Antar Mahasiswa |
+| Mata kuliah | Mobile Programming |
+| Versi aktif | 1.1 — aplikasi penumpang saja |
+| Tanggal awal | 13 September 2026 |
+| Revisi | 8 Oktober 2026 |
+| Dasar perubahan | Masukan dosen pembimbing tentang satu role, disampaikan pengguna; revisi dokumentasi diminta pengguna |
 
-PROJECT PRD
-Product Requirements Document
+| Anggota | NIM |
+|---|---|
+| Taris Rafivdean | 2411523013 |
+| Mikail Samyth Habibillah | 2411523016 |
+| M Shiddiq Maihendra | 2411523035 |
+| Duha Alul Bariq | 2411523036 |
 
-Project Name Nebeng Dong: Aplikasi Nebeng & Berbagi Tebengan Antar Mahasiswa
+Dokumen ini menjelaskan target produk, bukan klaim fitur sudah selesai. Markdown versi 1.1 menjadi acuan aktif; PDF PRD tetap arsip versi 1.0 yang memuat dua role. Instruksi asli modul dan UTS tidak diubah.
 
-Team • Taris Rafivdean (2411523013)
-• Mikail Samyth Habibillah (2411523016)
-• M Shiddiq Maihendra (2411523035)
-• Duha Alul Bariq (2411523036)
+## 0. Keputusan cakupan dan status
 
-Course Mobile Programming
+- Aplikasi Flutter saat ini ditargetkan hanya untuk penerima/pencari tebengan (penumpang). Tidak ada pemilih role, Beri Tebengan, Posting Rute, Rute Saya milik pengemudi, permintaan masuk/ACC, atau konfirmasi pembayaran oleh pengemudi di aplikasi ini.
+- Pengemudi tetap entitas data penyedia tebengan. Backend/admin yang berwenang menyediakan rute dan melakukan tindakan sisi pengemudi; mekanisme seed/admin dan backend yang digunakan perlu dikonfirmasi bersama tim. Aplikasi pengemudi terpisah adalah pengembangan mendatang.
+- Empat modul dan penanggung jawab tetap dipertahankan. Perubahan layar rinci adalah usulan koordinasi tim, bukan klaim persetujuan seluruh anggota.
+- Dokumentasi direvisi; Figma bagian Mikail sudah diperbarui dan ditinjau pada 8 Oktober 2026: Cari Tebengan, Hasil Pencarian, Filter serta feedback loading/kosong/error. Source masih baseline dua intent; desain rekan dan layar bersama belum direvisi. Backend REST aplikasi belum tersedia di repo ini; backend di luar repo belum dikonfirmasi.
+- Rencana migrasi dan kriteria penerimaan: [rencana aplikasi penumpang](../progress/rencana-aplikasi-penumpang.md). Status aktual: [PROGRESS](../progress/PROGRESS.md).
 
-Version 1.0
+## 1. Problem & Users
 
-Date 13 – 09 - 2026
+### 1.1 Problem Statement
 
-Tujuan Dokumen
-PRD ini menjelaskan apa yang akan dibangun, untuk siapa, mengapa produk dibutuhkan, dan kebutuhan
-utama produk. PRD tidak menjelaskan detail implementasi kode.
+Mahasiswa yang menempuh jalur dan jam yang sama sering berangkat sendiri-sendiri. Mahasiswa tanpa kendaraan sulit menemukan tumpangan aman yang benar-benar searah, sementara biaya perjalanan dan pembagian ongkos belum tercatat dengan jelas.
 
-1. Problem & Users
+### 1.2 Target Users
 
-1.1 Problem Statement
-Mahasiswa yang tinggal berjauhan dari kampus sering menempuh rute yang sama pada jam yang sama,
-namun berangkat sendiri-sendiri. Akibatnya biaya transportasi membengkak bagi yang berkendara,
-sementara mahasiswa tanpa kendaraan kesulitan mencari tumpangan yang aman dan searah.
+Pengguna aplikasi mobile adalah mahasiswa aktif yang mencari dan menerima tebengan. Mahasiswa pemilik kendaraan adalah penyedia dalam data sistem, bukan role yang dipilih pada aplikasi mobile ini. Operator backend/admin memiliki kewenangan tersendiri di luar UI penumpang.
 
-1.2 Target Users
-Mahasiswa aktif yang rutin bepergian ke dan dari kampus, terbagi dalam dua peran yang dapat dijalankan
-oleh orang yang sama pada waktu berbeda:
+### 1.3 User Needs
 
-● Pemberi tebengan: mahasiswa yang memiliki kendaraan dan memiliki rute perjalanan rutin ke
-kampus.
-● Pencari tebengan: mahasiswa yang tidak memiliki kendaraan atau ingin menghemat biaya dengan
-menumpang di rute yang searah.
+Penumpang perlu mencari lokasi asal/tujuan berdasarkan nama tempat atau pin, memilih tebengan searah sesuai jam/kursi/ongkos, menentukan titik jemput, mengikuti status pemesanan, mencatat pembayaran di luar aplikasi, dan melihat riwayat serta reputasi pengemudi.
 
-1.3 User Needs / Pain Points
-● Biaya transportasi harian (bensin, ojek daring, angkutan umum) terasa berat bagi kantong
-mahasiswa.
-● Sulit menemukan orang yang benar-benar searah, bukan sekadar bertujuan sama tetapi melewati
-jalur berbeda.
-● Kekhawatiran soal keamanan ketika menumpang atau memberi tumpangan kepada orang yang
-tidak dikenal.
-● Pembagian biaya perjalanan sering tidak tercatat dan mengandalkan ingatan, sehingga rawan
-menimbulkan kecanggungan.
+### 1.4 Project Goal
 
-1.4 Project Goal
-Menyediakan aplikasi yang mempertemukan mahasiswa dengan rute perjalanan searah agar dapat berbagi
-tumpangan secara aman dan hemat, sekaligus mencatat pembagian biaya perjalanan secara transparan.
+Memudahkan mahasiswa memperoleh tebengan searah dengan informasi penyedia yang jelas, koordinasi pemesanan, serta pencatatan biaya dan riwayat perjalanan yang transparan.
 
-## Halaman 2
+## 2. Product Requirements
 
-2. Product Requirements
+### 2.1 Functional Requirements
 
-2.1 Functional Requirements
-Ditulis dari sudut pandang pengguna dan dapat diuji. Dikelompokkan mengikuti empat modul aplikasi (satu
-modul per anggota tim, sesuai aturan project).
+Kode FR-01–FR-18 dipertahankan untuk keterlacakan versi 1.0; cakupan aktor dan perilakunya direvisi. Semua baris adalah target, bukan status implementasi.
 
-Modul 1 — Rute & Tebengan
+#### Modul 1 — Rute & Tebengan (Mikail)
 
-Kode Functional Requirement
+| Kode | Kebutuhan yang dapat diuji |
+|---|---|
+| FR-01 | Penumpang dapat melihat tebengan yang disediakan backend, berisi pengemudi, asal/tujuan beserta koordinat dan alamat, geometry jalur jalan, jadwal, kapasitas/sisa kursi, serta informasi ongkos. Posting/edit/hapus rute dilakukan di sisi backend/admin, bukan aplikasi penumpang. |
+| FR-02 | Penumpang dapat mencari berdasarkan asal/tujuan melalui saran nama tempat atau pin peta, dan menyaring hasil berdasarkan jam, jumlah kursi tersedia, serta batas ongkos. |
+| FR-03 | Sistem mencocokkan asal dan tujuan penumpang dengan jalur tebengan yang searah; posisi jemput harus sebelum posisi turun sepanjang jalur. Geometry jalan valid wajib tersedia pada rute yang dicocokkan secara geografis. Heuristik koridor lokal tidak boleh diklaim sebagai perhitungan detour atau akses berjalan kaki sebenarnya. |
+| FR-04 | Backend mengalokasikan kursi saat booking disetujui dan menutup tebengan penuh. Permintaan pending belum mengurangi kursi. Approval harus idempotent, tidak overbooking, dan hasil kuota backend menjadi acuan aplikasi. |
 
-FR-01 Pemberi tebengan dapat memposting rute rutin berisi titik asal, tujuan, jam berangkat, dan
-jumlah kursi tersedia.
+#### Modul 2 — Pemesanan & Koordinasi (Taris)
 
-FR-02 Pencari dapat mencari tebengan berdasarkan lokasi asal dan tujuannya.
+| Kode | Kebutuhan yang dapat diuji |
+|---|---|
+| FR-05 | Penumpang dapat mengajukan permintaan, lalu melihat status menunggu, diterima atau ditolak. Keputusan dilakukan oleh backend/admin berwenang yang mewakili penyedia, bukan tombol ACC penumpang dan bukan otomatis diterima setelah submit. |
+| FR-06 | Penumpang dapat menentukan dan menyimpan titik jemput yang berada di sepanjang/dekat jalur tebengan, beserta koordinat, alamat dan catatan. Pin pencarian belum menjadi booking sampai permintaan dikirim. |
+| FR-07 | Status permintaan diperbarui dari backend ke aplikasi penumpang tanpa mewajibkan aplikasi pengemudi kedua. Metode sinkronisasi disepakati tim; tampilkan loading/error/retry tanpa mengarang keberhasilan sinkronisasi. |
+| FR-08 | Penumpang dapat membatalkan sesuai kebijakan status; pembatalan dari penyedia/backend juga terlihat. Backend memberi pemberitahuan dan mengembalikan kursi hanya jika sebelumnya dialokasikan, paling banyak sekali. Kebijakan waktu/status pembatalan perlu disepakati. |
 
-FR-03 Sistem dapat mencocokkan rute pencari dengan rute yang diposting dan menandai tebengan
-yang searah, bukan sekadar bertujuan sama.
+#### Modul 3 — Berbagi Ongkos (Shiddiq)
 
-FR-04 Sistem dapat mengurangi kuota kursi otomatis saat ada yang bergabung dan menutup
-tebengan ketika kursi penuh.
+| Kode | Kebutuhan yang dapat diuji |
+|---|---|
+| FR-09 | Penumpang dapat melihat pembagian biaya dari perhitungan Modul 3/backend. Rumus perlu disepakati; bedakan estimasi dengan ongkos final dan jangan menganggap ongkos belum diatur sebagai gratis. |
+| FR-10 | Penumpang dapat mencatat bahwa ia telah membayar di luar aplikasi. Deklarasi ini bukan otomatis konfirmasi pelunasan oleh penyedia. |
+| FR-11 | Penumpang dapat melihat konfirmasi pembayaran dari backend/admin yang berwenang mewakili penyedia. Dua pihak tercatat di sistem, tetapi UI mobile tetap hanya penumpang. |
+| FR-12 | Penumpang dapat melihat riwayat ongkosnya per perjalanan, bukan mengelola pembayaran seluruh penumpang sebagai pengemudi. |
 
-Modul 2 — Pemesanan & Koordinasi
+#### Modul 4 — Reputasi & Riwayat (Duha)
 
-Kode Functional Requirement
+| Kode | Kebutuhan yang dapat diuji |
+|---|---|
+| FR-13 | Penumpang dapat memberi rating pengemudi setelah perjalanan yang diikutinya selesai; backend memvalidasi kelayakan dan mencegah rating ganda. Rating pengemudi terhadap penumpang ditunda ke pengembangan mendatang. |
+| FR-14 | Penumpang dapat melihat riwayat perjalanan yang diikutinya, bukan riwayat rute yang ia tawarkan. |
+| FR-15 | Penumpang dapat melihat rekap perjalanan dan ongkos pribadi. |
+| FR-16 | Sistem dapat memberikan ringkasan berkala kepada penumpang sesuai data perjalanan. Mekanisme notifikasi disepakati tim; fitur belum diklaim tersedia. |
 
-FR-05 Pencari dapat mengajukan permintaan bergabung ke sebuah tebengan, dan pemberi dapat
-menyetujui atau menolaknya.
+#### Registrasi & keamanan — lintas modul
 
-FR-06 Pencari dapat menandai titik jemput yang diinginkan di sepanjang rute.
+| Kode | Kebutuhan yang dapat diuji |
+|---|---|
+| FR-17 | Mahasiswa dapat mendaftar/masuk dengan email kampus yang diverifikasi backend, tanpa memilih role pengemudi. Domain kampus perlu dikonfirmasi; validasi format lokal bukan verifikasi kepemilikan email atau autentikasi server. |
+| FR-18 | Penumpang melihat nama/profil publik pengemudi yang relevan, bukan email atau data privatnya. Backend membatasi akses booking, ongkos, riwayat dan rating sesuai akun; menyembunyikan tombol bukan otorisasi. |
 
-FR-07 Sistem dapat menyinkronkan status permintaan antar-perangkat sehingga pencari dan
-pemberi melihat pembaruan tanpa memuat ulang manual.
+### 2.2 Non-Functional Requirements
 
-FR-08 Salah satu pihak dapat membatalkan, dan sistem mengembalikan kuota kursi serta memberi
-tahu pihak lain.
+| Kode | Target |
+|---|---|
+| NFR-01 | Pencarian merespons dalam waktu wajar; target awal 3 detik perlu diukur dalam kondisi uji yang disepakati, bukan jaminan layanan peta publik. |
+| NFR-02 | UI satu role mudah dipahami, responsif, dan memiliki state loading, kosong, error/retry, serta sukses yang jelas. |
+| NFR-03 | Target utama Android dengan Flutter. |
+| NFR-04 | Autentikasi/penyimpanan password ditangani backend secara aman; password tidak disimpan plaintext dalam aplikasi atau log. |
+| NFR-05 | Lokasi dipakai hanya untuk pencarian/jemput yang diperlukan; pemilihan pin manual tetap tersedia. Tidak ada kewajiban pelacakan terus-menerus. |
+| NFR-06 | Kewenangan backend/admin terpisah dari penumpang; data pribadi dan transaksi hanya dapat diakses pihak berwenang. |
 
-Modul 3 — Berbagi Ongkos
+### 2.3 Core Features
 
-Kode Functional Requirement
+1. Pencarian dan pencocokan tebengan searah.
+2. Pemesanan, titik jemput, status dan pembatalan dari sisi penumpang.
+3. Pembagian serta pencatatan ongkos, bukan pemrosesan pembayaran.
+4. Rating pengemudi, riwayat dan rekap penumpang.
 
-FR-09 Sistem dapat menghitung pembagian biaya perjalanan kepada penumpang yang bergabung.
+### 2.4 User Flow dan UI
 
-FR-10 Pengguna dapat mencatat status pembayaran ongkos (sudah/belum) per perjalanan.
+Login → Dari/Ke (saran tempat atau pin) → cari/filter → hasil searah → Detail Tebengan → titik jemput/catatan → kirim permintaan → menunggu keputusan backend → status perjalanan → ongkos → rating/riwayat.
 
-FR-11 Kedua pihak dapat mengonfirmasi pelunasan ongkos secara dua arah.
+Target navigasi bawah: **Cari · Pesanan · Ongkos · Profil**; riwayat perjalanan berada di Pesanan, rekap pada Profil. Menu yang belum terimplementasi tidak dibuat seolah sudah berfungsi. Tidak ada role switch atau CTA pengemudi.
 
-FR-12 Pengguna dapat melihat riwayat pembagian ongkos per perjalanan.
+Di luar aplikasi: backend/admin menyediakan rute, menentukan keputusan permintaan, mengelola status perjalanan/kuota dan mengonfirmasi pembayaran. Seed rute tidak sama dengan implementasi approval/sinkronisasi backend.
 
-Modul 4 — Reputasi & Riwayat
+### 2.5 Data Entities
 
-Kode Functional Requirement
+| Entitas | Tanggung jawab data |
+|---|---|
+| User | Akun penumpang, identitas publik dan kredensial yang dikelola backend. |
+| Driver | Profil publik penyedia, kendaraan dan reputasi; bukan role mobile aktif. |
+| Route | ID pengemudi, asal/tujuan, nama/alamat/koordinat, geometry jalan, jadwal, kapasitas/sisa kursi, status dan informasi ongkos. |
+| Booking | Route, penumpang, titik jemput/koordinat/alamat, catatan, status dan waktu permintaan/keputusan/pembatalan. |
+| Trip | Perjalanan aktual beserta tanggal, peserta dan status selesai; dibedakan dari rute rutin. |
+| CostShare | Bagian ongkos penumpang, deklarasi pembayaran dan konfirmasi penyedia/backend yang terpisah. |
+| Rating | Penumpang penilai, pengemudi, perjalanan selesai, nilai dan ulasan. |
 
-FR-13 Pengguna dapat memberi penilaian (rating) dua arah setelah perjalanan selesai.
+Skema/endpoint final perlu disepakati tim. Geometry seed harus jalur jalan nyata yang sudah disiapkan dan disimpan; jangan menggantinya dengan garis lurus atau menghitung semua contoh melalui OSRM setiap aplikasi dibuka. Contoh tanpa geometry tidak valid untuk demo pencarian koordinat.
 
-FR-14 Pengguna dapat melihat riwayat perjalanan yang pernah diikuti atau diberikan.
+### 2.6 Constraints & Dependencies
 
-FR-15 Sistem dapat menampilkan rekap aktivitas pengguna (jumlah perjalanan dan ongkos yang
-dibagi).
+- Flutter Android memakai MVVM yang sudah ada; tidak menambah framework atau aplikasi pengemudi dalam revisi ini.
+- Backend REST aplikasi adalah target integrasi, belum tersedia di repo. Kepastian backend eksternal, akun/admin, endpoint, status, persistensi dan cara sinkronisasi perlu dikonfirmasi.
+- Sampai integrasi tersedia, fixture/fake harus jelas sebagai simulasi, deterministik, dan tidak disebut server sungguhan atau siap produksi.
+- Peta tetap OpenStreetMap, pencarian/alamat Photon, jalur OSRM sesuai [panduan peta](../progress/peta-dan-lokasi.md). Layanan publik bukan jaminan gratis tanpa batas; perlu internet, atribusi dan pembatasan penggunaan.
+- Pembayaran berlangsung di luar aplikasi. Rumus ongkos, kebijakan pembatalan dan protokol konfirmasi belum final.
+- GPS lokasi saat ini dapat dibahas kemudian; live tracking dan navigasi belok-per-belok bukan kewajiban Modul 1.
 
-FR-16 Sistem dapat menyusun ringkasan periodik dan mengirimkannya sebagai notifikasi.
+## 3. Scope
 
-## Halaman 3
+### 3.1 In Scope
 
-Registrasi & Keamanan (berlaku lintas modul)
+Aplikasi penumpang: masuk, cari/filter tebengan, detail penyedia/rute/kursi/ongkos, pin jemput, permintaan/status/pembatalan, riwayat ongkos, rating dan rekap. Integrasi backend diperlukan agar target booking/kuota/status/pembayaran konsisten; bukan berarti integrasinya sudah dibuat.
 
-Kode Functional Requirement
+### 3.2 Out of Scope
 
-FR-17 Pengguna hanya dapat mendaftar menggunakan email berdomain kampus, dan wajib
-melakukan verifikasi email sebelum akun aktif.
+Role dan UI pengemudi pada aplikasi ini; aplikasi pengemudi terpisah; dashboard admin baru tanpa instruksi; payment gateway; verifikasi KTP; pengguna nonmahasiswa; live tracking dan navigasi belok-per-belok. Backend/admin harus tetap menyediakan tindakan penyedia, tetapi pembangunan UI admin baru tidak otomatis diizinkan.
 
-FR-18 Sistem menampilkan nama pengguna kepada pengguna lain, tetapi tidak menampilkan
-email atau data pribadi lain tanpa otorisasi.
+## 4. Acceptance Criteria
 
-2.2 Non-functional Requirements
+- Pencarian lokasi/filter valid menghasilkan rute bergeometri yang searah; arah terbalik, rute penuh dan ongkos belum diatur ditangani sesuai aturan.
+- Tidak ada fitur pengemudi yang bisa diakses lewat UI maupun named route aplikasi penumpang.
+- Pengiriman request tidak otomatis menjadi diterima atau mengurangi kursi. Keputusan, persistensi dan kuota berasal dari backend, atau dilabeli simulasi secara jujur bila integrasi belum tersedia.
+- Approval dan pembatalan aman dari callback ganda/overbooking; kuota mutakhir konsisten setelah sinkronisasi.
+- Deklarasi pembayaran dibedakan dari pelunasan terkonfirmasi; rating hanya untuk perjalanan milik penumpang yang selesai.
+- Satu workflow UTS dapat didemokan dan dijelaskan dengan input/event, state, validasi, feedback, navigasi/result. Kesiapan ujian tidak sama dengan kelengkapan semua FR.
 
-Kode Non-functional Requirement
+## 5. Acuan AI dan riwayat revisi
 
-NFR-01 Hasil pencocokan rute dapat ditampilkan dalam waktu wajar pada kondisi jaringan normal.
-(Angka target = ≤3 detik (belum pasti))
+Baca versi Markdown, [panduan desain](../design/panduan-desain-figma.md), [MVVM](../architecture/mvvm.md), dan [rencana migrasi](../progress/rencana-aplikasi-penumpang.md). Perubahan dokumentasi tidak memberi izin otomatis mengubah source, Figma, backend atau HP.
 
-NFR-02 Antarmuka dapat digunakan dengan mudah oleh mahasiswa tanpa panduan khusus.
-
-NFR-03 Aplikasi dapat berjalan pada perangkat Android yang ditentukan tim.
-
-NFR-04 Kata sandi disimpan dalam bentuk ter-hash, tidak dalam teks polos.
-
-NFR-05 Data lokasi hanya diambil saat dibutuhkan untuk pencocokan/perjalanan, tidak dilacak
-terus-menerus.
-
-NFR-06 Data pengguna tidak ditampilkan kepada pengguna lain tanpa otorisasi.
-
-2.3 Core Features
-Empat fitur inti selaras dengan empat modul di atas.
-
-No. Core Feature Purpose / Value
-
-1 Rute & Tebengan Mempertemukan pengguna melalui pencocokan rute yang
-benar-benar searah, bukan sekadar tujuan sama.
-
-2 Pemesanan & Koordinasi Mengatur permintaan gabung, titik jemput, dan sinkronisasi
-status antar-perangkat secara langsung.
-
-3 Berbagi Ongkos Mencatat dan membagi biaya perjalanan secara transparan
-sehingga tidak lagi mengandalkan ingatan.
-
-4 Reputasi & Riwayat Membangun rasa aman melalui rating dua arah serta
-menyediakan riwayat dan rekap perjalanan.
-
-2.4 User Flow
-Alur utama pencari tebengan:
-
-Buka aplikasi → Masuk (email kampus) → Masukkan tujuan → Lihat tebengan searah → Ajukan gabung
-& tandai titik jemput → Menunggu konfirmasi pemberi → Perjalanan berlangsung → Catat & lunasi
-ongkos → Beri rating.
-
-Alur utama pemberi tebengan:
-
-Buka aplikasi → Masuk → Posting rute rutin & kuota kursi → Terima permintaan gabung → Setujui
-penumpang → Perjalanan berlangsung → Terima konfirmasi ongkos → Beri rating.
-
-2.5 Data Requirements
-
-Data / Entity Key Information Purpose
-
-User id, nama, email kampus, status verifikasi, Identitas pengguna dan dasar
-rating rata-rata verifikasi serta reputasi.
-
-## Halaman 4
-
-Data / Entity Key Information Purpose
-
-Route (Tebengan) id, pemberi, titik asal, titik tujuan, jalur, jam, Menyimpan tebengan yang
-kuota kursi diposting untuk dicocokkan.
-
-Booking id, route, pencari, titik jemput, status Mencatat permintaan gabung dan
-statusnya.
-
-Trip id, route, tanggal, daftar penumpang, status Merepresentasikan perjalanan yang
-selesai benar-benar berlangsung.
-
-CostShare id, trip, pengguna, nominal bagian, status Mencatat pembagian dan pelunasan
-bayar ongkos per orang.
-
-Rating id, trip, penilai, dinilai, skor Menyimpan penilaian dua arah
-untuk reputasi.
-
-2.6 Constraints & Assumptions
-● Platform Android, dibangun dengan Flutter.
-● Data disimpan pada server sendiri (REST API)
-● Aplikasi tidak memproses pembayaran; perpindahan uang dilakukan di luar aplikasi dan hanya
-dicatat statusnya.
-● Verifikasi terbatas pada kepemilikan email kampus; tidak menjamin status keaktifan mahasiswa
-maupun kecocokan identitas.
-● Asumsi: pengguna memiliki koneksi internet saat mencari/memesan tebengan, dan mengaktifkan
-izin lokasi saat dibutuhkan.
-
-2.7 Success Criteria
-● Pencari dapat menemukan tebengan searah dan menyelesaikan permintaan gabung hingga
-dikonfirmasi.
-● Status permintaan tersinkron dan terlihat benar pada dua perangkat berbeda.
-● Pembagian ongkos suatu perjalanan tercatat dan dapat dikonfirmasi lunas oleh kedua pihak.
-
-3. Scope
-
-3.1 In Scope
-● Pencocokan rute searah berbasis lokasi.
-● Permintaan gabung, titik jemput, dan sinkronisasi status antar-perangkat.
-● Pencatatan dan pembagian ongkos perjalanan.
-● Rating dua arah, riwayat, dan rekap perjalanan.
-● Registrasi dengan email kampus dan verifikasi email.
-
-3.2 Out of Scope
-● Pemrosesan pembayaran di dalam aplikasi (transfer dilakukan di luar aplikasi).
-● Verifikasi identitas tingkat lanjut (KTP, KTM, atau pengecekan ke basis data kampus).
-● Navigasi belok-per-belok seperti aplikasi peta khusus.
-● Penggunaan oleh non-mahasiswa / masyarakat umum (menjadi potensi pengembangan lanjutan).
-
-4. AI Prompt Context
-
-## Halaman 5
-
-Nebeng Dong adalah aplikasi mobile (Flutter, Android) untuk mahasiswa yang mempertemukan pengguna
-dengan rute perjalanan searah agar dapat berbagi tumpangan secara aman dan hemat. Target pengguna adalah
-mahasiswa aktif dengan dua peran: pemberi dan pencari tebengan. Tujuannya menghemat biaya transportasi,
-mempermudah menemukan tumpangan yang benar-benar searah, serta mencatat pembagian ongkos secara
-transparan.
-
-Fitur inti: (1) pencocokan rute searah, (2) pemesanan dan koordinasi antar-perangkat, (3) berbagi ongkos, (4)
-reputasi dan riwayat. Batasan: backend dibangun sendiri tanpa layanan siap pakai, aplikasi tidak memproses
-pembayaran, dan verifikasi hanya melalui email kampus. Bantuan AI diminta untuk hal-hal seperti
-perancangan struktur data, logika pencocokan rute, dan penulisan kode modul — dengan pemahaman bahwa
-setiap anggota wajib dapat menjelaskan kodenya sendiri.
-
-☑ Problem statement jelas dan berfokus pada pengguna.
-
-☑ Target users spesifik.
-
-☑ Project goal menjawab masalah yang diidentifikasi.
-
-☑ Core features berjumlah sekitar 4–6 dan relevan.
-
-☑ User flow utama sudah dituliskan.
-
-☑ Data utama sudah diidentifikasi.
-
-☑ Constraints dan assumptions sudah dicatat.
-
-☑ Success criteria dapat digunakan untuk menilai hasil project.
-
-☑ In Scope dan Out of Scope sudah jelas.
-
-☑ Functional requirements menjelaskan perilaku/fungsi yang harus dilakukan aplikasi.
-
-☑ Non-functional requirements menjelaskan kualitas atau batasan sistem dan, jika memungkinkan, dapat diukur.
-
-☑ Functional requirements konsisten dengan core features.
-
-☑ Non-functional requirements tidak ditulis sebagai fitur baru.
+| Versi | Tanggal | Perubahan |
+|---|---|---|
+| 1.0 | 13 September 2026 | PRD asli dua role; PDF dipertahankan sebagai arsip. |
+| 1.1 | 8 Oktober 2026 | Target mobile penumpang saja; tindakan pengemudi dialihkan ke backend/admin, FR-01–FR-18 dan UI diselaraskan. Dokumen bukan bukti implementasi. |

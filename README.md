@@ -1,11 +1,9 @@
 # nebeng-dong-app
 
-**Nebeng Dong** — aplikasi nebeng & berbagi tebengan antar mahasiswa.
+**Nebeng Dong** — aplikasi pencari tebengan antar mahasiswa, ditargetkan khusus penumpang.
 Project Mobile Programming, Kelompok 4.
 
-Mahasiswa yang searah ke kampus bisa saling berbagi tumpangan: pemberi tebengan
-memposting rute, pencari tebengan mencari yang searah, lalu ongkosnya dibagi dan
-dicatat dengan jelas.
+Target [PRD 1.1](docs/prd/prd-nebeng-dong-kel-4.md), revisi 8 Oktober 2026: mahasiswa mencari rute searah, mengajukan permintaan, mengikuti status, mencatat ongkos dan memberi rating. Pengemudi adalah data penyedia dari backend/admin, bukan role atau layar pada aplikasi mobile ini. Aplikasi pengemudi terpisah ditunda.
 
 ## Tim
 
@@ -16,16 +14,15 @@ dicatat dengan jelas.
 | M Shiddiq Maihendra | 2411523035 |
 | Duha Alul Bariq | 2411523036 |
 
-## Tahap saat ini (Modul 1)
+## Tahap saat ini
 
-Tiga layar utama dari desain Figma sudah diimplementasikan:
+Source sekarang **MVVM feature-first dan penumpang saja** (8 Oktober 2026): tidak ada Beri Tebengan/Rute Saya; named routes driver ditolak. Driver lama dipertahankan sebagai arsip yang tidak diimpor source aktif. Repository rute read-only diinjeksikan satu sesi dari root aplikasi; implementasi lokal terpisah dari kontraknya.
 
-1. **Login** — masuk dengan email kampus (`unand.ac.id`).
-2. **Home / Cari Tebengan** — cari berdasarkan lokasi asal dan tujuan.
-3. **Detail Tebengan** — sisa kursi, patungan per orang, titik jemput, tombol "Ikut Nebeng!".
+Pencarian/filter masih menampilkan hasil di Home, belum layar Hasil terpisah seperti target Figma. Pemilih tempat/pin OSM, reverse alamat, swap dan workflow catatan dipertahankan. Navigasi Pesanan/Ongkos/Profil terlihat tetapi nonaktif sampai integrasi modul rekan.
 
-Backend (REST API) belum ada, jadi daftar tebengan masih memakai contoh data
-di `lib/data/sample_rides.dart`.
+Data aplikasi menggunakan empat **fixture latihan**, bukan tawaran nyata/backend: jalur Khatib/Veteran → Unand, rute penuh dan arah pulang. Geometry jalan nyata OSRM/OpenStreetMap disimpan satu kali, tanpa routing saat startup; asal/provenance ada di [fixture](lib/features/ride_search/data/fixtures/README.md). Login/booking tetap lokal; REST/persistensi/approval dan fitur ongkos/rating belum tersedia. Jangan menyebut app siap produksi atau seluruh PRD selesai.
+
+Figma Mikail tersedia: [Cari/Hasil/Filter](https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum?node-id=124-239) dan [rincian lokasi/pin](https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum?node-id=148-474). Source belum memport seluruh state/susunan Figma. Baca [rencana penumpang](docs/progress/rencana-aplikasi-penumpang.md) dan [status verifikasi](docs/progress/PROGRESS.md). HP tidak diuji atau diinstal ulang pada refactor ini.
 
 ## Menjalankan
 
@@ -41,24 +38,32 @@ flutter test
 ```text
 lib/
   main.dart
-  data/       contoh data sementara
-  models/     model data (Ride)
-  screens/    satu file per layar
-  theme/      design token dari Figma (warna, teks, spacing, ThemeData)
-  utils/      fungsi bantu (format rupiah)
-  widgets/    komponen reusable (AppButton, AppTextField, RideCard, UserAvatar)
-assets/images/  aset WebP (1x, 2.0x/, 3.0x/)
-docs/           prd/, modul/, design/, prompts/, progress/ (lihat docs/README.md)
-test/           widget test
+  core/di/               lifecycle dan injeksi repository/layanan
+  features/
+    auth/                login bersama: views + viewmodels
+    ride_search/         Mikail: views + viewmodels + models + data + utils
+    booking/             Taris: catatan baseline; batas integrasi pesanan
+    costs/               Shiddiq: README ownership, belum implementasi
+    reputation/          Duha: README ownership, belum implementasi
+  shared/                models, views, viewmodels, widgets, utils
+    maps/                services, models, views, viewmodels, widgets
+  legacy/driver/         arsip dua role, tidak diimpor aplikasi aktif
+  routes/                named routes penumpang dan fallback 404
+  theme/                 token bersama tetap di lokasi semula
+test/                    architecture/, core/, features/, integration/,
+                         shared/, regression/, legacy/, visual/, support/
+docs/                    sumber Markdown dan log
 ```
 
 ## Dokumen
 
-- [PRD](docs/prd/prd-nebeng-dong-kel-4.md) — kebutuhan produk (sumber kebenaran).
+- [PRD 1.1](docs/prd/prd-nebeng-dong-kel-4.md) — acuan aktif penumpang saja; PDF v1.0 adalah arsip dua role.
+- [Rencana penumpang](docs/progress/rencana-aplikasi-penumpang.md) — UI, batas backend, tahapan migrasi, demo UTS.
+- [Arsitektur MVVM](docs/architecture/mvvm.md) — View/ViewModel/repository, core dan lifecycle; tanpa dependency state-management baru.
 - [Modul 1](docs/modul/modul-1-pemrograman-mobile.md) — instruksi praktikum.
 - [Panduan Desain Figma](docs/design/panduan-desain-figma.md) — Auto Layout, spacing, tipografi, komponen.
 - [Prompt Implementasi UI Flutter](docs/prompts/prompt-implementasi-ui-flutter.md) — kerangka prompt dan versi yang kami isi.
-- [Pembagian Tugas](docs/progress/pembagian-tugas.md) — modul PRD per anggota + layar yang didesain.
+- [Pembagian Tugas](docs/progress/pembagian-tugas.md) — modul per anggota dan usulan layar satu role yang perlu konfirmasi tim.
 - Desain Figma: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum
 
 ## Kerja dengan AI

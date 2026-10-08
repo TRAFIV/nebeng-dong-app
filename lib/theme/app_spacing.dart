@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'app_colors.dart';
+import 'package:praktikum_mobile/theme/app_colors.dart';
 
 /// Jarak, sama dengan variabel Figma `spacing/...`.
 abstract final class AppSpacing {
@@ -14,12 +14,15 @@ abstract final class AppSpacing {
 abstract final class AppRadius {
   static const double md = 20;
   static const BorderRadius mdAll = BorderRadius.all(Radius.circular(md));
+  static const BorderRadius pill = BorderRadius.all(Radius.circular(40));
 }
 
 /// Ukuran tetap yang dipakai berulang.
 abstract final class AppSizes {
   /// Target sentuh minimum untuk tombol dan input.
   static const double touchTarget = 48;
+  static const double locationHeight = 64;
+  static const double routeRail = 24;
 }
 
 /// Dekorasi kartu yang dipakai berulang.

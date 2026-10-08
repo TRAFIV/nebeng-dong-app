@@ -17,4 +17,9 @@ abstract final class AppColors {
   static const onBrand = Color(0xFFFFFFFF); // color/text/on-brand
   static const border = Color(0xFFE7E9F2); // color/border/default (cloud/200)
   static const cardShadow = Color(0x141B2440); // Elevation/Card (8%)
+  // Semantic aliases only: location controls follow the shared palette.
+  static const locationFill = surface;
+  static const routeOrigin = brandStrong;
+  static const routeDestination = successText;
+  static const routeConnector = textSecondary;
 }

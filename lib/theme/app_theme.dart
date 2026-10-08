@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'app_colors.dart';
-import 'app_spacing.dart';
-import 'app_text_styles.dart';
+import 'package:praktikum_mobile/theme/app_colors.dart';
+import 'package:praktikum_mobile/theme/app_spacing.dart';
+import 'package:praktikum_mobile/theme/app_text_styles.dart';
 
 /// ThemeData aplikasi yang dibangun dari design token Figma (tema terang).
 abstract final class AppTheme {
@@ -81,6 +81,16 @@ abstract final class AppTheme {
           foregroundColor: AppColors.brandStrong,
           textStyle: AppTextStyles.labelLarge,
         ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.background,
+        selectedColor: AppColors.brandSubtle,
+        labelStyle: AppTextStyles.labelLarge,
+        side: const BorderSide(color: AppColors.border),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        showCheckmark: false,
+        checkmarkColor: AppColors.brandStrong,
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.textPrimary,
