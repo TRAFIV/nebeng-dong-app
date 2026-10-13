@@ -18,11 +18,11 @@ Target [PRD 1.1](docs/prd/prd-nebeng-dong-kel-4.md), revisi 8 Oktober 2026: maha
 
 Source sekarang **MVVM feature-first dan penumpang saja** (8 Oktober 2026): tidak ada Beri Tebengan/Rute Saya; named routes driver ditolak. Driver lama dipertahankan sebagai arsip yang tidak diimpor source aktif. Repository rute read-only diinjeksikan satu sesi dari root aplikasi; implementasi lokal terpisah dari kontraknya.
 
-Pencarian/filter masih menampilkan hasil di Home, belum layar Hasil terpisah seperti target Figma. Pemilih tempat/pin OSM, reverse alamat, swap dan workflow catatan dipertahankan. Navigasi Pesanan/Ongkos/Profil terlihat tetapi nonaktif sampai integrasi modul rekan.
+Bagian lokal Mikail tersedia: **Cari → Hasil Pencarian ↔ Filter → Detail**. Field Dari/Ke membuka pemilih tempat khusus; panah kanan langsung membuka pin OSM. Nama/alias, alamat lengkap dan koordinat dikembalikan setelah konfirmasi; batal menjaga pilihan lama. Filter draft/apply/reset, swap dan loading/kosong/error/retry berjalan. Navigasi Pesanan/Ongkos/Profil terlihat tetapi nonaktif sampai integrasi modul rekan.
 
 Data aplikasi menggunakan empat **fixture latihan**, bukan tawaran nyata/backend: jalur Khatib/Veteran → Unand, rute penuh dan arah pulang. Geometry jalan nyata OSRM/OpenStreetMap disimpan satu kali, tanpa routing saat startup; asal/provenance ada di [fixture](lib/features/ride_search/data/fixtures/README.md). Login/booking tetap lokal; REST/persistensi/approval dan fitur ongkos/rating belum tersedia. Jangan menyebut app siap produksi atau seluruh PRD selesai.
 
-Figma Mikail tersedia: [Cari/Hasil/Filter](https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum?node-id=124-239) dan [rincian lokasi/pin](https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum?node-id=148-474). Source belum memport seluruh state/susunan Figma. Baca [rencana penumpang](docs/progress/rencana-aplikasi-penumpang.md) dan [status verifikasi](docs/progress/PROGRESS.md). HP tidak diuji atau diinstal ulang pada refactor ini.
+Figma Mikail tersedia: [Cari/Hasil/Filter](https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum?node-id=124-239) dan [rincian lokasi/pin](https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum?node-id=148-474). Implementasi Mikail mengacu pada frame aktif tersebut dan token bersama, dengan widget Material Rounded native; peta nyata tidak memakai gambar skema Figma. Screenshot widget utama/state ditinjau, bukan klaim pixel parity seluruh 18 contoh prototype. Baca [rencana penumpang](docs/progress/rencana-aplikasi-penumpang.md) dan [status verifikasi](docs/progress/PROGRESS.md). 123 tes lulus, analyzer bersih, format 79 Dart tanpa perubahan dan build APK release arm64 berhasil (8 Oktober). HP belum diuji/diinstal ulang. Demo dan batas integrasi: [implementasi Mikail](docs/progress/modul-1-implementasi.md).
 
 ## Menjalankan
 
@@ -41,7 +41,7 @@ lib/
   core/di/               lifecycle dan injeksi repository/layanan
   features/
     auth/                login bersama: views + viewmodels
-    ride_search/         Mikail: views + viewmodels + models + data + utils
+    ride_search/         Mikail: views + viewmodels + models + data + utils + widgets
     booking/             Taris: catatan baseline; batas integrasi pesanan
     costs/               Shiddiq: README ownership, belum implementasi
     reputation/          Duha: README ownership, belum implementasi

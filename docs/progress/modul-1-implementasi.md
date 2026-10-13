@@ -1,12 +1,54 @@
 # Modul 1 Mikail — Implementasi Flutter
 
-> Pembaruan 8 Oktober: source aktif sekarang feature-first MVVM penumpang; driver hanya arsip tanpa akses app. Path/penjelasan versi 6 Oktober di bawah merupakan baseline historis. Lihat [MVVM](../architecture/mvvm.md) dan [PROGRESS](PROGRESS.md) untuk struktur/status terbaru. Fixture aplikasi sekarang memiliki geometry jalan nyata; backend/HP belum diintegrasikan/diuji.
+## Implementasi aktif — 8 Oktober 2026
 
-## Target aktif 8 Oktober 2026 — belum dimigrasikan
+UI/workflow lokal Mikail mengikuti [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md): **Cari Tebengan → Hasil Pencarian ↔ Filter → shared Detail**. Dedicated pemilih Dari/Ke dan pin terhubung; tidak ada role/aksi pengemudi. Bagian berikut riwayat 6 Oktober dipertahankan, bukan alur aplikasi aktif.
 
-[PRD 1.1](../prd/prd-nebeng-dong-kel-4.md) dan [rencana penumpang](rencana-aplikasi-penumpang.md) menargetkan mobile penumpang saja. Tiga layar Mikail yang diusulkan: Cari Tebengan, Hasil Pencarian, Filter; perlu konfirmasi tim. Tidak ada Posting/Rute Saya/ACC pada target baru. FR-01 menjadi konsumsi rute backend; FR-04 menampilkan kuota yang diperbarui backend setelah approval.
+### Apa yang selesai
 
-Kode pada dokumen baseline berikut belum dimigrasikan. Figma Mikail sudah direvisi dan ditinjau menjadi Cari/Hasil/Filter serta loading/kosong/error pada 8 Oktober; desain rekan/shared tetap baseline. Hasil 100 tes/build berlaku untuk baseline 6 Oktober, tidak dijalankan ulang pada revisi dokumentasi 8 Oktober. Seed rute bergeometri valid diperlukan untuk demo pencarian koordinat; sample lama tanpa geometry tidak akan cocok.
+- Cari tersedia tanpa menunggu data rute; kedua lokasi dipilih dari hasil tempat/pin, bukan teks saja. Ke boleh diisi lebih dulu. Swap menukar seluruh MapLocation; jarak <50 m ditolak.
+- Field membuka PlaceSearchScreen (minimal 3 karakter, debounce, loading/hasil/kosong/error/retry); panah kanan langsung ke LocationPickerScreen. Pin menyimpan koordinat tepat, nama/alias dan alamat penuh; reverse otomatis, retry/manual bila gagal. Back tanpa konfirmasi menjaga pilihan sebelumnya.
+- Hasil memakai snapshot query immutable dan repository sesi yang sama. Ada summary, count, compact ride card berikon jam/kursi/ongkos, loading/kosong/error/retry. Arah terbalik/penuh/tanpa geometry tidak dimunculkan sebagai kecocokan.
+- Filter: pilihan jam/minimal kursi/batas ongkos, validasi, draft batal, Terapkan dan Atur Ulang. Applied filter dipertahankan saat kembali ke Cari/pencarian ulang. Ongkos belum diatur bukan gratis. Batas ongkos kosong berarti tanpa batas; `0` ditolak dengan pesan sendiri (13 Oktober); saat Filter dibuka ulang, batas tersimpan tampil dengan pemisah ribuan.
+- Kartu mengirim Ride ke shared Detail; workflow catatan tetap. Tab Pesanan/Ongkos/Profil nonaktif sampai integrasi rekan. Tidak ada perubahan Figma atau dependency baru.
+
+### Pemetaan MVVM dan source
+
+| Bagian | Tanggung jawab |
+|---|---|
+| HomeScreen / HomeViewModel | View form/navigasi/feedback; VM lokasi/filter/validasi/snapshot RideSearchRequest, bukan fetch. |
+| RideResultsScreen / RideResultsViewModel | View kartu/state/typed navigation; VM fetch/matcher/filter/status/generation. Matcher pure di utils/ride_search_matcher.dart. |
+| RideFilterScreen / RideFilterViewModel | Draft jam/kursi/fare, validasi dan result RideFilter; batal tidak apply. |
+| PlaceSearchScreen / LocationSearchViewModel | Query/hasil/debounce/guard; result MapLocation hanya setelah pilihan. |
+| LocationPickerScreen / LocationPickerViewModel | Peta/field/focus; VM reverse/alias/alamat/exact point/retry/manual/konfirmasi. |
+| RideRepository / LocalRideRepository | Kontrak baca + fixture latihan immutable; diinjeksikan satu sesi di core/di. |
+
+Source utama di `lib/features/ride_search/{views,viewmodels,models,data,utils,widgets}/`; selector/pin/service di `lib/shared/maps/`; route query arguments di `lib/routes/`. Detail lengkap [MVVM](../architecture/mvvm.md).
+
+### Cara mendemokan bagian Mikail
+
+1. Jalankan `flutter run` pada Android setelah perangkat tersedia. Login biasa: email `mikail@student.unand.ac.id`, password minimal 8 karakter; Masuk cepat (Dev) hanya ada pada debug, bukan release.
+2. Ketuk Dari, cari `Khatib Sulaiman` di Padang lalu pilih hasil yang dekat fixture Jalan Khatib Sulaiman. Ketuk Ke, cari `Universitas Andalas` dan pilih kampus Limau Manis. Layanan nyata dapat mengembalikan titik berbeda; gunakan peta bila perlu untuk posisi jalan yang sesuai.
+3. Untuk menguji pin langsung, tekan panah kanan. Ketuk jalan/gerbang, tunggu alamat otomatis, isi alias bila perlu lalu Gunakan Pin Ini. Nama/alias dan alamat terlihat terpisah di Cari. Back tanpa konfirmasi tidak mengubah pilihan.
+4. Tekan Cariin Tebengan!: Hasil menampilkan data latihan yang searah. Fixture contoh Taris berangkat 07.30, sisa 2 kursi, Rp5.000; ini bukan tawaran nyata/akun server.
+5. Buka Filter, pilih minimal 3 kursi lalu Terapkan → hasil kosong. Atur Ulang → Terapkan mengembalikan hasil. Batas ongkos di bawah Rp5.000 juga menyaring contoh itu. Tunjukkan validasi ongkos tidak valid dan batal draft tanpa apply.
+6. Kembali ke Cari, swap kedua lokasi lalu cari → rute pulang contoh 16.00; bukan rute pergi yang diputar otomatis. Kartu → Detail mengirim objek Ride. Catatan dapat ditunjukkan sebagai workflow bersama yang sudah ada.
+7. Jelaskan lima unsur workflow: input/event, state, validation, feedback, navigation/result. Baca source agar bisa memodifikasi langsung; jangan mengandalkan APK saja.
+
+### Verifikasi source baru
+
+- `flutter pub get` berhasil; pubspec/lockfile tidak berubah, tanpa dependency baru.
+- `dart format --output=none --set-exit-if-changed .`: 79 file, 0 perubahan.
+- `flutter analyze --no-pub`: tanpa issue.
+- `flutter test --no-pub`: **123/123 lulus**; mencakup arsitektur/DI, pencarian/query terpisah, selector/pin/manual/retry, filter/cancel/reset/return, arah/kursi, disposed/stale async, shared workflow dan legacy terisolasi.
+- Review capture 16 tampilan asli 360×800 (14 aktif/shared, 2 arsip legacy), termasuk Cari kosong/terisi, Hasil sukses/kosong/error/loading, Filter, tempat awal/hasil/error dan pin siap/gagal/manual. Screenshot representatif diperiksa setelah koreksi footer kursi/ongkos; screenshot map tanpa tile hanya fixture tes, bukan peta aplikasi. Hasil/Filter/Places juga diuji pada 320 px dan skala teks OS 2x; picker/keyboard/Detail tercakup regresi.
+- `flutter build apk --release --target-platform android-arm64 --no-pub` berhasil, APK 17,8 MB pada `build/app/outputs/flutter-apk/app-release.apk`. Signing masih debug lokal, bukan paket distribusi produksi.
+
+### Batas yang belum selesai
+
+FR-01 memakai adapter lokal, belum API daftar rute. FR-04 hanya tampilan/saringan kuota; allocation/approval/sync/persistensi otoritatif milik backend. FR-03 koridor berarah 500 m, bukan detour/akses berjalan kaki sebenarnya. Login/request/note masih lokal; tidak ada auth server. Modul Taris/Shiddiq/Duha, GPS/live tracking dan backend tidak diimplementasikan dalam pekerjaan ini. Layanan peta publik tanpa billing bukan jaminan gratis tanpa batas/SLA produksi.
+
+Belum memasang/membuka/menguji HP atau hot reload; kesiapan demo Android menunggu perangkat/izin dan pemahaman mahasiswa. Belum commit/push implementasi ini. Status [PROGRESS](PROGRESS.md), [rencana](rencana-aplikasi-penumpang.md), [UTS](../petunjuk-uts/petunjuk-uts.md).
 
 ## Baseline 6 Oktober 2026
 

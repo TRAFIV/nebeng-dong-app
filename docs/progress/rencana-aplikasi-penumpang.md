@@ -1,7 +1,7 @@
 # Rencana Aplikasi Penumpang — Nebeng Dong
 
 Tanggal: 8 Oktober 2026. Acuan: [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md).
-Keputusan satu role berasal dari masukan pembimbing yang disampaikan pengguna. Revisi dokumen selesai. Atas instruksi berikutnya, Figma bagian Mikail sudah direvisi dan ditinjau; refactor source feature-first/penumpang dan repository sesi sudah dilakukan. Hasil masih di Home; migrasi penuh susunan Figma dan integrasi backend/rekan belum selesai.
+Keputusan satu role berasal dari masukan pembimbing yang disampaikan pengguna. Revisi dokumen selesai. Atas instruksi berikutnya, Figma bagian Mikail sudah direvisi dan ditinjau; refactor source feature-first/penumpang dan repository sesi sudah dilakukan. UI/workflow lokal Mikail sudah Cari → Hasil terpisah ↔ Filter, selector tempat/pin serta feedback async. Integrasi backend/rekan dan uji HP belum selesai.
 
 ## 1. Arah produk
 
@@ -14,10 +14,10 @@ Pengemudi tetap data profil/rute/kendaraan/reputasi. Backend/admin berwenang men
 | Area | Status 8 Oktober 2026 |
 |---|---|
 | PRD/panduan/aturan | Direvisi untuk target penumpang saja. |
-| Flutter | Feature-first MVVM penumpang: driver UI dihapus, named routes ditolak, source driver di legacy. Kontrak baca/adapter lokal dan DI sesi tersedia, fixture jalan nyata tersimpan. Hasil masih di Home; seluruh UI Figma belum diport. |
+| Flutter | Feature-first MVVM penumpang: driver UI dihapus, named routes ditolak, source driver di legacy. Kontrak baca/adapter lokal dan DI sesi tersedia, fixture jalan nyata tersimpan. UI/workflow lokal Mikail Cari/Hasil/Filter, dedicated selector/pin dan feedback sudah terhubung; bukan klaim seluruh PRD/18 contoh prototype identik piksel. |
 | Figma | Mikail selesai: Cari/Hasil/Filter (`124:240`–`124:242`), loading/kosong/error (`130:402`), prototype utama dan 18 state pemilih Dari/Ke/pin (`148:474`), termasuk Ke lebih dulu, alamat loading/gagal/manual dan swap contoh. Arsip driver (`124:238`) dipertahankan. Layar bersama/bagian rekan tetap baseline. |
 | Backend | REST aplikasi tidak ada di repo; backend eksternal belum dikonfirmasi. Data lokal bukan backend. |
-| Tes/build | Hasil 100 tes/build 6 Oktober adalah baseline. Verifikasi refactor baru dicatat di PROGRESS; jangan mengasumsikan tes lama membuktikan migrasi baru. |
+| Tes/build | Verifikasi source baru: 123 tes lulus, analyzer bersih, format 79 Dart tanpa perubahan; capture 16 tampilan 360×800 dan APK release arm64 berhasil. Detail di PROGRESS; bukan uji perangkat/backend. |
 | HP | APK sebelum migrasi MVVM; uji workflow terbaru dan hot reload belum dilakukan. Tidak membuka HP tanpa izin. |
 
 ## 3. Alur dan UI target
@@ -69,16 +69,16 @@ Kontrak yang perlu disepakati: endpoint/auth, schema geometry/urutan lon-lat, st
 
 1. **Konfirmasi dependensi:** inventaris backend yang tersedia dan sepakati pembagian tim/kontrak. Ini tidak menghalangi perencanaan atau UI, tetapi integrasi tidak bisa dinyatakan selesai tanpa backend.
 2. **Desain:** tiga layar Mikail serta feedback sudah selesai dan ditinjau, memakai token bersama dan komponen M1 di halaman 09. Prototype Cari → Hasil ↔ Filter tersedia. Pemilih Dari/Ke, hasil tempat, pin/konfirmasi/batal dan swap contoh sudah tersambung dengan 18 state tambahan; baca [rincian interaksi](../design/panduan-desain-figma.md#rincian-interaksi-darike-dan-pin--selesai-8-oktober-2026). Peta dan query bersifat simulasi tetap. Login/Detail dan bagian rekan belum direvisi; chip/reset/tab rekan masih visual, kartu belum tersambung ke shared Detail antarpages. Node aktif/arsip tercatat di JSON.
-3. **Migrasi struktur/role Mikail selesai:** Home penumpang, Filter/peta/pin dipertahankan; driver tanpa akses UI/named route, source di legacy. MVVM feature-first dan repository sesi terinjeksi. Pemisahan Hasil dari Home serta port seluruh picker/state visual Figma masih pending.
+3. **Migrasi struktur/role Mikail selesai:** Home penumpang, Filter/peta/pin dipertahankan; driver tanpa akses UI/named route, source di legacy. MVVM feature-first dan repository sesi terinjeksi. UI lokal Mikail selesai: Hasil terpisah, dedicated tempat/pin, nama-alamat terpisah, filter/cancel/reset, swap dan loading/kosong/error/retry. Review screenshot Flutter asli dilakukan; tanpa perubahan Figma/rekan/backend.
 4. **Data lokal tersedia:** adapter fixture immutable dengan geometry jalan nyata disimpan; UI menyatakan data latihan. Kontrak abstract baca siap diinjeksi, tetapi adapter API belum dibuat karena endpoint/auth belum disepakati. State/validasi/commands tetap ViewModel.
 5. **Integrasi kelompok:** hubungkan permintaan/status/kuota, ongkos, riwayat/rating sesuai kontrak. Jangan memasukkan modul rekan secara sepihak ke sprint Mikail.
 6. **Verifikasi:** format/analyzer/tests, tes named route driver terblokir, arah jalur, loading/kosong/error, filter/result, quota/idempotensi dan respons async lama; build dan uji HP/hot reload setelah izin pengguna.
 
-Selain desain Mikail yang sudah selesai, tahapan ini tetap rencana, bukan bukti migrasi mobile/integrasi selesai. Saran effort: high untuk migrasi UI/workflow Mikail; xhigh bila tersedia untuk integrasi lintas modul/backend.
+Desain dan UI/workflow lokal Mikail selesai; integrasi kelompok/backend serta uji Android/hot reload tetap rencana. Hasil tes lokal tidak membuktikan integrasi/perangkat siap. Saran effort: high untuk migrasi UI/workflow Mikail; xhigh bila tersedia untuk integrasi lintas modul/backend.
 
 ## 7. Demo UTS Mikail yang ditargetkan
 
-Login → Cari Tebengan → pilih Dari/Ke melalui saran/pin → Filter → Terapkan → Hasil Pencarian → Detail.
+Login → Cari Tebengan → pilih Dari/Ke melalui saran/pin → Cariin Tebengan! → Hasil Pencarian → Filter → Terapkan → Hasil → Detail.
 
 Tunjukkan event/input, state ViewModel, validasi lokasi/ongkos, feedback invalid/loading/kosong/sukses, serta navigasi/result RideFilter/MapLocation/Ride. Ubah satu aturan/tampilan saat diminta dan jelaskan pemisahan View–ViewModel–repository. Tidak perlu menyiapkan jawaban khusus untuk pertanyaan spontan.
 
@@ -87,8 +87,8 @@ Workflow Catatan yang sudah ada tetap kandidat satu workflow UTS dari sisi penum
 ## 8. Kriteria selesai migrasi
 
 - UI dan semua jalur navigasi hanya penumpang, bukan sekadar menyembunyikan tombol driver.
-- Alur Cari → Filter → Hasil → Detail berjalan dengan data yang cocok dan geometry valid; error/kosong/cancel/stale response aman.
+- Alur Cari → Hasil ↔ Filter → Detail berjalan dengan data yang cocok dan geometry valid; error/kosong/cancel/stale response aman.
 - Token/UI peta/alamat konsisten antara Figma dan Flutter; desain baru benar-benar ditinjau.
 - Integrasi server diuji atau batas simulasi dinyatakan eksplisit; tidak ada klaim backend/approval otomatis palsu.
 - Tests/analyzer/build lulus pada source baru; workflow Android/hot reload diuji setelah izin.
-- PRD, pembagian tugas, prompt, UTS dan PROGRESS mencerminkan status nyata. Commit/push hanya atas instruksi pengguna (sudah diminta untuk refactor ini); akses/uji HP tetap memerlukan izin tersendiri.
+- PRD, pembagian tugas, prompt, UTS dan PROGRESS mencerminkan status nyata. Commit/push hanya atas instruksi pengguna; refactor sebelumnya sudah dipush, implementasi UI lokal terbaru belum diminta commit/push; akses/uji HP tetap memerlukan izin tersendiri.

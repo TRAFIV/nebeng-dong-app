@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:praktikum_mobile/routes/ride_results_arguments.dart';
+import 'package:praktikum_mobile/features/ride_search/views/ride_results_screen.dart';
 
 import 'package:praktikum_mobile/shared/models/ride.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
@@ -17,9 +19,21 @@ abstract final class AppRoutes {
   static const String myRoutes = '/my-routes';
   static const String postRoute = '/post-route';
   static const String rideFilter = '/ride-filter';
+  static const String rideResults = '/ride-results';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case rideResults:
+        final args = settings.arguments;
+        if (args is! RideResultsArguments) return null;
+        return MaterialPageRoute<RideFilter>(
+          settings: settings,
+          builder: (_) => RideResultsScreen(
+            request: args.request,
+            repository: args.repository,
+            simulateError: args.simulateError,
+          ),
+        );
       // Archived driver entry points always fall through to 404.
       case myRoutes:
       case postRoute:
@@ -67,8 +81,10 @@ abstract final class AppRoutes {
     }
   }
 
+  /// `Never` cocok dengan `Route<T?>` apa pun, sehingga 404 tetap tampil saat
+  /// pemanggil memakai `pushNamed<T>` bertipe. Hasil baliknya selalu `null`.
   static Route<dynamic> onUnknownRoute(RouteSettings settings) {
-    return MaterialPageRoute<void>(
+    return MaterialPageRoute<Never>(
       builder: (_) => NotFoundScreen(routeName: settings.name),
       settings: settings,
     );

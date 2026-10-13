@@ -17,13 +17,19 @@ Mahasiswa juga diberi situasi/permasalahan dan diminta menunjukkan cara menyusun
 - Mahasiswa harus memahami kode yang dibuat, bukan sekadar menjalankan aplikasi.
 - Bawa laptop pengembangan dengan source code dan environment/tools untuk menjalankan dan memodifikasi aplikasi. Membawa aplikasi terpasang atau APK saja tidak diperkenankan.
 
+## Perubahan jadwal — dicatat 13 Oktober 2026
+
+Menurut informasi pengguna, demo dan code review **diundur ke Kamis, 15 Oktober 2026**. Jam sesi belum dikonfirmasi. Jadwal Jumat, 9 Oktober 2026 pada [Practical Challenge](practical-challenge-tugas-individu.md) adalah isi asli PDF dosen dan sengaja tidak diubah; ketentuan lain tetap sama.
+
+Pemeriksaan 13 Oktober pada working tree `Latihan2-2411523016`: analyzer tanpa masalah, format tanpa perubahan, 128/128 tes lulus setelah tiga perbaikan kecil workflow Filter (batas ongkos `0` ditolak, 404 tampil untuk navigasi bertipe, batas ongkos tampil berpemisah ribuan saat dibuka ulang). Malam harinya build debug dari working tree itu dipasang ke HP Infinix X6855 dan aplikasi terbuka tanpa exception di log. Alur demo di HP dan hot reload masih perlu dicoba sendiri sebelum hari demo.
+
 ## Cakupan proyek yang direvisi — 8 Oktober 2026
 
 [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md) menargetkan satu role penumpang berdasarkan masukan pembimbing yang disampaikan pengguna. Instruksi asli dosen di atas tetap sama; bagian berikut pemetaan proyek, bukan tambahan ketentuan ujian.
 
-Target demo Mikail setelah migrasi: **Login → Cari Tebengan → pilih Dari/Ke dari saran/pin → Filter → Terapkan → Hasil Pencarian → Detail**. Tunjukkan input/event, state ViewModel, validasi lokasi/ongkos, feedback loading/invalid/kosong/sukses, serta navigasi/result MapLocation/RideFilter/Ride.
+Target demo Mikail setelah migrasi: **Login → Cari Tebengan → pilih Dari/Ke dari saran/pin → Cariin Tebengan! → Hasil Pencarian → Filter → Terapkan → Hasil → Detail**. Tunjukkan input/event, state ViewModel, validasi lokasi/ongkos, feedback loading/invalid/kosong/sukses, serta navigasi/result MapLocation/RideFilter/Ride.
 
-Figma Mikail sudah direvisi dan ditinjau menjadi Cari/Hasil/Filter serta loading/kosong/error (8 Oktober 2026). **Source struktur/role sudah dimigrasikan ke feature-first penumpang**, hasil masih di Home dan semua state Figma belum diport; prototype Figma bukan bukti workflow Flutter siap ujian. Hasil 100 tes/build 6 Oktober adalah baseline, bukan bukti target baru siap ujian. Driver menyediakan data melalui backend/admin; tidak perlu demo Posting/ACC sebagai penumpang. Fixture jalan nyata tersimpan untuk demo koordinat; data latihan bukan backend. Contoh arsip lama tanpa geometry tetap tidak cocok. Rencana rinci: [rencana penumpang](../progress/rencana-aplikasi-penumpang.md).
+Figma Mikail sudah direvisi dan ditinjau menjadi Cari/Hasil/Filter serta loading/kosong/error (8 Oktober 2026). **UI/workflow lokal Mikail sudah diimplementasikan pada source feature-first MVVM penumpang**, Hasil terpisah dari Home dan pemilih tempat/pin terhubung. 123 tes lulus, analyzer bersih, capture 16 tampilan dan APK release arm64 berhasil pada source baru. Belum uji Android/hot reload; prototype atau tes lokal bukan bukti demo perangkat siap. Driver menyediakan data melalui backend/admin; tidak perlu demo Posting/ACC sebagai penumpang. Fixture jalan nyata tersimpan untuk demo koordinat; data latihan bukan backend. Contoh arsip lama tanpa geometry tetap tidak cocok. Rencana rinci: [rencana penumpang](../progress/rencana-aplikasi-penumpang.md).
 
 ## Pemetaan kode saat ini untuk penilaian kesiapan
 
@@ -37,11 +43,11 @@ Workflow yang tersedia: **pilih tebengan → Detail → Tulis Catatan → isi da
 | State | Controller input di View; catatan disimpan dalam `RideDetailViewModel.note`, dan UI mengikuti ChangeNotifier melalui ListenableBuilder. |
 | Validation | `CatatanFormViewModel.validate` memakai `Validators.minLength(value, 5, fieldName: 'Catatan')`; View memanggil `FormState.validate()`. Command save memvalidasi ulang. Input kosong/pendek menahan pengguna di form. |
 | Feedback | Pesan error field dan SnackBar `Catatan berhasil disimpan`. |
-| Navigation / Result | Home mengirim `Ride` ke Detail lewat named route; form mengembalikan String melalui `Navigator.pop`; Detail menunggu hasil `Navigator.pushNamed<String>`. |
+| Navigation / Result | Hasil mengirim `Ride` ke Detail lewat named route; form mengembalikan String melalui `Navigator.pop`; Detail menunggu hasil `Navigator.pushNamed<String>`. |
 
 Source terkait:
 
-- `lib/features/ride_search/views/home_screen.dart`: pencarian asal/tujuan dan pengiriman objek `Ride`.
+- `lib/features/ride_search/views/home_screen.dart`: form/snapshot Dari/Ke; `ride_results_screen.dart`: hasil/filter dan pengiriman objek `Ride` ke Detail.
 - `lib/routes/app_routes.dart`: named routes, pemeriksaan tipe arguments, dan fallback route.
 - `lib/shared/views/ride_detail_screen.dart`: penerimaan `Ride`, pembukaan form, penerimaan result, pembaruan state, dan feedback.
 - `lib/features/booking/views/catatan_form_screen.dart`: input, validasi, dan pengembalian result.
@@ -57,13 +63,13 @@ Modul Mikail tetap Rute & Tebengan (FR-01–FR-04); usulan layar menjadi Cari Te
 
 Workflow Catatan yang telah tersedia di atas tetap kandidat UTS satu role: input → validasi → simpan result → kembali ke Detail dengan feedback. Catatan/session lokal harus dijelaskan sebagai batas, bukan penyimpanan backend.
 
-Workflow Filter yang sudah ada: **Beranda → Filter → ubah draft jam/kursi/ongkos → validasi → Terapkan → result RideFilter → hasil berubah**; batal tidak menerapkan draft. Ini dapat digunakan untuk memahami lima unsur workflow tanpa role pengemudi.
+Workflow Filter yang sudah ada: **Cari → Hasil → Filter → ubah draft jam/kursi/ongkos → validasi → Terapkan → result RideFilter → hasil berubah**; batal tidak menerapkan draft. Ini dapat digunakan untuk memahami lima unsur workflow tanpa role pengemudi.
 
 Workflow pin yang sudah ada: **saran atau pilih pin → ketuk/pindah → alamat otomatis/alias → konfirmasi → result MapLocation ke Dari/Ke**. Pahami state LocationPickerViewModel, validasi pin/alamat, loading/error/retry, guard hasil lama dan pembatalan. Saran/geocode/tile memerlukan internet. Peta manual bukan GPS/live tracking.
 
 FR-03 aktual memakai geometry OSRM, koridor 500 m dan urutan jemput sebelum turun. Belum ada detour/akses jalan kaki atau matcher backend. Domain kuota lokal teruji tetapi belum dihubungkan ke approval/backend. Permintaan pending tidak mengurangi kursi. Detail: [peta](../progress/peta-dan-lokasi.md) dan [baseline Modul 1](../progress/modul-1-implementasi.md).
 
-Arsitektur [MVVM](../architecture/mvvm.md): View menangani input/controller/feedback/navigasi; HomeViewModel menangani pencarian/filter/matcher; RideFilterViewModel menangani draft/validasi/apply; repository/service menangani data/jaringan; core adalah lifecycle/DI. Untuk perubahan aturan filter, mulai dari RideFilterViewModel/model RideFilter; untuk tampilan dari theme/View. Pahami ChangeNotifier/ListenableBuilder, dependency injection, dispose dan guard async. Ini pemetaan source, bukan kewajiban baru dosen.
+Arsitektur [MVVM](../architecture/mvvm.md): View menangani input/controller/feedback/navigasi; HomeViewModel menangani form/validasi/snapshot request, RideResultsViewModel menangani fetch/matcher/filter/loading/error; RideFilterViewModel menangani draft/validasi/apply; repository/service menangani data/jaringan; core adalah lifecycle/DI. Untuk perubahan aturan filter, mulai dari RideFilterViewModel/model RideFilter; untuk tampilan dari theme/View. Pahami ChangeNotifier/ListenableBuilder, dependency injection, dispose dan guard async. Ini pemetaan source, bukan kewajiban baru dosen.
 
 ### Workflow pengemudi legacy — bukan demo utama PRD 1.1
 
@@ -82,7 +88,7 @@ Hasil pemeriksaan **baseline 6 Oktober 2026**, bukan pemeriksaan baru atau valid
 - Flutter doctor mencatat Visual Studio belum terpasang (untuk target Windows, bukan prasyarat Android), serta dua binary ADB di PATH. Untuk pemeriksaan perangkat, gunakan ADB dari Android SDK bila terjadi konflik.
 - Perubahan lokal pada tombol Daftar menuju route `/tidak-ada` sudah ada sebelum pemeriksaan ini dan tidak diubah. Login tetap simulasi lokal.
 
-Penilaian terbaru 8 Oktober: kode baseline menyediakan Catatan/Filter/pin yang dapat dijelaskan sebagai workflow penumpang; source sudah penumpang/MVVM feature-first, namun hasil belum layar terpisah dan semua state Figma belum diport. **Belum dinyatakan siap demo final**: fixture bergeometri tersedia, verifikasi refactor baru dicatat di PROGRESS; tetap perlu APK yang sesuai, uji interaksi Android/hot reload dan pemahaman mahasiswa. Signing masih key debug lokal; backend/persistensi/sinkronisasi/approval belum selesai. UTS satu workflow tidak otomatis mewajibkan seluruh PRD selesai, tetapi simulasi harus dijelaskan jujur. GPS/live tracking tidak diwajibkan eksplisit FR-01–04.
+Penilaian terbaru 8 Oktober: workflow lokal Mikail Cari → Hasil ↔ Filter → Detail serta dedicated pemilih Dari/Ke/pin tersedia dan lolos verifikasi source baru (123 tes/analyzer/capture/build). Instruksi/demo yang bisa diikuti ada pada [implementasi Mikail](../progress/modul-1-implementasi.md). **Belum dinyatakan siap demo final**: fixture bergeometri tersedia, verifikasi refactor baru dicatat di PROGRESS; tetap perlu APK yang sesuai, uji interaksi Android/hot reload dan pemahaman mahasiswa. Signing masih key debug lokal; backend/persistensi/sinkronisasi/approval belum selesai. UTS satu workflow tidak otomatis mewajibkan seluruh PRD selesai, tetapi simulasi harus dijelaskan jujur. GPS/live tracking tidak diwajibkan eksplisit FR-01–04.
 
 - Buka repository dan pastikan branch yang berisi workflow tersedia (`Latihan2-2411523016` saat pemeriksaan).
 - Pastikan Flutter/Dart, Android SDK, JDK, editor, serta AI coding assistant dapat dipakai.

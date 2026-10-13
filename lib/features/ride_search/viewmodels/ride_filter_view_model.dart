@@ -26,10 +26,15 @@ class RideFilterViewModel extends ViewModel {
     publish();
   }
 
-  String? validateFare(String? value) =>
-      (value?.trim().isEmpty ?? true) || parseFare(value!) != null
-      ? null
-      : 'Isi rupiah bulat, contoh 10.000';
+  /// Kosong berarti tanpa batas. Batas Rp0 ditolak karena tidak ada tebengan
+  /// yang bisa lolos: ongkos 0 berarti belum diatur, bukan gratis.
+  String? validateFare(String? value) {
+    if (value?.trim().isEmpty ?? true) return null;
+    final fare = parseFare(value!);
+    if (fare == null) return 'Isi rupiah bulat, contoh 10.000';
+    if (fare <= 0) return 'Batas ongkos harus lebih dari Rp0';
+    return null;
+  }
 
   RideFilter? apply(String fare) => validateFare(fare) != null
       ? null

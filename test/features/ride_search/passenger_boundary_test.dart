@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:praktikum_mobile/main.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
+import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/theme/app_theme.dart';
 import 'package:praktikum_mobile/theme/app_colors.dart';
@@ -43,10 +44,7 @@ void main() {
         'Profil',
       ]);
       expect(destinations.skip(1).every((d) => !d.enabled), isTrue);
-      expect(
-        find.text('Data latihan · bukan perjalanan nyata'),
-        findsOneWidget,
-      );
+      expect(find.text('Data latihan · bukan perjalanan nyata'), findsNothing);
     },
   );
   for (final path in [AppRoutes.postRoute, AppRoutes.myRoutes]) {
@@ -70,5 +68,27 @@ void main() {
         expect(find.text('Bikin Rute Baru'), findsNothing);
       },
     );
+  }
+  for (final entry in <String, String>{
+    'filter with wrong arguments': AppRoutes.rideFilter,
+    'results with wrong arguments': AppRoutes.rideResults,
+    'an unknown route': '/tidak-ada',
+  }.entries) {
+    testWidgets('Typed navigation to ${entry.key} shows 404 and returns null', (
+      tester,
+    ) async {
+      await pumpTestWidget(tester, const NebengDongApp());
+      final result = tester
+          .state<NavigatorState>(find.byType(Navigator))
+          .pushNamed<RideFilter>(entry.value, arguments: 'invalid');
+      await tester.pumpAndSettle();
+      expect(find.text('404'), findsOneWidget);
+      expect(find.text('Route: ${entry.value}'), findsOneWidget);
+      await tester.tap(find.text('Kembali'));
+      await tester.pumpAndSettle();
+      expect(await result, isNull);
+      expect(find.text('404'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
   }
 }

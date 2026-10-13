@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:praktikum_mobile/features/ride_search/models/ride_search_request.dart';
+import 'package:praktikum_mobile/features/ride_search/viewmodels/ride_results_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:praktikum_mobile/shared/maps/services/open_map_service.dart';
 import 'package:praktikum_mobile/legacy/driver/data/legacy_driver_repository.dart';
@@ -98,127 +100,142 @@ void main() {
     });
   });
 
-  group('Home/ViewModel repository state', () {
-    test('Load, applied search, location draft and filter', () async {
+  group('Search form and results models', () {
+    final request = RideSearchRequest(origin: from, destination: to);
+    test('Form coordinates, filter and immutable request snapshot', () {
+      final repo = LegacyDriverRepository(rides: []);
+      addTearDown(repo.dispose);
+      final vm = HomeViewModel(repository: repo);
+      addTearDown(vm.dispose);
+      expect(vm.canSearch, isFalse);
+      vm.selectOrigin(from);
+      expect(vm.search(), isNotNull);
+      vm.selectDestination(to);
+      expect(vm.canSearch, isTrue);
+      expect(vm.search(), isNull);
+      final snapshot = vm.searchRequest!;
+      vm.setLocations(to, from);
+      vm.applyFilter(const RideFilter(minimumSeats: 3));
+      expect(snapshot.origin, same(from));
+      expect(snapshot.destination, same(to));
+      expect(snapshot.filter.minimumSeats, 1);
+      expect(vm.search(), isNull);
+      expect(vm.searchRequest!.filter.minimumSeats, 3);
+    });
+    test('Invalid near endpoints preserve the applied request', () {
+      final repo = LegacyDriverRepository(rides: []);
+      addTearDown(repo.dispose);
+      final vm = HomeViewModel(repository: repo);
+      addTearDown(vm.dispose);
+      vm.setLocations(from, to);
+      vm.search();
+      final previous = vm.searchRequest;
+      vm.setLocations(from, from);
+      expect(vm.search(), contains('50 meter'));
+      expect(vm.searchRequest, same(previous));
+    });
+    test('Load, readonly results and filter', () async {
       final repo = LegacyDriverRepository(rides: [], delay: Duration.zero);
       addTearDown(repo.dispose);
       final ride = seed(repo);
-      final vm = HomeViewModel(repository: repo);
+      final vm = RideResultsViewModel(repository: repo, request: request);
       addTearDown(vm.dispose);
-      expect(vm.status, RideViewStatus.loading);
+      expect(vm.status, SearchResultsStatus.loading);
       await vm.load();
-      expect(vm.status, RideViewStatus.success);
-      expect(vm.results.single, ride);
-      vm.selectOrigin(from);
-      expect(vm.originPlace, same(from));
-      expect(vm.search(origin: from.label, destination: ''), isNotNull);
-      vm.selectDestination(to);
-      expect(vm.search(origin: 'Alias A', destination: 'Alias B'), isNull);
-      expect(vm.geographicSearch, isTrue);
+      expect(vm.status, SearchResultsStatus.success);
       expect(vm.results.single.id, ride.id);
       vm.applyFilter(const RideFilter(minimumSeats: 4));
       expect(vm.results, isEmpty);
-      vm.selectTab(2);
-      expect(vm.selectedTab, 2);
       expect(() => vm.allRides.clear(), throwsUnsupportedError);
       expect(() => vm.results.clear(), throwsUnsupportedError);
     });
-    test('Text search, near endpoints and backwards corridor', () async {
+    test('Reversed corridor excludes forward travel', () async {
       final repo = LegacyDriverRepository(rides: [], delay: Duration.zero);
       addTearDown(repo.dispose);
       seed(repo);
-      final vm = HomeViewModel(repository: repo);
+      final vm = RideResultsViewModel(
+        repository: repo,
+        request: RideSearchRequest(origin: to, destination: from),
+      );
       addTearDown(vm.dispose);
       await vm.load();
-      expect(vm.search(origin: 'unmatched', destination: ''), isNotNull);
-      expect(vm.results, hasLength(1));
-      vm.setLocations(from, from);
-      expect(
-        vm.search(origin: from.label, destination: from.label),
-        contains('50 meter'),
-      );
-      vm.setLocations(to, from);
-      expect(vm.search(origin: to.label, destination: from.label), isNull);
       expect(vm.results, isEmpty);
     });
-    test(
-      'Posting/edit/delete/approval notify both Home and My Routes',
-      () async {
-        final repo = LegacyDriverRepository(rides: [], delay: Duration.zero);
-        addTearDown(repo.dispose);
-        final home = HomeViewModel(repository: repo);
-        final mine = MyRoutesViewModel(repository: repo);
-        addTearDown(home.dispose);
-        addTearDown(mine.dispose);
-        await home.load();
-        final ride = seed(repo, capacity: 1);
-        expect(home.results.single.id, ride.id);
-        expect(mine.rides.single.id, ride.id);
-        repo.updateOwned(ride.copyWith(departureTime: '08.30'));
-        expect(home.results.single.departureTime, '08.30');
-        expect(mine.rides.single.departureTime, '08.30');
-        var notifications = 0;
-        home.addListener(() => notifications++);
-        repo.acceptBooking(routeId: ride.id, bookingId: 'booking-1');
-        expect(home.results, isEmpty);
-        expect(mine.rides.single.isFull, isTrue);
-        final afterApproval = notifications;
-        repo.acceptBooking(routeId: ride.id, bookingId: 'booking-1');
-        expect(notifications, afterApproval);
-        expect(mine.delete(mine.rides.single), contains('penumpang'));
-        final free = seed(repo);
-        expect(mine.delete(free), 'Rute berhasil dihapus');
-        expect(home.allRides.any((r) => r.id == free.id), isFalse);
-        mine.toggleManaging();
-        expect(mine.managing, isTrue);
-      },
-    );
-    test('Load error exposes retry state', () async {
+    test('Legacy changes notify read-only Results and My Routes', () async {
       final repo = LegacyDriverRepository(rides: [], delay: Duration.zero);
       addTearDown(repo.dispose);
-      final vm = HomeViewModel(repository: repo, simulateError: true);
+      final results = RideResultsViewModel(repository: repo, request: request);
+      final mine = MyRoutesViewModel(repository: repo);
+      addTearDown(results.dispose);
+      addTearDown(mine.dispose);
+      await results.load();
+      final ride = seed(repo, capacity: 1);
+      expect(results.results.single.id, ride.id);
+      expect(mine.rides.single.id, ride.id);
+      repo.updateOwned(ride.copyWith(departureTime: '08.30'));
+      expect(results.results.single.departureTime, '08.30');
+      var notifications = 0;
+      results.addListener(() => notifications++);
+      repo.acceptBooking(routeId: ride.id, bookingId: 'booking-1');
+      expect(results.results, isEmpty);
+      expect(mine.rides.single.isFull, isTrue);
+      final after = notifications;
+      repo.acceptBooking(routeId: ride.id, bookingId: 'booking-1');
+      expect(notifications, after);
+      expect(mine.delete(mine.rides.single), contains('penumpang'));
+      final free = seed(repo);
+      expect(mine.delete(free), 'Rute berhasil dihapus');
+      expect(results.allRides.any((r) => r.id == free.id), isFalse);
+      mine.toggleManaging();
+      expect(mine.managing, isTrue);
+    });
+    test('Error shows useful retry feedback', () async {
+      final repo = LegacyDriverRepository(rides: [], delay: Duration.zero);
+      addTearDown(repo.dispose);
+      final vm = RideResultsViewModel(
+        repository: repo,
+        request: request,
+        simulateError: true,
+      );
       addTearDown(vm.dispose);
       await vm.load();
-      expect(vm.status, RideViewStatus.error);
-      expect(vm.errorMessage, contains('Gagal memuat data'));
+      expect(vm.status, SearchResultsStatus.error);
+      expect(vm.errorMessage, contains('Periksa koneksi'));
     });
-    test('Newest load wins; retry clears old error', () async {
+    test('Latest load wins and retry clears old error', () async {
       final repo = PendingRepository();
       addTearDown(repo.dispose);
-      final vm = HomeViewModel(repository: repo);
+      final vm = RideResultsViewModel(repository: repo, request: request);
       addTearDown(vm.dispose);
       final failed = vm.load();
       repo.requests[0].completeError(Exception('offline'));
       await failed;
-      expect(vm.status, RideViewStatus.error);
+      expect(vm.status, SearchResultsStatus.error);
       final older = vm.load();
       final latest = vm.load();
       expect(vm.errorMessage, isEmpty);
       repo.requests[2].complete([]);
       await latest;
-      repo.requests[1].completeError(Exception('stale failure'));
+      repo.requests[1].completeError(Exception('stale'));
       await older;
-      expect(vm.status, RideViewStatus.success);
+      expect(vm.status, SearchResultsStatus.success);
       expect(vm.errorMessage, isEmpty);
     });
-    test(
-      'Disposed Home detaches repository and ignores pending load',
-      () async {
-        final repo = PendingRepository();
-        addTearDown(repo.dispose);
-        final vm = HomeViewModel(repository: repo);
-        var notifications = 0;
-        vm.addListener(() => notifications++);
-        final pending = vm.load();
-        vm.dispose();
-        final count = notifications;
-        seed(repo);
-        repo.requests.single.complete(repo.rides);
-        await pending;
-        expect(notifications, count);
-        expect(vm.allRides, isEmpty);
-      },
-    );
+    test('Disposed results detach and ignore pending load', () async {
+      final repo = PendingRepository();
+      addTearDown(repo.dispose);
+      final vm = RideResultsViewModel(repository: repo, request: request);
+      var notifications = 0;
+      vm.addListener(() => notifications++);
+      final pending = vm.load();
+      vm.dispose();
+      final count = notifications;
+      seed(repo);
+      repo.requests.single.complete(repo.rides);
+      await pending;
+      expect(notifications, count);
+      expect(vm.allRides, isEmpty);
+    });
   });
 
   group('Posting ViewModel', () {
@@ -376,6 +393,22 @@ void main() {
       final result = vm.apply('')!;
       expect(result.isActive, isFalse);
     });
+    test('Zero fare limit is rejected; empty still means no limit', () {
+      final vm = RideFilterViewModel();
+      addTearDown(vm.dispose);
+      for (final zero in ['0', '000', ' 0 ', '0.000']) {
+        expect(
+          vm.validateFare(zero),
+          'Batas ongkos harus lebih dari Rp0',
+          reason: zero,
+        );
+        expect(vm.apply(zero), isNull, reason: zero);
+      }
+      expect(vm.validateFare(''), isNull);
+      expect(vm.apply('')!.maximumFare, isNull);
+      expect(vm.apply('1')!.maximumFare, 1);
+      expect(vm.validateFare('1.5'), 'Isi rupiah bulat, contoh 10.000');
+    });
     test(
       'Request validates, guards duplicate; never reduces repository seats',
       () {
@@ -498,8 +531,30 @@ void main() {
         vm.retry();
         await tester.pump(const Duration(milliseconds: 651));
         expect(vm.confirm()!.point, same(from.point));
-        expect(vm.confirm()!.label, to.address);
+        expect(vm.confirm()!.label, to.label);
+        expect(vm.confirm()!.address, to.address);
         expect(vm.addressError, isNull);
+      },
+    );
+    testWidgets(
+      'Moving pin refreshes place name but preserves an edited alias',
+      (tester) async {
+        final service = FakeMapService()..reverseHandler = (_) async => to;
+        final vm = LocationPickerViewModel(
+          service: service,
+          initialLocation: from,
+        );
+        addTearDown(vm.dispose);
+        vm.placePin(to.point);
+        expect(vm.label, isEmpty);
+        await tester.pump(const Duration(milliseconds: 651));
+        expect(vm.confirm()!.label, to.label);
+        vm.setLabel('Gerbang khusus');
+        vm.placePin(from.point);
+        await tester.pump(const Duration(milliseconds: 651));
+        expect(vm.confirm()!.label, 'Gerbang khusus');
+        expect(vm.confirm()!.address, to.address);
+        expect(vm.confirm()!.point, same(from.point));
       },
     );
     testWidgets('New pin invalidates older reverse request', (tester) async {

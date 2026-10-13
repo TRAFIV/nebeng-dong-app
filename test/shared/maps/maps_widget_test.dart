@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:praktikum_mobile/legacy/driver/data/legacy_driver_repository.dart';
@@ -430,7 +431,9 @@ void main() {
         tester,
         MaterialApp(
           theme: AppTheme.light,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
           home: HomeScreen(
+            // New results page uses the active typed router.
             userName: 'Mikail',
             rides: repo.rides,
             loadDelay: Duration.zero,
@@ -438,21 +441,14 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await selectTestLocation(
-        tester,
-        field('Contoh: Jl. Khatib Sulaiman'),
-        'Air Tawar',
-      );
-      await selectTestLocation(
-        tester,
-        field('Contoh: Kampus Unand Limau Manis'),
-        'Unand',
-      );
+      await selectHomeLocation(tester, 'Dari', 'Air Tawar');
+      await selectHomeLocation(tester, 'Ke', 'Unand');
       await tester.tap(find.text('Pesanan'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cari'));
       await tester.pumpAndSettle();
-      expect(find.text('Lokasi dipilih'), findsNWidgets(2));
+      expect(find.text('Air Tawar'), findsOneWidget);
+      expect(find.text('Unand'), findsOneWidget);
       expect(find.textContaining('Mode teks'), findsNothing);
       expect(find.textContaining('Mode jalur'), findsNothing);
       expect(find.textContaining('Contoh lama'), findsNothing);
@@ -471,19 +467,13 @@ void main() {
       );
       expect(find.text('Pengemudi cocok'), findsOneWidget);
       expect(find.text('Tanpa koordinat'), findsNothing);
-      expect(find.text('Searah jalur'), findsOneWidget);
+      expect(find.text('Hasil Pencarian'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
       await tester.drag(find.byType(ListView).first, const Offset(0, 1500));
       await tester.pumpAndSettle();
-      await selectTestLocation(
-        tester,
-        field('Contoh: Jl. Khatib Sulaiman'),
-        'Unand',
-      );
-      await selectTestLocation(
-        tester,
-        field('Contoh: Kampus Unand Limau Manis'),
-        'Air Tawar',
-      );
+      await selectHomeLocation(tester, 'Dari', 'Unand');
+      await selectHomeLocation(tester, 'Ke', 'Air Tawar');
       await Scrollable.ensureVisible(
         tester.element(find.text('Cariin Tebengan!')),
         alignment: 0.5,
@@ -492,9 +482,7 @@ void main() {
       await tester.tap(find.text('Cariin Tebengan!'));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
-        find.text(
-          'Yah, belum ada yang cocok. Coba ganti lokasi atau filternya, deh!',
-        ),
+        find.text('Belum ada yang searah'),
         100,
         scrollable: find.byType(Scrollable).first,
       );

@@ -18,6 +18,7 @@ class LocationPickerViewModel extends ViewModel {
   MapLocation? _selected;
   String _address;
   String _label;
+  bool _labelEdited = false;
   MapLocation? get selected => _selected;
   String get address => _address;
   String get label => _label;
@@ -36,6 +37,7 @@ class LocationPickerViewModel extends ViewModel {
     _invalidate();
     final generation = _generation;
     _selected = MapLocation.pin(point);
+    if (!_labelEdited) _label = '';
     _address = '';
     _resolving = true;
     _addressError = null;
@@ -62,6 +64,7 @@ class LocationPickerViewModel extends ViewModel {
           sourceId: place.sourceId,
         );
         _address = place.address;
+        if (!_labelEdited) _label = place.label;
       }
     } catch (error) {
       if (isDisposed || generation != _generation) return;
@@ -77,6 +80,7 @@ class LocationPickerViewModel extends ViewModel {
     _invalidate();
     _selected = place;
     _label = place.label;
+    _labelEdited = false;
     _address = place.address;
     _addressError = null;
     _resolving = false;
@@ -92,6 +96,7 @@ class LocationPickerViewModel extends ViewModel {
   }
 
   void setLabel(String value) {
+    _labelEdited = true;
     _label = value;
     publish();
   }

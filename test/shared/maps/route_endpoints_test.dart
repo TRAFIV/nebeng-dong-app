@@ -3,77 +3,72 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:praktikum_mobile/legacy/driver/data/legacy_driver_repository.dart';
-import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
-import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/legacy/driver/views/post_route_screen.dart';
-import 'package:praktikum_mobile/shared/views/ride_detail_screen.dart';
-import 'package:praktikum_mobile/theme/app_theme.dart';
+import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/location_field.dart';
+import 'package:praktikum_mobile/shared/maps/widgets/location_selection_tile.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/route_endpoints.dart';
+import 'package:praktikum_mobile/shared/views/ride_detail_screen.dart';
+import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
+import 'package:praktikum_mobile/theme/app_theme.dart';
 
 import '../../support/map_test_support.dart';
 
 Finder field(String hint) => find.widgetWithText(TextFormField, hint);
 const originHint = 'Contoh: Jl. Khatib Sulaiman';
 const destinationHint = 'Contoh: Kampus Unand Limau Manis';
-
 Future<void> swap(WidgetTester tester) async {
   final action = find.byTooltip('Tukar asal dan tujuan');
   await tester.ensureVisible(action);
-  await tester.pumpAndSettle();
   await tester.tap(action);
   await tester.pumpAndSettle();
 }
 
 List<LocationField> locations(WidgetTester tester) =>
     tester.widgetList<LocationField>(find.byType(LocationField)).toList();
+List<LocationSelectionTile> homeLocations(WidgetTester tester) => tester
+    .widgetList<LocationSelectionTile>(find.byType(LocationSelectionTile))
+    .toList();
+Widget home() => MaterialApp(
+  theme: AppTheme.light,
+  home: const HomeScreen(userName: 'Mikail'),
+);
 
 void main() {
-  testWidgets('Beranda menukar nama dan koordinat; dua kali kembali semula', (
+  testWidgets('Home swaps full selections; two swaps restore them', (
     tester,
   ) async {
-    await pumpTestWidget(
-      tester,
-      MaterialApp(
-        theme: AppTheme.light,
-        home: const HomeScreen(userName: 'Mikail', loadDelay: Duration.zero),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await selectTestLocation(tester, field(originHint), 'Air Tawar');
-    await selectTestLocation(tester, field(destinationHint), 'Unand');
+    await pumpTestWidget(tester, home());
+    await selectHomeLocation(tester, 'Dari', 'Air Tawar');
+    await selectHomeLocation(tester, 'Ke', 'Unand');
+    final before = homeLocations(tester);
     await swap(tester);
-    var pair = locations(tester);
-    expect(pair[0].controller.text, 'Unand');
-    expect(pair[0].initialLocation!.point.latitude, -0.94);
-    expect(pair[1].controller.text, 'Air Tawar');
-    expect(pair[1].initialLocation!.point.latitude, -0.90);
-    expect(find.text('Lokasi dipilih'), findsNWidgets(2));
+    var pair = homeLocations(tester);
+    expect(pair[0].location, same(before[1].location));
+    expect(pair[1].location, same(before[0].location));
+    expect(pair[0].location!.address, 'Padang');
     await swap(tester);
-    pair = locations(tester);
-    expect(pair[0].initialLocation!.label, 'Air Tawar');
-    expect(pair[1].initialLocation!.label, 'Unand');
+    pair = homeLocations(tester);
+    expect(pair[0].location, same(before[0].location));
+    expect(pair[1].location, same(before[1].location));
   });
-
-  testWidgets('Tukar satu lokasi tidak membuat koordinat untuk draft kosong', (
+  testWidgets('Swap of a single endpoint leaves the other unselected', (
     tester,
   ) async {
-    await pumpTestWidget(
-      tester,
-      MaterialApp(
-        theme: AppTheme.light,
-        home: const HomeScreen(userName: 'Mikail', loadDelay: Duration.zero),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await selectTestLocation(tester, field(originHint), 'Air Tawar');
+    await pumpTestWidget(tester, home());
+    await selectHomeLocation(tester, 'Dari', 'Air Tawar');
     await swap(tester);
-    final pair = locations(tester);
-    expect(pair[0].controller.text, isEmpty);
-    expect(pair[0].initialLocation, isNull);
-    expect(pair[1].controller.text, 'Air Tawar');
-    expect(pair[1].initialLocation!.point.latitude, -0.90);
-    expect(find.text('Lokasi dipilih'), findsOneWidget);
+    final pair = homeLocations(tester);
+    expect(pair[0].location, isNull);
+    expect(pair[1].location!.label, 'Air Tawar');
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.widgetWithText(FilledButton, 'Cariin Tebengan!'),
+          )
+          .onPressed,
+      isNull,
+    );
   });
 
   testWidgets('Posting setelah tukar menyimpan jalur dengan arah baru', (
@@ -150,44 +145,32 @@ void main() {
     expect(repo.rides.single.geography!.route.points.first, destination.point);
   });
 
-  testWidgets('Respons lama setelah tukar tidak menimpa lokasi pilihan', (
+  testWidgets('Cancelled pending place search cannot overwrite a swap', (
     tester,
   ) async {
     final pending = Completer<List<MapLocation>>();
-    var firstQuery = true;
     final service = FakeMapService()
-      ..searchHandler = (query) async {
-        if (query == 'Lama' && firstQuery) {
-          firstQuery = false;
-          return pending.future;
-        }
-        return [FakeMapService.place(query)];
-      };
-    await pumpTestWidget(
-      tester,
-      MaterialApp(
-        theme: AppTheme.light,
-        home: const HomeScreen(userName: 'Mikail', loadDelay: Duration.zero),
-      ),
-      service: service,
-    );
+      ..searchHandler = (query) => query == 'Lama'
+          ? pending.future
+          : Future.value([FakeMapService.place(query)]);
+    await pumpTestWidget(tester, home(), service: service);
+    await selectHomeLocation(tester, 'Ke', 'Unand');
+    await tester.tap(find.byKey(const ValueKey('select-Dari')));
     await tester.pumpAndSettle();
-    await selectTestLocation(tester, field(destinationHint), 'Unand');
-    await tester.enterText(field(originHint), 'Lama');
+    await tester.enterText(find.byKey(const ValueKey('place-query')), 'Lama');
     await tester.pump(const Duration(milliseconds: 750));
-    // Don't settle while the pending query's loading indicator is animating.
-    await tester.ensureVisible(find.byTooltip('Tukar asal dan tujuan'));
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.byTooltip('Tukar asal dan tujuan'));
-    await tester.pump();
+    await tester.pageBack();
+    await tester.pump(const Duration(milliseconds: 400));
+    await swap(tester);
     pending.complete([FakeMapService.place('Hasil lama')]);
     await tester.pumpAndSettle();
-    expect(locations(tester)[0].initialLocation!.label, 'Unand');
-    expect(find.widgetWithText(ListTile, 'Hasil lama'), findsNothing);
+    expect(homeLocations(tester)[0].location!.label, 'Unand');
+    expect(homeLocations(tester)[1].location, isNull);
+    expect(find.text('Hasil lama'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
-
   for (final scale in [1.0, 2.0]) {
-    testWidgets('Beranda/detail responsif 320px pada skala teks $scale', (
+    testWidgets('Home/detail responsive 320px text scale $scale', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(320, 800);
@@ -195,6 +178,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final repo = LegacyDriverRepository(rides: []);
+      addTearDown(repo.dispose);
       final ride = repo.post(
         driverName: 'Mikail',
         origin: 'Gerbang utama Jalan Khatib Sulaiman Padang',
@@ -215,20 +199,18 @@ void main() {
         tester,
         app(
           HomeScreen(
-            userName: 'Mikail',
-            rides: repo.rides,
-            loadDelay: Duration.zero,
+            userName: 'Mikail Samyth Habibillah',
+            initialOrigin: FakeMapService.place(ride.origin),
+            initialDestination: FakeMapService.place(ride.destination),
           ),
         ),
       );
       await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
       await tester.scrollUntilVisible(
-        find.byType(RouteLocationSummary),
-        100,
+        find.text('Cariin Tebengan!'),
+        200,
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await pumpTestWidget(tester, app(RideDetailScreen(ride: ride)));
       await tester.pumpAndSettle();

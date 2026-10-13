@@ -6,9 +6,9 @@ Implementasi 6 Oktober 2026 memakai layanan terbuka, tanpa Google Maps SDK, API 
 
 ## Target satu role — revisi dokumen 8 Oktober 2026
 
-Peta tetap dipakai pada Cari/Hasil/Detail dan Titik Jemput penumpang. [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md) tidak lagi menempatkan Posting Rute/Rute Saya pada mobile; penjelasan posting di bawah adalah baseline 6 Oktober, bukan target baru. Source belum dimigrasikan. Figma Mikail 8 Oktober sudah memakai field Dari/Ke beralamat dengan aksi pin/swap kanan; picker peta penuh dan shared Detail tidak diubah. Aksi pin/swap masih visual, bukan interaksi peta di prototype.
+Peta tetap dipakai pada Cari/Hasil/Detail dan Titik Jemput penumpang. [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md) tidak lagi menempatkan Posting Rute/Rute Saya pada mobile; penjelasan posting di bawah adalah baseline 6 Oktober, bukan target baru. Source aktif sudah penumpang/MVVM: field Dari/Ke membuka pemilih tempat dedicated, panah kanan membuka pin langsung; hasil pencarian terpisah dan terhubung ke Filter/Detail. Nama/alias dan alamat lengkap terpisah; pin/konfirmasi/batal/swap bekerja pada Flutter. Figma Mikail 8 Oktober memiliki 18 state ilustratif picker/pin (bukan tile/geocoding nyata); shared Detail tetap baseline. Backend belum tersedia.
 
-Rute sekarang ditargetkan berasal dari backend/admin dengan koordinat, alamat dan geometry jalan yang sudah tersimpan. **Sample lama tanpa geometry tidak cocok saat pencarian menggunakan pin.** Siapkan seed/fixture deterministik bergeometri jalan nyata, termasuk arah benar/terbalik/penuh; jangan memakai garis lurus palsu atau menghitung seluruh seed melalui OSRM setiap startup. Backend eksternal/kontrak belum dikonfirmasi. Seed/fake bukan backend booking yang selesai; batas simulasi harus dijelaskan. Detail: [rencana penumpang](rencana-aplikasi-penumpang.md).
+Rute sekarang ditargetkan berasal dari backend/admin dengan koordinat, alamat dan geometry jalan yang sudah tersimpan. **Sample lama tanpa geometry tidak cocok saat pencarian menggunakan pin.** Empat fixture latihan bergeometri jalan nyata sekarang tersedia, termasuk arah benar/terbalik/penuh; jangan memakai garis lurus palsu atau menghitung seluruh seed melalui OSRM setiap startup. Backend eksternal/kontrak belum dikonfirmasi. Seed/fake bukan backend booking yang selesai; batas simulasi harus dijelaskan. Detail: [rencana penumpang](rencana-aplikasi-penumpang.md).
 
 ## Komponen
 
@@ -21,6 +21,14 @@ Rute sekarang ditargetkan berasal dari backend/admin dengan koordinat, alamat da
 | Mencocokkan tebengan | `RouteMatcher` lokal: kedua titik dekat geometry jalan, jemput sebelum turun, urutkan deviasi terkecil |
 
 Nominatim publik tidak dipakai untuk autocomplete. OSRM mengembalikan jalan sebenarnya; kegagalan tidak diganti garis lurus palsu. Profil mobil belum menjamin jalan khusus motor atau kondisi lalu lintas aktual.
+
+## Cara memakai pencarian/pin aktif
+
+1. Ketuk field Dari atau Ke untuk membuka pencarian tempat. Pilih hasil dengan nama dan alamat; mengetik saja belum memilih koordinat.
+2. Panah kanan langsung membuka peta; ketuk pin, tunggu alamat atau pilih Isi alamat manual ketika layanan gagal. Isi alias opsional lalu Gunakan Pin Ini.
+3. Pilihan kembali ke endpoint asal pembuka. Back tanpa konfirmasi mempertahankan pilihan lama. Swap menukar nama/alamat/koordinat atomik.
+4. Isi kedua lokasi berjarak minimal 50 m, tekan Cariin Tebengan!; Hasil menampilkan rute searah. Filter berlaku setelah Terapkan, draft batal tidak memengaruhi hasil.
+5. Layanan tempat/tile/geocode memerlukan internet. GPS/live tracking tidak ditambahkan; fixture rute tersimpan tidak mengubah kebutuhan internet pencarian nama/peta.
 
 ## Cara memakai pencarian/pin pada baseline
 

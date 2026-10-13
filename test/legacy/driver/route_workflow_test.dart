@@ -102,20 +102,13 @@ void main() {
       tester,
       MaterialApp(
         theme: AppTheme.light,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
         home: HomeScreen(userName: 'Mikail', repository: repo),
       ),
     );
     await tester.pumpAndSettle();
-    await selectTestLocation(
-      tester,
-      field('Contoh: Jl. Khatib Sulaiman'),
-      'Ulak Karang',
-    );
-    await selectTestLocation(
-      tester,
-      field('Contoh: Kampus Unand Limau Manis'),
-      'Unand',
-    );
+    await selectHomeLocation(tester, 'Dari', 'Ulak Karang');
+    await selectHomeLocation(tester, 'Ke', 'Unand');
     await tapVisible(tester, 'Cariin Tebengan!');
     await tester.scrollUntilVisible(
       find.text('Ongkos belum diatur'),
@@ -181,6 +174,9 @@ void main() {
     'Filter draft batal, apply 2 kursi, reset/apply mengembalikan hasil',
     (tester) async {
       await login(tester);
+      await selectHomeLocation(tester, 'Dari', 'Universitas Andalas');
+      await selectHomeLocation(tester, 'Ke', 'khatib');
+      await tapVisible(tester, 'Cariin Tebengan!');
       await tapVisible(tester, 'Filter');
       await tapVisible(tester, '3 kursi');
       await tester.pageBack();
@@ -192,7 +188,7 @@ void main() {
       await tapVisible(tester, 'Terapkan');
       expect(find.text('Filter aktif'), findsOneWidget);
       await tester.scrollUntilVisible(
-        find.text('Taris Rafivdean'),
+        find.text('Pengemudi contoh'),
         100,
         scrollable: find.byType(Scrollable).first,
       );
@@ -206,11 +202,11 @@ void main() {
       await tapVisible(tester, 'Terapkan');
       expect(find.text('Filter aktif'), findsNothing);
       await tester.scrollUntilVisible(
-        find.text('Duha Alul Bariq'),
+        find.text('Pengemudi contoh'),
         100,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('Duha Alul Bariq'), findsOneWidget);
+      expect(find.text('Pengemudi contoh'), findsOneWidget);
     },
   );
 

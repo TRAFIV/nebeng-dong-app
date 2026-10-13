@@ -48,7 +48,7 @@ dihapus; semua import menunjuk satu implementasi `core/di`.
   Tidak memanggil fetch/CRUD/searchPlaces/reverse/routeBetween langsung.
 - ViewModel: state, validasi dan commands. Tidak mengimpor View/widget/routes/theme,
   memakai BuildContext/Navigator/controller, atau bergantung pada VM lain.
-- Model: immutable Ride, MapLocation/GeoPoint/RoadRoute dan RideFilter.
+- Model: immutable Ride, MapLocation/GeoPoint/RoadRoute, RideFilter dan RideSearchRequest. Query tidak membawa repository; RideResultsArguments adalah kontrak navigasi di routes/.
 - Repository: kontrak baca rute dan sumber kebenaran bersama. Data mengalir
   repository → VM → View, event View → command VM.
 - Service peta: adapter jaringan yang sudah ada dipertahankan dengan cache/antrian/rate limit.
@@ -68,9 +68,10 @@ adalah hook praktikum/test eksplisit, bukan parameter endpoint backend.
 
 Root `NebengDongApp` memasang `RideRepositoryProvider` dan `MapServiceProvider`.
 Default dimiliki provider; instance injected dimiliki caller dan tidak didispose provider/Home.
-Home meminjam repository; saat dependensi berganti VM lama melepas listener sebelum VM baru
-dibuat. Standalone/test dapat menginjeksi repository atau data lokal; hanya fallback milik
-Home yang ditutup Home. VM meminjam service/repository dan tidak menutup dependensi bersama.
+Home dan Hasil meminjam repository sesi. Home mengirim snapshot query + repository yang sama
+melalui route arguments; hanya Hasil memasang listener/fetch. Ketika dependency Hasil berganti,
+VM lama melepas listener sebelum VM baru dibuat. Standalone/test dapat menginjeksi repository;
+fallback lokal dimiliki/ditutup layar pembuatnya. VM tidak menutup dependensi bersama.
 
 Adapter REST **belum dibuat** karena kontrak backend belum tersedia. Tidak mengarang endpoint,
 auth, schema status, atau menganggap fixture sebagai server. Keputusan booking, alokasi
@@ -89,7 +90,9 @@ Detail request/note masih presentasi lokal dan hilang ketika VM dibuat ulang.
 
 ## Async, lokasi dan data latihan
 
-- Home: generation/isDisposed; respons load lama tidak menimpa state terbaru.
+- HomeViewModel: form Dari/Ke, swap, filter tersimpan dan validasi/snapshot request; tidak fetch.
+- RideResultsViewModel: fetch, matcher pure di utils/ride_search_matcher.dart, filter dan
+  status loading/success/error; generation/isDisposed mencegah respons lama/ditutup menimpa state.
 - Autocomplete: minimal 3 karakter, debounce 700 ms, generation; clear/swap/pilihan
   membatalkan hasil lama. Perubahan kursor/parent echo tidak merusak pilihan.
 - Picker: debounce reverse 650 ms, point/generation tepat, retry/manual, alamat lengkap
@@ -101,8 +104,12 @@ Detail request/note masih presentasi lokal dan hilang ketika VM dibuat ulang.
   Provenance/atribusi di README fixture; geometry sintetis hanya untuk tes terisolasi.
 - UI menyatakan data latihan. Bukan backend/approval/persistensi/GPS/live tracking.
 
-Hasil masih di Home dan autocomplete inline; pemisahan layar Hasil/pemilih tempat dedicated
-sesuai seluruh state Figma adalah tahap berikutnya, bukan klaim selesai karena folder berubah.
+Hasil sudah layar terpisah. Field lokasi membuka PlaceSearchScreen; panah kanan membuka pin
+langsung. Result MapLocation hanya diterapkan setelah memilih hasil/konfirmasi; batal aman.
+Filter draft dibatalkan tanpa perubahan, Terapkan memperbarui hasil, Atur Ulang mereset draft.
+Hasil mengembalikan applied RideFilter saat AppBar/system back; pencarian berikutnya memakainya.
+Peta interaktif native memakai tile OSM, bukan skema/bitmap Figma. Review screenshot/state
+utama tidak berarti seluruh contoh prototype identik piksel atau backend/rekan selesai.
 
 ## Pengujian
 
@@ -110,7 +117,8 @@ sesuai seluruh state Figma adalah tahap berikutnya, bukan klaim selesai karena f
 dari source aktif, kontrak repository penumpang tanpa mutasi driver, dan lokasi core.
 `test/core/di/` memeriksa instance bersama, rebinding, ownership/disposal dan app injection.
 `test/features/ride_search/` memeriksa deny route driver, UI/menu nonaktif dan fixture
-searah/terbalik/penuh/tidak cocok. Regresi async lama ada di `test/regression/`; peta/widget
+searah/terbalik/penuh/tidak cocok dan workflow selector/pin/filter/retry/back/loading.
+Hasil/Filter/Places diuji pada 320 px dengan skala teks OS 2x. Regresi async lama ada di `test/regression/`; peta/widget
 di `test/shared/maps/`; catatan/login/workflow penumpang di `test/integration/`.
 Guard struktural bukan bukti formal seluruh arsitektur.
 
