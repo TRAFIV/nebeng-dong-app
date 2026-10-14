@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:praktikum_mobile/shared/models/ride.dart';
+import 'package:praktikum_mobile/features/costs/models/cost_breakdown.dart';
+import 'package:praktikum_mobile/features/costs/views/cost_detail_screen.dart';
+import 'package:praktikum_mobile/features/costs/views/payment_confirmation_screen.dart';
+import 'package:praktikum_mobile/routes/payment_confirmation_arguments.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/ride_search/views/ride_filter_screen.dart';
 import 'package:praktikum_mobile/features/booking/views/catatan_form_screen.dart';
@@ -17,6 +21,8 @@ abstract final class AppRoutes {
   static const String myRoutes = '/my-routes';
   static const String postRoute = '/post-route';
   static const String rideFilter = '/ride-filter';
+  static const String costDetail = '/cost-detail';
+  static const String paymentConfirmation = '/payment-confirmation';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -57,6 +63,22 @@ abstract final class AppRoutes {
           );
         }
         return null;
+      case costDetail:
+        return MaterialPageRoute<void>(
+          builder: (_) => const CostDetailScreen(),
+          settings: settings,
+        );
+      case paymentConfirmation:
+        // Layar ini butuh data dari Rincian; tanpa itu → 404.
+        final args = settings.arguments;
+        if (args is! PaymentConfirmationArguments) return null;
+        return MaterialPageRoute<CostBreakdown>(
+          builder: (_) => PaymentConfirmationScreen(
+            repository: args.repository,
+            breakdown: args.breakdown,
+          ),
+          settings: settings,
+        );
       case catatanForm:
         return MaterialPageRoute<String>(
           builder: (_) => const CatatanFormScreen(),

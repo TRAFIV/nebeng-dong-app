@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
@@ -156,6 +157,16 @@ class _HomeScreenState extends State<HomeScreen> {
       listenable: _viewModel,
       builder: (context, _) => Scaffold(
         body: SafeArea(child: _buildContent()),
+        // Tombol SEMENTARA untuk demo UTS Modul 3; hanya tampil saat debug.
+        floatingActionButton: kDebugMode
+            ? FloatingActionButton.extended(
+                heroTag: 'demo-ongkos',
+                onPressed: () =>
+                    Navigator.pushNamed(context, AppRoutes.costDetail),
+                icon: const Icon(Icons.request_quote_outlined),
+                label: const Text('Demo Ongkos'),
+              )
+            : null,
         bottomNavigationBar: NavigationBar(
           selectedIndex: 0,
           destinations: const [
