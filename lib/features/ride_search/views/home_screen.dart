@@ -150,6 +150,15 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pushNamed(context, AppRoutes.detail, arguments: ride);
   }
 
+  void _onBottomNavTapped(int index) {
+    if (index == 1) {
+      final widgetsApp = context.findAncestorWidgetOfExactType<WidgetsApp>();
+      if (widgetsApp?.onGenerateRoute != null) {
+        Navigator.pushNamed(context, AppRoutes.pesananSaya);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -158,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
         body: SafeArea(child: _buildContent()),
         bottomNavigationBar: NavigationBar(
           selectedIndex: 0,
+          onDestinationSelected: _onBottomNavTapped,
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home_outlined),
@@ -166,8 +176,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             NavigationDestination(
               icon: Icon(Icons.receipt_long_outlined),
+              selectedIcon: Icon(Icons.receipt_long_rounded),
               label: 'Pesanan',
-              enabled: false,
             ),
             NavigationDestination(
               icon: Icon(Icons.payments_outlined),

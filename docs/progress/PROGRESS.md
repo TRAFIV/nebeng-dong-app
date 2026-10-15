@@ -22,6 +22,15 @@ Nomor 17–19 adalah arah aktif PRD 1.1. Nomor 1–16 berikutnya mencatat pekerj
 - [x] 18b.1. Refactor source feature-first MVVM penumpang, blokir driver UI/named routes, isolasi legacy, injeksikan abstract repository sesi dan local fixture jalan nyata; pengujian diperbarui.
 - [ ] 18b.2. Port seluruh UI/state Figma (termasuk Hasil terpisah/pemilih tempat dedicated), integrasi shared/rekan/backend dan uji HP setelah izin.
 - [ ] 19. Konfirmasikan backend/kontrak tim untuk rute, keputusan booking, kuota, ongkos, akun, dan persistensi; integrasi belum dimulai.
+- [x] 20. Modul 2 (Taris): Implementasi lengkap FR-05–08 di branch `dev-taris`.
+  - Model `Booking`/`BookingStatus`/`BookingTimeline`, abstract `BookingRepository`, `LocalBookingRepository` (in-memory + fixture demo).
+  - ViewModel `PesananSayaVM`, `AjukanTebenganVM`, `DetailPesananVM`; View tiga layar + modal konfirmasi batal.
+  - Alur navigasi: `RideDetail → AjukanTebengan (pop Booking) → PesananSaya`; penanda "Baru" dikelola VM (`markNewBooking`/`isNew`) tanpa `setState`.
+  - Konstanta `simulateSendError` di `LocalBookingRepository` untuk memicu jalur gagal kirim saat demo; mudah dibalik.
+  - Bug diperbaiki: `setState` di View dihapus (sempat melanggar `architecture_test.dart`), dipindah ke `PesananSayaViewModel.markNewBooking()`.
+  - Dokumen `docs/progress/workflow-ajukan-tebengan.md`: 5 tahap alur, peta file, cara memicu gagal, 5 latihan "Coba ubah…".
+  - Integrasi tab navigasi: `home_screen.dart` (Modul 1 / Mikail) dan `passenger_boundary_test.dart` disentuh untuk menyambungkan tab Pesanan ke `AppRoutes.pesananSaya` (tab Ongkos dan Profil tetap nonaktif); FAB `+ Ajukan Tebengan` ditambahkan di `PesananSayaScreen` untuk alur demo cepat via fixture simulasi.
+  - `dart format` bersih (0 file berubah); `flutter analyze` bersih; `flutter test` **134/134 lulus** (semua architecture & boundary test diperkuat dan lulus).
 
 - [x] 16. Migrasi MVVM: pisahkan ViewModel dari UI, tambah core bersama, pertahankan workflow dan verifikasi unit/widget test, analyzer, serta build.
 - [x] 15. Tombol Masuk cepat (Dev) hanya di debug, tanpa mengetik kredensial, uji dan pasang build development.
@@ -42,6 +51,7 @@ Nomor 17–19 adalah arah aktif PRD 1.1. Nomor 1–16 berikutnya mencatat pekerj
 
 ## Status saat ini
 
+- 2026-10-12 — Implementasi Modul 2 (Taris — Pemesanan & Koordinasi) selesai di branch `dev-taris`: tiga layar utama penumpang (Pesanan Saya, Ajukan Tebengan, Detail Pesanan) beserta variasi status Diterima, Menunggu, Ditolak, Dibatalkan, dan bottom sheet konfirmasi batal sesuai desain Figma. Arsitektur MVVM murni (ViewModel extend core, View bebas setState), model Booking & linimasa, abstract BookingRepository & LocalBookingRepository dengan 4 fixture latihan, root DI scope `BookingRepositoryProvider`, named routes terdaftar, dan integrasi tombol dari Detail Tebengan. Verifikasi: 128/128 tes lulus (18 tes baru Modul 2), flutter analyze bersih (0 issue).
 - 2026-10-08 — Refactor source selesai pada tahap struktur/role: feature-first auth/ride_search/booking/costs/reputation, core/DI dan shared/maps; driver di legacy tidak diimpor app dan route driver 404. Kontrak repository penumpang read-only, LocalRideRepository/geometry jalan nyata terpisah, satu instance sesi dari root. Source hasil masih di Home; belum seluruh UI Figma atau backend/rekan selesai. Modul rekan tidak diimplementasikan sepihak; README ownership tersedia. Verifikasi: 110/110 tes lulus, analyzer tanpa masalah, format 69 Dart tanpa perubahan, capture enam tampilan lulus dan screenshot Cari/kosong/filter ditinjau; APK release arm64 17,8 MB berhasil. Commit source/dokumen `2b981ef` dan handoff `b66047e` kini tersedia di `main` melalui push fast-forward atas instruksi terbaru pengguna; branch pengembangan tetap `Latihan2-2411523016`. HP tidak dipakai. APK masih memakai signing debug bawaan, bukan paket distribusi produksi.
 
 ### Riwayat sebelum refactor source
@@ -110,6 +120,7 @@ Nomor 17–19 adalah arah aktif PRD 1.1. Nomor 1–16 berikutnya mencatat pekerj
 
 ## Log perubahan
 
+- 2026-10-12 — Taris (AI) — Implementasi Modul 2 Pemesanan & Koordinasi (FR-05–08) sesuai desain Figma: model Booking/timeline, BookingRepository & LocalBookingRepository fixture latihan, DI scope BookingRepositoryProvider, ViewModel dan 3 View (Pesanan Saya, Ajukan Tebengan, Detail Pesanan), bottom sheet konfirmasi batal, routes, integrasi CTA Detail Tebengan, dan 18 unit/widget test (128/128 test lulus, analyzer bersih) — `lib/features/booking/`, `lib/core/di/`, `lib/routes/app_routes.dart`, `lib/main.dart`, `lib/shared/views/ride_detail_screen.dart`, `test/features/booking/`.
 - 2026-10-08 — Codex — Atas instruksi pengguna “langsung push ke main”, fetch dan verifikasi main sebagai ancestor branch kerja; push normal `1a8183e` → `b66047e` ke `origin/main` berhasil. Fetch ulang memastikan SHA HEAD/main identik dan ahead/behind 0/0; tidak force-push, tidak mengubah source/backend/Figma/HP. Catatan status ini disimpan dalam commit dokumentasi; tes/build tidak diulang karena kode identik dengan refactor yang telah diverifikasi.
 - 2026-10-08 — Codex — Commit `2b981ef` (refactor: organize passenger app with feature-first MVVM) dan push normal ke `origin/Latihan2-2411523016` berhasil; 108 file mencakup refactor serta perubahan app/peta/MVVM/PRD/Figma/UTS terkait yang sebelumnya belum di-commit. Tidak force-push/merge/main, tidak menyertakan build/local.properties/secret. Working tree bersih setelah push source; catatan handoff ini disimpan pada commit dokumentasi berikutnya.
 - 2026-10-08 — Codex — Verifikasi refactor: pub get, 110/110 tes, analyzer, format dan build release arm64 17,8 MB lulus; capture visual opt-in berhasil dan screenshot penumpang diperiksa. Handoff 24 Markdown/66 tautan lokal dan code fence valid; JSON Figma valid, 18 FR unik, diff check bersih. SHA-256 lima PDF/modul/petunjuk challenge asli tetap identik. Perinci usulan Taris: Pesanan Saya/Status Permintaan, Titik Jemput, Detail Pesanan; ACC tetap backend/admin. Belum implementasi modul rekan/backend atau uji HP; commit/push branch kerja berikutnya.
