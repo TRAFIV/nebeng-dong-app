@@ -15,7 +15,7 @@ lib/
     ride_search/         Mikail: views + viewmodels + models + data + utils
     booking/             Taris: catatan baseline; batas integrasi pesanan
     costs/               Shiddiq: README ownership, belum implementasi
-    reputation/          Duha: README ownership, belum implementasi
+    reputation/          Duha: workflow lokal riwayat + rating pengemudi
   shared/                models, views, viewmodels, widgets, utils
     maps/                services, models, views, viewmodels, widgets
   legacy/driver/         arsip dua role, tidak diimpor aplikasi aktif
@@ -32,7 +32,7 @@ docs/                    sumber Markdown dan log
 | ride_search | Mikail, FR-01–04: rute/read, pencarian tempat/pin, matcher, filter dan kuota tampilan. |
 | booking | Taris, FR-05–08; saat ini hanya Catatan baseline. Pesanan/status/cancel/sync belum dibuat. |
 | costs | Shiddiq, FR-09–12; README ownership, bukan klaim fitur selesai. |
-| reputation | Duha, FR-13–16; README ownership, bukan klaim fitur selesai. |
+| reputation | Duha: workflow lokal FR-13/14 riwayat + rating pengemudi; profil/rekap FR-15/16 dan backend pending. |
 | shared/maps | Picker/autocomplete, peta/tile, service Photon/reverse/OSRM dan model lokasi. |
 | shared | Detail Tebengan/VM lintas modul, model Ride, UI/validator/formatter reusable. |
 | legacy/driver | Posting/Rute Saya, VM/repository/harness arsip; tidak boleh diimpor source aktif. |
@@ -118,3 +118,20 @@ Jalankan format/analyzer/seluruh test/build setelah perubahan. Hasil nyata berad
 [PROGRESS](../progress/PROGRESS.md); instalasi/uji Android/hot reload tetap menunggu izin HP.
 Referensi: [Flutter architecture](https://docs.flutter.dev/app-architecture/guide),
 [Flutter recommendations](https://docs.flutter.dev/app-architecture/recommendations).
+
+## Integrasi workflow Duha — 11 Oktober 2026
+
+`main_rating.dart` menginjeksi satu `LocalRatingRepository` ke demo riwayat.
+Riwayat dan form meminjam instance yang sama; Views memiliki ViewModel dan
+melakukan disposal/rebinding. ViewModel memakai lifecycle `core/ViewModel`,
+menangani validasi, loading/error, filter dan perintah repository. View memiliki
+controller, konfirmasi reset, Snackbar dan typed navigation `TripRating`.
+
+Kontrak `RatingRepository` terpisah dari adapter SharedPreferences. Fixture
+memuat passengerId/driverId tanpa role pengemudi aplikasi. Adapter mengecek
+perjalanan kanonis milik penumpang dan sudah selesai sebelum menyimpan;
+state sukses diterapkan setelah write berhasil. Simpan ganda/reset bersamaan
+ditolak. Penyimpanan v2 terpisah dari demo dua role v1 yang dipertahankan.
+
+Entry demo belum menjadi tab Pesanan/Profil, tidak mengubah modul rekan.
+Backend/auth dan otoritas eligibility server belum tersedia.

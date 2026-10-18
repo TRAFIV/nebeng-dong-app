@@ -14,6 +14,10 @@ class AppTextField extends StatelessWidget {
     this.textInputAction,
     this.obscureText = false,
     this.maxLines = 1,
+    this.minLines,
+    this.maxLength,
+    this.enabled = true,
+    this.fieldKey,
     this.validator,
     this.onFieldSubmitted,
     this.icon,
@@ -26,6 +30,10 @@ class AppTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final bool obscureText;
   final int maxLines;
+  final int? minLines;
+  final int? maxLength;
+  final bool enabled;
+  final Key? fieldKey;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onFieldSubmitted;
   final IconData? icon;
@@ -39,6 +47,10 @@ class AppTextField extends StatelessWidget {
         Text(label, style: AppTextStyles.labelLarge),
         const SizedBox(height: AppSpacing.sm),
         TextFormField(
+          key: fieldKey,
+          enabled: enabled,
+          minLines: minLines,
+          maxLength: maxLength,
           controller: controller,
           keyboardType: keyboardType,
           textInputAction: textInputAction,

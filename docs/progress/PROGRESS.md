@@ -42,6 +42,19 @@ Nomor 17–19 adalah arah aktif PRD 1.1. Nomor 1–16 berikutnya mencatat pekerj
 
 ## Status saat ini
 
+- 2026-10-11 — Duha: integrasi workflow rating lama ke main 3d001be pada branch
+  `codex/duha-passenger-rating`. Backup source dan stash dibuat sebelum migrasi.
+  [x] Alur khusus penumpang → rating pengemudi; MVVM feature reputation,
+  tema/widget bersama, hasil bintang dan Sudah dinilai pada kartu yang sama.
+  [x] Penyimpanan demo v2 terpisah dari v1 dua role; source/data lama dipertahankan.
+  [x] Verifikasi: pub get berhasil (override desktop hanya proses/launcher Android),
+  analyzer tanpa masalah; format 82 Dart tanpa perubahan; 123/123 tes lulus
+  (110 baseline + 13 reputasi); tiga capture UI 360×800 diperiksa;
+  APK debug `lib/main_rating.dart` berhasil dibangun. Belum dipasang/diuji di HP.
+  Backend, profil/rekap dan integrasi tab Pesanan/Figma tetap pending.
+  Tidak commit/push dan tidak membuka HP.
+
+
 - 2026-10-08 — Refactor source selesai pada tahap struktur/role: feature-first auth/ride_search/booking/costs/reputation, core/DI dan shared/maps; driver di legacy tidak diimpor app dan route driver 404. Kontrak repository penumpang read-only, LocalRideRepository/geometry jalan nyata terpisah, satu instance sesi dari root. Source hasil masih di Home; belum seluruh UI Figma atau backend/rekan selesai. Modul rekan tidak diimplementasikan sepihak; README ownership tersedia. Verifikasi: 110/110 tes lulus, analyzer tanpa masalah, format 69 Dart tanpa perubahan, capture enam tampilan lulus dan screenshot Cari/kosong/filter ditinjau; APK release arm64 17,8 MB berhasil. Commit source/dokumen `2b981ef` dan handoff `b66047e` kini tersedia di `main` melalui push fast-forward atas instruksi terbaru pengguna; branch pengembangan tetap `Latihan2-2411523016`. HP tidak dipakai. APK masih memakai signing debug bawaan, bukan paket distribusi produksi.
 
 ### Riwayat sebelum refactor source
@@ -210,3 +223,44 @@ Format: `YYYY-MM-DD — [AI] — apa yang dikerjakan — file/objek yang berubah
 - 2026-09-26 — AI — Desain Modul 1 (tugas Mikail) di halaman `08 Tugas Tim`: Posting Rute (31:13), Rute Saya (31:17), Filter Pencarian (31:21), semuanya dari komponen + prototype Rute Saya <-> Posting Rute. Implementasi Flutter-nya belum.
 - 2026-09-26 — AI — Blok tugas di halaman 08 diubah jadi Section (50:71–50:74) supaya frame layar tetap top-level dan bisa di-prototype.
 - 2026-09-30 — Codex — Selesaikan Latihan Praktikum 2: repository async + UI states, validator, named routes, data passing Ride, form catatan, fallback 404, dan widget test — `lib/`, `test/widget_test.dart`.
+
+- 2026-10-11 — Workflow Duha selesai diuji lokal: FR-13/14 khusus penumpang,
+  feature-first MVVM + SharedPreferences v2, penjagaan ownership/status selesai,
+  anti-duplikat, draft gagal/retry, disposal async, status/bintang dalam kartu.
+  Format/analyzer/123 tests dan APK debug berhasil. Panduan DEMO_RATING, README
+  dan arsitektur diperbarui. Branch codex/duha-passenger-rating, belum commit/push;
+  stash dan backup source lama tetap ada. Figma/backend/HP belum diubah.
+
+- 2026-10-11 — Atas permintaan Duha, demo penumpang dipasang dan dibuka pada
+  Infinix X6885; layar riwayat dikonfirmasi melalui screenshot. Setelah itu
+  badge Peran kamu/Penumpang dihapus karena aplikasi satu role; label Pengemudi
+  dipertahankan. Tes visual lulus, analyzer bersih; APK diperbarui dan demo dibuka kembali di HP.
+  Screenshot perangkat diperiksa: badge peran sudah tidak tampil.
+
+- 2026-10-11 — Atas permintaan Duha, teks keterangan demo/perjalanan contoh
+  di layar riwayat dihapus. Batas data simulasi tetap dijelaskan di DEMO_RATING.md.
+  Tes visual lulus dan capture ditinjau, analyzer bersih; APK terbaru berhasil
+  dipasang dan dibuka pada Infinix X6885. Flutter dilepas dengan detach agar
+  aplikasi tetap berjalan di HP.
+
+- 2026-10-15 — Duha: ketuk area kosong form rating melepaskan fokus komentar
+  dan menutup keyboard tanpa menghapus draft atau keluar dari form.
+  Verifikasi: 14 tes modul reputasi lulus, termasuk tap kosong menutup keyboard,
+  mempertahankan draft dan fokus ulang; analyzer bersih. APK berhasil dibangun,
+  dipasang dan dibuka kembali pada Infinix X6885 atas izin demo HP yang sudah ada.
+
+- 2026-10-15 — Duha: loading saat mengirim rating diganti dari garis di bawah
+  menjadi spinner bulat di tengah layar, dengan lapisan penghalang interaksi.
+  Lock simpan dan navigasi kembali tetap mengikuti state ViewModel.
+  Verifikasi: 14 tes reputasi lulus, analyzer bersih, build APK berhasil;
+  pembaruan dipasang dan dibuka pada Infinix X6885.
+
+- 2026-10-15 — Panduan belajar Duha dibuat dalam dokumen Word 22 halaman di
+  docs/belajar/Panduan_Belajar_Rating_Nebeng_Dong.docx, berisi lokasi file,
+  penjelasan kode sederhana, penanda materi dosen, dan latihan ujian lisan.
+  Seluruh halaman diperiksa secara visual; source aplikasi tidak diubah.
+
+- 2026-10-18 — Duha: siapkan publikasi workflow UTS rating pengemudi pada branch
+  uts-rating-duha. Panduan belajar docs/belajar tetap lokal sesuai permintaan
+  dan tidak disertakan dalam commit/push. Format 82 file tanpa perubahan;
+  analyzer bersih; seluruh 124 tes lulus sebelum publikasi.

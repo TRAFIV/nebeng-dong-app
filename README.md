@@ -76,3 +76,11 @@ docs/                    sumber Markdown dan log
 ## Lisensi
 
 Lihat [LICENSE](LICENSE).
+
+## Demo Duha — rating penumpang
+
+Workflow FR-13/14 sudah diintegrasikan secara lokal ke `features/reputation`:
+riwayat penumpang → rating pengemudi → hasil pada kartu yang sama. Jalankan
+`lib/main_rating.dart` melalui konfigurasi VS Code **Duha — Workflow Rating**.
+Lihat [panduan demo dan MVVM](DEMO_RATING.md). Backend, profil/rekap dan
+penyambungan menu Pesanan/Profil belum diimplementasikan oleh perubahan ini.
