@@ -14,7 +14,7 @@ lib/
     auth/                login bersama: views + viewmodels
     ride_search/         Mikail: views + viewmodels + models + data + utils
     booking/             Taris: catatan baseline; batas integrasi pesanan
-    costs/               Shiddiq: README ownership, belum implementasi
+    costs/               Shiddiq: views + viewmodels + models + data + utils
     reputation/          Duha: README ownership, belum implementasi
   shared/                models, views, viewmodels, widgets, utils
     maps/                services, models, views, viewmodels, widgets
@@ -31,7 +31,7 @@ docs/                    sumber Markdown dan log
 | auth | Login bersama, validasi lokal, shortcut dev hanya debug; bukan auth server. |
 | ride_search | Mikail, FR-01–04: rute/read, pencarian tempat/pin, matcher, filter dan kuota tampilan. |
 | booking | Taris, FR-05–08; saat ini hanya Catatan baseline. Pesanan/status/cancel/sync belum dibuat. |
-| costs | Shiddiq, FR-09–12; README ownership, bukan klaim fitur selesai. |
+| costs | Shiddiq, FR-09–12: Riwayat/Rincian/Status Pembayaran, CostRepository sesi + fixture lokal. Konfirmasi tetap backend; detail di README modul. |
 | reputation | Duha, FR-13–16; README ownership, bukan klaim fitur selesai. |
 | shared/maps | Picker/autocomplete, peta/tile, service Photon/reverse/OSRM dan model lokasi. |
 | shared | Detail Tebengan/VM lintas modul, model Ride, UI/validator/formatter reusable. |
@@ -80,7 +80,7 @@ kursi, pembatalan, konfirmasi ongkos dan eligibility rating tetap otoritas backe
 
 AppRoutes tidak mengimpor legacy dan mengembalikan null untuk /post-route dan /my-routes,
 terlepas dari arguments; onUnknownRoute menampilkan 404. Home tanpa role switch/CTA driver.
-Pesanan/Ongkos/Profil nonaktif sampai fitur rekan terintegrasi, bukan aksi kosong seolah bekerja.
+Tab Ongkos aktif (Modul 3); Pesanan/Profil nonaktif sampai fitur rekan terintegrasi, bukan aksi kosong seolah bekerja.
 
 `LegacyDriverRepository` dan `LegacyDriverRoutes` hanya untuk arsip/regresi. Tes unit
 CRUD/quota/idempotensi lama dipertahankan; workflow legacy diuji lewat harness khusus, bukan

@@ -50,6 +50,8 @@ Contoh demo: buka Rincian Ongkos dari perjalanan → tekan “Sudah bayar” →
 
 Batas: tidak membuat Posting Rute, ACC pesanan, layar driver Konfirmasi Pelunasan, payment gateway, atau dashboard admin. Shiddiq dapat menyiapkan model ongkos, ViewModel/state/validasi, tiga UI, adapter kontrak dan tesnya; konfirmasi otoritatif tetap backend. Daftar riwayat biaya Modul 3 berbeda dari rekap agregat pribadi Modul 4 (Duha); sepakati integrasinya.
 
+Keputusan 18 Oktober 2026: ongkos memakai tarif tetap per penumpang dari rute (bukan pembagian total), tiga status pembayaran, "Sudah bayar" setelah perjalanan selesai, Riwayat hanya perjalanan selesai; Taris setuju kontrak data + fixture dulu dan Duha menyesuaikan rekap Profil. Implementasi awal ada di branch `feat/modul-3-ongkos`, lihat `lib/features/costs/README.md`.
+
 Pembagian rinci ini **usulan PRD 1.1, belum persetujuan akhir tim**. Bagian Figma Shiddiq tidak diubah pada revisi Mikail; desain lama perlu disesuaikan oleh/bersama pemilik modul.
 
 ## Aturan desain bersama

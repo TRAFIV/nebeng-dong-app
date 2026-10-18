@@ -146,6 +146,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _viewModel.applyFilter(result);
   }
 
+  /// Hanya tab yang fiturnya sudah ada yang aktif; Pesanan/Profil menunggu.
+  void _onDestinationSelected(int index) {
+    if (index == 2) Navigator.pushNamed(context, AppRoutes.costs);
+  }
+
   void _openDetail(Ride ride) {
     Navigator.pushNamed(context, AppRoutes.detail, arguments: ride);
   }
@@ -158,6 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
         body: SafeArea(child: _buildContent()),
         bottomNavigationBar: NavigationBar(
           selectedIndex: 0,
+          onDestinationSelected: _onDestinationSelected,
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home_outlined),
@@ -173,7 +179,6 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.payments_outlined),
               selectedIcon: Icon(Icons.payments),
               label: 'Ongkos',
-              enabled: false,
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outline),
