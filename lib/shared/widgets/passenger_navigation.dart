@@ -13,7 +13,7 @@ class PassengerNavigation extends StatelessWidget {
   static const List<String?> _tabRoutes = [
     AppRoutes.home,
     AppRoutes.pesananSaya,
-    null,
+    AppRoutes.costs,
     null,
   ];
 

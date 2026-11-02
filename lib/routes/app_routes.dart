@@ -8,6 +8,9 @@ import 'package:praktikum_mobile/features/booking/views/catatan_form_screen.dart
 import 'package:praktikum_mobile/features/booking/views/detail_pesanan_screen.dart';
 import 'package:praktikum_mobile/features/booking/views/pesanan_saya_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
+import 'package:praktikum_mobile/features/costs/views/cost_detail_screen.dart';
+import 'package:praktikum_mobile/features/costs/views/cost_history_screen.dart';
+import 'package:praktikum_mobile/features/costs/views/payment_status_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/ride_filter_screen.dart';
 import 'package:praktikum_mobile/features/auth/views/login_screen.dart';
@@ -25,6 +28,9 @@ abstract final class AppRoutes {
   static const String pesananSaya = '/pesanan-saya';
   static const String ajukanTebengan = '/ajukan-tebengan';
   static const String detailPesanan = '/detail-pesanan';
+  static const String costs = '/ongkos';
+  static const String costDetail = '/ongkos/rincian';
+  static const String paymentStatus = '/ongkos/status';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -100,6 +106,29 @@ abstract final class AppRoutes {
         if (arguments is Booking) {
           return MaterialPageRoute<void>(
             builder: (_) => DetailPesananScreen(booking: arguments),
+            settings: settings,
+          );
+        }
+        return null;
+      case costs:
+        return MaterialPageRoute<void>(
+          builder: (_) => const CostHistoryScreen(),
+          settings: settings,
+        );
+      case costDetail:
+        final arguments = settings.arguments;
+        if (arguments is String) {
+          return MaterialPageRoute<void>(
+            builder: (_) => CostDetailScreen(costShareId: arguments),
+            settings: settings,
+          );
+        }
+        return null;
+      case paymentStatus:
+        final arguments = settings.arguments;
+        if (arguments is String) {
+          return MaterialPageRoute<void>(
+            builder: (_) => PaymentStatusScreen(costShareId: arguments),
             settings: settings,
           );
         }

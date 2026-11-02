@@ -16,7 +16,7 @@ void main() {
     expect(AppColors.routeDestination, AppColors.successText);
   });
   testWidgets(
-    'Passenger Home has no driver UI and unavailable tabs are disabled',
+    'Passenger Home has no driver UI; only finished tabs are enabled',
     (tester) async {
       await pumpTestWidget(
         tester,
@@ -43,10 +43,10 @@ void main() {
         'Ongkos',
         'Profil',
       ]);
-      // Cari dan Pesanan aktif; Ongkos dan Profil menunggu integrasi.
+      // Cari, Pesanan dan Ongkos aktif; Profil menunggu integrasi.
       expect(destinations[0].enabled, isTrue);
       expect(destinations[1].enabled, isTrue);
-      expect(destinations[2].enabled, isFalse);
+      expect(destinations[2].enabled, isTrue);
       expect(destinations[3].enabled, isFalse);
       expect(find.text('Data latihan · bukan perjalanan nyata'), findsNothing);
     },
