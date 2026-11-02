@@ -1,10 +1,13 @@
 import 'package:praktikum_mobile/shared/models/ride.dart';
 
+/// Rentang jam cabut, bersambung dari 06.00 sampai 19.00.
+/// Di luar itu, penumpang cukup tidak memilih jam (semua jam ditampilkan).
 enum DepartureWindow {
   early('06.00–07.00', 360, 420),
   morning('07.00–08.00', 420, 480),
   lateMorning('08.00–09.00', 480, 540),
-  afternoon('Sore', 900, 1140);
+  midday('Siang 09.00–15.00', 540, 900),
+  afternoon('Sore 15.00–19.00', 900, 1140);
 
   const DepartureWindow(this.label, this.startMinute, this.endMinute);
   final String label;
@@ -36,24 +39,6 @@ class RideFilter {
     return minute != null &&
         minute >= selected.startMinute &&
         minute < selected.endMinute;
-  }
-
-  /// Ini pencarian teks dua titik, BUKAN pencocokan jalur geografis FR-03.
-  List<Ride> apply(
-    Iterable<Ride> rides, {
-    String origin = '',
-    String destination = '',
-  }) {
-    final from = origin.trim().toLowerCase();
-    final to = destination.trim().toLowerCase();
-    return rides
-        .where(
-          (ride) =>
-              ride.origin.toLowerCase().contains(from) &&
-              ride.destination.toLowerCase().contains(to) &&
-              matches(ride),
-        )
-        .toList();
   }
 }
 

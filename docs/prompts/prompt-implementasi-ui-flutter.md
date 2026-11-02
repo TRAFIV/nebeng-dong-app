@@ -1,6 +1,6 @@
 # Prompt Implementasi UI Flutter — Nebeng Dong
 
-Revisi 8 Oktober 2026. Bagian A adalah kerangka asli modul, dipertahankan tanpa perubahan. Bagian B adalah prompt target PRD 1.1 penumpang saja, bukan izin otomatis mengimplementasikan semua modul. Bagian C mencatat baseline kode yang belum dimigrasikan ke satu role.
+Revisi 8 Oktober 2026. Bagian A adalah kerangka asli modul, dipertahankan tanpa perubahan. Bagian B adalah prompt target PRD 1.1 penumpang saja, bukan izin otomatis mengimplementasikan semua modul. Bagian C mencatat baseline historis sebelum migrasi satu role; source aktif dijelaskan di B/PROGRESS.
 
 Di Claude Code dapat mengikuti prompt B langsung atau memakai [flutter-ui-implementer](../../.claude/agents/flutter-ui-implementer.md) sesuai aturan lingkungan yang berlaku.
 
@@ -65,8 +65,8 @@ BACA DAHULU (Markdown, bukan PDF)
 - docs/design/panduan-desain-figma.md dan docs/architecture/mvvm.md
 - docs/progress/peta-dan-lokasi.md untuk geometry/layanan/pin
 PDF PRD v1.0 arsip dua role. Source sudah feature-first MVVM penumpang;
-driver di legacy, named routes ditolak. Hasil masih di Home; pemisahan layar
-Hasil/pemilih Figma penuh, backend dan modul rekan belum selesai.
+kode pengemudi lama sudah dihapus. UI lokal Mikail Cari -> Hasil terpisah <->
+Filter dan PlaceSearch/pin tersedia; backend/rekan/uji HP belum selesai.
 
 CAKUPAN
 Kerjakan hanya tahap yang secara eksplisit diminta pengguna.
@@ -75,7 +75,7 @@ Login dan Detail Tebengan adalah layar bersama yang sudah ada.
 Jika diminta migrasi satu role, hilangkan akses driver dari UI DAN named routes:
 tidak ada Beri Tebengan, Posting/Edit/Hapus Rute, Rute Saya pengemudi,
 Permintaan Masuk/ACC, konfirmasi pelunasan oleh pengemudi.
-Isolasi kode legacy yang perlu reuse; jangan menghapus perubahan pengguna.
+Jangan memulihkan kode pengemudi yang sudah dihapus; jangan menghapus perubahan pengguna.
 Jangan membangun aplikasi pengemudi atau dashboard admin tanpa instruksi.
 Integrasi modul rekan mengikuti kontrak dan pembagian yang disepakati.
 
@@ -99,8 +99,9 @@ Rincian lokasi section 148:474: 18 state pendukung; mulai form kosong 148:475.
 Baca panduan untuk pilih Dari/Ke, nama+alamat, pin, retry/manual dan batal.
 M1 Location Input juga punya Place Name dan Show Place Name; alamat tetap terpisah.
 Frame driver 31:13/31:17/31:21 berada di arsip 124:238, bukan target baru.
-Desain Mikail ditinjau; struktur/role source sudah migrasi. Semua state visual
-belum diport; jangan menyebut parity Figma atau fitur rekan selesai.
+Desain Mikail ditinjau; UI lokal Cari/Hasil/Filter/Places/pin dan feedback sudah
+tersambung. Screenshot utama/state direview; jangan klaim pixel parity seluruh
+18 contoh prototype atau fitur rekan/backend selesai.
 Prototype utama Cari -> Hasil <-> Filter dan contoh pemilih tempat/pin,
 konfirmasi/batal, Ke lebih dulu dan swap tersedia. Peta/query/alias adalah
 contoh statis, bukan interaksi bebas. Chip/reset/tab rekan masih visual;
@@ -123,10 +124,13 @@ features/<feature>/views dan shared/**/views/widgets: UI/controller/Form/focus/
 dialog/SnackBar/navigasi bertipe. viewmodels di feature/shared: state, validasi,
 commands; tanpa BuildContext/Navigator/controller
 atau ketergantungan ke ViewModel lain. Inject repository/service lewat constructor.
+HomeViewModel: form/validasi/snapshot RideSearchRequest; tidak fetch/matcher.
+RideResultsViewModel: repository/fetch/matcher/filter/status/generation.
+RideFilterViewModel: draft/validasi/apply. Jangan saling mengimpor ViewModel.
 shared/models, shared/maps/models, ride_search/models: entitas immutable.
 ride_search/data: kontrak abstract baca + LocalRideRepository/fixtures jalan nyata.
 shared/maps/services: adapter peta. core/di: satu repository sesi, ownership/dispose.
-Tidak import legacy dari source aktif; mutasi driver hanya archive/test.
+Repository penumpang hanya membaca data; tidak ada mutasi data pengemudi di aplikasi.
 lib/core: lifecycle/DI bersama; lib/theme: token; lib/routes: named routes.
 Dispose listener/resource, guard generation/lifecycle pada async.
 Jangan mengembalikan operasi data/state bisnis ke setState di View.

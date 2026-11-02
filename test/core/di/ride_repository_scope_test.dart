@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:praktikum_mobile/core/di/ride_repository_scope.dart';
 import 'package:praktikum_mobile/features/ride_search/data/local_ride_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
+import 'package:praktikum_mobile/features/ride_search/data/fixtures/demo_rides.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
-import 'package:praktikum_mobile/features/ride_search/viewmodels/home_view_model.dart';
+import 'package:praktikum_mobile/features/ride_search/views/ride_results_screen.dart';
 import 'package:praktikum_mobile/main.dart';
+import 'package:praktikum_mobile/routes/app_routes.dart';
 
 import '../../support/map_test_support.dart';
 
@@ -19,11 +21,23 @@ class TrackingRepository extends LocalRideRepository {
   }
 }
 
-HomeViewModel homeModel(WidgetTester tester) => tester
-    .widgetList<ListenableBuilder>(find.byType(ListenableBuilder))
-    .map((w) => w.listenable)
-    .whereType<HomeViewModel>()
-    .single;
+/// Tekan Cari, ambil repository yang diteruskan Home ke Hasil, lalu kembali.
+Future<RideRepository?> searchRepository(WidgetTester tester) async {
+  await tester.tap(find.text('Cariin Tebengan!'));
+  await tester.pumpAndSettle();
+  final repository = tester
+      .widget<RideResultsScreen>(find.byType(RideResultsScreen))
+      .repository;
+  await tester.pageBack();
+  await tester.pumpAndSettle();
+  return repository;
+}
+
+const home = HomeScreen(
+  userName: 'Mikail',
+  initialOrigin: khatibPlace,
+  initialDestination: unandPlace,
+);
 
 void main() {
   testWidgets(
@@ -33,16 +47,19 @@ void main() {
       addTearDown(repo.dispose);
       Widget app(Widget screen) => RideRepositoryProvider(
         repository: repo,
-        child: MaterialApp(home: screen),
+        child: MaterialApp(
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+          home: screen,
+        ),
       );
-      await pumpTestWidget(tester, app(const HomeScreen(userName: 'Mikail')));
+      await pumpTestWidget(tester, app(home));
       await tester.pumpAndSettle();
-      expect(homeModel(tester).repository, same(repo));
+      expect(await searchRepository(tester), same(repo));
       await pumpTestWidget(tester, app(const SizedBox()));
       expect(repo.closeCalls, 0);
-      await pumpTestWidget(tester, app(const HomeScreen(userName: 'Mikail')));
+      await pumpTestWidget(tester, app(home));
       await tester.pumpAndSettle();
-      expect(homeModel(tester).repository, same(repo));
+      expect(await searchRepository(tester), same(repo));
       await tester.pumpWidget(const SizedBox());
       expect(repo.closeCalls, 0);
     },
@@ -55,14 +72,17 @@ void main() {
       addTearDown(second.dispose);
       Widget app(RideRepository repo) => RideRepositoryProvider(
         repository: repo,
-        child: const MaterialApp(home: HomeScreen(userName: 'Mikail')),
+        child: MaterialApp(
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+          home: home,
+        ),
       );
       await pumpTestWidget(tester, app(first));
       await tester.pumpAndSettle();
-      expect(homeModel(tester).repository, same(first));
+      expect(await searchRepository(tester), same(first));
       await pumpTestWidget(tester, app(second));
       await tester.pumpAndSettle();
-      expect(homeModel(tester).repository, same(second));
+      expect(await searchRepository(tester), same(second));
       expect(first.closeCalls, 0);
       expect(second.closeCalls, 0);
       expect(tester.takeException(), isNull);
@@ -96,7 +116,9 @@ void main() {
     await pumpTestWidget(tester, NebengDongApp(rideRepository: repo));
     await tester.tap(find.text('Masuk cepat (Dev)'));
     await tester.pumpAndSettle();
-    expect(homeModel(tester).repository, same(repo));
+    await selectHomeLocation(tester, 'Dari', 'Air Tawar');
+    await selectHomeLocation(tester, 'Ke', 'Unand');
+    expect(await searchRepository(tester), same(repo));
     expect(repo.closeCalls, 0);
   });
 }

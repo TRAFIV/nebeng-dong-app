@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:praktikum_mobile/main.dart';
@@ -23,6 +24,8 @@ void main() {
     expect(formatRupiah(500), 'Rp500');
     expect(formatRupiah(5000), 'Rp5.000');
     expect(formatRupiah(1250000), 'Rp1.250.000');
+    expect(formatThousands(999), '999');
+    expect(formatThousands(10000), '10.000');
   });
 
   test('Validators memeriksa email, password, dan panjang catatan', () {
@@ -54,16 +57,8 @@ void main() {
       isFalse,
     );
 
-    await selectTestLocation(
-      tester,
-      _fieldWithHint('Contoh: Jl. Khatib Sulaiman'),
-      'veteran',
-    );
-    await selectTestLocation(
-      tester,
-      _fieldWithHint('Contoh: Kampus Unand Limau Manis'),
-      'Universitas Andalas',
-    );
+    await selectHomeLocation(tester, 'Dari', 'veteran');
+    await selectHomeLocation(tester, 'Ke', 'Universitas Andalas');
     await tester.tap(find.text('Cariin Tebengan!'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -90,42 +85,32 @@ void main() {
     expect(find.text('Titik jemputnya diisi dulu, ya'), findsOneWidget);
   });
 
-  testWidgets('Home menangani data kosong dan error', (tester) async {
-    await pumpTestWidget(
-      tester,
-      MaterialApp(
-        theme: AppTheme.light,
-        home: const HomeScreen(
-          key: ValueKey('empty-home'),
-          userName: 'Mikail',
-          rides: [],
-          loadDelay: Duration(milliseconds: 100),
-        ),
+  testWidgets('Hasil menangani loading, kosong dan error', (tester) async {
+    Widget app(String id, {bool error = false}) => MaterialApp(
+      key: ValueKey(id),
+      theme: AppTheme.light,
+      onGenerateRoute: AppRoutes.onGenerateRoute,
+      home: HomeScreen(
+        userName: 'Mikail',
+        rides: [],
+        simulateError: error,
+        loadDelay: const Duration(milliseconds: 500),
+        initialOrigin: FakeMapService.place('khatib'),
+        initialDestination: FakeMapService.place('Universitas Andalas'),
       ),
     );
+    await pumpTestWidget(tester, app('empty'));
+    await tester.tap(find.text('Cariin Tebengan!'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
     expect(find.text('Nyari tebengan dulu...'), findsOneWidget);
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Belum ada tebengan.'),
-      100,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text('Belum ada tebengan.'), findsOneWidget);
-
-    await pumpTestWidget(
-      tester,
-      MaterialApp(
-        theme: AppTheme.light,
-        home: const HomeScreen(
-          key: ValueKey('error-home'),
-          userName: 'Mikail',
-          simulateError: true,
-          loadDelay: Duration.zero,
-        ),
-      ),
-    );
+    expect(find.text('Belum ada yang searah'), findsOneWidget);
+    expect(find.text('Ubah Pencarian'), findsOneWidget);
+    await pumpTestWidget(tester, app('error', error: true));
+    await tester.tap(find.text('Cariin Tebengan!'));
     await tester.pumpAndSettle();
-    expect(find.text('Oops, terjadi kesalahan'), findsOneWidget);
+    expect(find.text('Belum bisa memuat tebengan'), findsOneWidget);
     expect(find.text('Coba Lagi'), findsOneWidget);
   });
 
@@ -133,16 +118,8 @@ void main() {
     await pumpTestWidget(tester, const NebengDongApp());
     await _login(tester, 'mikail@student.unand.ac.id');
 
-    await selectTestLocation(
-      tester,
-      _fieldWithHint('Contoh: Jl. Khatib Sulaiman'),
-      'khatib',
-    );
-    await selectTestLocation(
-      tester,
-      _fieldWithHint('Contoh: Kampus Unand Limau Manis'),
-      'Universitas Andalas',
-    );
+    await selectHomeLocation(tester, 'Dari', 'khatib');
+    await selectHomeLocation(tester, 'Ke', 'Universitas Andalas');
     await tester.tap(find.text('Cariin Tebengan!'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(

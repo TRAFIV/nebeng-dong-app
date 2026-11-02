@@ -5,6 +5,7 @@ import 'package:praktikum_mobile/shared/maps/services/open_map_service.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 import 'package:praktikum_mobile/shared/maps/viewmodels/location_picker_view_model.dart';
 import 'package:praktikum_mobile/theme/app_spacing.dart';
+import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
 import 'package:praktikum_mobile/shared/widgets/app_text_field.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/location_field.dart';
@@ -29,6 +30,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   final _controller = MapController();
   final _search = TextEditingController();
   final _address = TextEditingController();
+  final _addressFocus = FocusNode();
   late final TextEditingController _label;
   late final LocationPickerViewModel _viewModel;
   bool _syncingFields = false;
@@ -52,6 +54,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _viewModel.dispose();
     _label.removeListener(_labelChanged);
     _address.dispose();
+    _addressFocus.dispose();
     _search.dispose();
     _label.dispose();
     super.dispose();
@@ -103,7 +106,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
             SizedBox(
-              height: 380,
+              height: (MediaQuery.sizeOf(context).height * 0.32).clamp(
+                220,
+                380,
+              ),
               child: OpenStreetMapView(
                 controller: _controller,
                 center: widget.initialLocation?.point ?? MapConfig.padangCenter,
@@ -117,6 +123,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
             const SizedBox(height: AppSpacing.sm),
             TextFormField(
               controller: _address,
+              focusNode: _addressFocus,
               minLines: 2,
               maxLines: 4,
               decoration: const InputDecoration(
@@ -135,6 +142,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Cari alamat lagi'),
               ),
+              TextButton.icon(
+                onPressed: () => _addressFocus.requestFocus(),
+                icon: const Icon(Icons.edit_location_alt_rounded),
+                label: const Text('Isi alamat manual'),
+              ),
             ],
             const SizedBox(height: AppSpacing.sm),
             AppTextField(
@@ -149,18 +161,21 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: AppButton(
-            label: 'Gunakan Pin Ini',
-            onPressed: !_viewModel.canConfirm
-                ? null
-                : () {
-                    final result = _viewModel.confirm();
-                    if (result != null) Navigator.pop(context, result);
-                  },
+      bottomNavigationBar: ColoredBox(
+        color: AppColors.surface,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: AppButton(
+              label: 'Gunakan Pin Ini',
+              onPressed: !_viewModel.canConfirm
+                  ? null
+                  : () {
+                      final result = _viewModel.confirm();
+                      if (result != null) Navigator.pop(context, result);
+                    },
+            ),
           ),
         ),
       ),

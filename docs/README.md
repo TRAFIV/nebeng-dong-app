@@ -8,11 +8,11 @@
 | [`prompts/`](prompts/prompt-implementasi-ui-flutter.md) | Prompt implementasi UI Flutter: kerangka dari modul + versi yang kami isi |
 | [`progress/`](progress/PROGRESS.md) | Rencana, status, log perubahan, dan [pembagian tugas](progress/pembagian-tugas.md) per anggota |
 
-Petunjuk UTS: [demo, code review, dan tanya jawab](petunjuk-uts/petunjuk-uts.md), serta [Practical Challenge — Tugas Individu](petunjuk-uts/practical-challenge-tugas-individu.md).
+Petunjuk UTS: [demo, code review, dan tanya jawab](petunjuk-uts/petunjuk-uts.md), serta [Practical Challenge — Tugas Individu](petunjuk-uts/practical-challenge-tugas-individu.md). Panduan belajar pemula (satu file lengkap, urut sesuai pembuatan kode): [Belajar Fitur Filter dari Nol](petunjuk-uts/belajar-filter-dari-nol.md). Versi sebelumnya yang lebih ringkas: [panduan A–Z](petunjuk-uts/panduan-belajar-filter.md) dan [bedah kode](petunjuk-uts/bedah-kode-filter.md).
 
 Selalu baca versi `.md`; PDF hanya arsip. Perbedaan PRD Markdown v1.1/PDF v1.0 disengaja pada revisi 8 Oktober 2026; modul dan instruksi asli dosen tidak diubah.
 
-Rencana aktif: [aplikasi penumpang — alur UI, data/backend, tahapan dan acceptance](progress/rencana-aplikasi-penumpang.md). Revisi dokumentasi dan Figma Mikail (Cari/Hasil/Filter serta loading/kosong/error) selesai. Source sudah feature-first MVVM penumpang, repository sesi terinjeksi, driver legacy tidak aktif dan fixture jalan nyata tersimpan. Hasil masih di Home; pemisahan layar/pemilih Figma penuh serta backend/modul rekan belum selesai; Figma layar bersama dan bagian rekan belum dimigrasikan. Pembagian layar baru adalah usulan koordinasi tim.
+Rencana aktif: [aplikasi penumpang — alur UI, data/backend, tahapan dan acceptance](progress/rencana-aplikasi-penumpang.md). Revisi dokumentasi dan Figma Mikail (Cari/Hasil/Filter serta loading/kosong/error) selesai. Source sudah feature-first MVVM penumpang, repository sesi terinjeksi, kode pengemudi lama sudah dihapus (14 Oktober) dan fixture jalan nyata tersimpan. Hasil Pencarian sudah terpisah dari Cari dengan pemilih tempat/pin; backend dan modul rekan belum selesai; Figma layar bersama dan bagian rekan belum dimigrasikan. Pembagian layar baru adalah usulan koordinasi tim.
 
 Arsitektur: [MVVM, core, pasangan View/ViewModel, lifecycle dan pengujian](architecture/mvvm.md).
 
