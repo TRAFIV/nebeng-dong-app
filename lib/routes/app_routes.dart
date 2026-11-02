@@ -16,8 +16,6 @@ abstract final class AppRoutes {
   static const String home = '/home';
   static const String detail = '/detail';
   static const String catatanForm = '/catatan-form';
-  static const String myRoutes = '/my-routes';
-  static const String postRoute = '/post-route';
   static const String rideFilter = '/ride-filter';
   static const String rideResults = '/ride-results';
 
@@ -34,10 +32,6 @@ abstract final class AppRoutes {
             simulateError: args.simulateError,
           ),
         );
-      // Archived driver entry points always fall through to 404.
-      case myRoutes:
-      case postRoute:
-        return null;
       case rideFilter:
         final args = settings.arguments;
         if (args != null && args is! RideFilter) return null;

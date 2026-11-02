@@ -47,11 +47,10 @@ lib/
     reputation/          Duha: README ownership, belum implementasi
   shared/                models, views, viewmodels, widgets, utils
     maps/                services, models, views, viewmodels, widgets
-  legacy/driver/         arsip dua role, tidak diimpor aplikasi aktif
   routes/                named routes penumpang dan fallback 404
   theme/                 token bersama tetap di lokasi semula
 test/                    architecture/, core/, features/, integration/,
-                         shared/, regression/, legacy/, visual/, support/
+                         shared/, regression/, visual/, support/
 docs/                    sumber Markdown dan log
 ```
 

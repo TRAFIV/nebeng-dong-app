@@ -14,10 +14,14 @@ class PlaceSearchScreen extends StatefulWidget {
     required this.label,
     required this.service,
     this.initialLocation,
+    this.quickPlaces = const [],
   });
   final String label;
   final MapService service;
   final MapLocation? initialLocation;
+
+  /// Tempat yang langsung ditawarkan tanpa menunggu layanan peta.
+  final List<MapLocation> quickPlaces;
   @override
   State<PlaceSearchScreen> createState() => _PlaceSearchScreenState();
 }
@@ -32,6 +36,7 @@ class _PlaceSearchScreenState extends State<PlaceSearchScreen> {
     _viewModel = LocationSearchViewModel(
       service: widget.service,
       selected: widget.initialLocation,
+      quickPlaces: widget.quickPlaces,
     );
   }
 
@@ -148,6 +153,8 @@ class _PlaceSearchScreenState extends State<PlaceSearchScreen> {
         ],
       );
     }
+    // Saran cepat sudah tampil di atas, jadi pesan kosong tidak perlu.
+    if (_viewModel.quickMatches.isNotEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -215,6 +222,14 @@ class _PlaceSearchScreenState extends State<PlaceSearchScreen> {
             onPressed: _openMap,
           ),
           const SizedBox(height: AppSpacing.md),
+          if (_viewModel.quickMatches.isNotEmpty) ...[
+            Text('Saran cepat', style: AppTextStyles.labelLarge),
+            const SizedBox(height: AppSpacing.md),
+            for (final place in _viewModel.quickMatches) ...[
+              _place(place),
+              const SizedBox(height: AppSpacing.md),
+            ],
+          ],
           _feedback(),
         ],
       ),

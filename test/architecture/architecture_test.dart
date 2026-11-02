@@ -15,7 +15,7 @@ void main() {
     final files = dartFiles()
         .where((f) => normalized(f).contains('/viewmodels/'))
         .toList();
-    expect(files.length, greaterThanOrEqualTo(9));
+    expect(files.length, greaterThanOrEqualTo(8));
     final forbidden = RegExp(
       r"""(?:import|export)\s+['"][^'"]*(?:views/|widgets/|theme/|routes/|viewmodels/|flutter/material|flutter/widgets)|\b(?:BuildContext|Navigator|ScaffoldMessenger|TextEditingController|GlobalKey)\b""",
     );
@@ -33,23 +33,11 @@ void main() {
         .toList();
     expect(files.length, greaterThanOrEqualTo(9));
     final forbidden = RegExp(
-      r'\.(?:fetchRides|post|updateOwned|deleteOwned|acceptBooking|routeBetween|searchPlaces|reverseGeocode)\s*\(|\bsetState\s*\(',
+      r'\.(?:fetchRides|routeBetween|searchPlaces|reverseGeocode)\s*\(|\bsetState\s*\(',
     );
     for (final file in files) {
       expect(
         forbidden.hasMatch(file.readAsStringSync()),
-        isFalse,
-        reason: file.path,
-      );
-    }
-  });
-  test('Active source cannot import archived driver implementation', () {
-    for (final file in dartFiles().where(
-      (f) => !normalized(f).contains('/legacy/'),
-    )) {
-      expect(
-        RegExp(r"""(?:import|export)\s+['"][^'"]*legacy/""")
-            .hasMatch(file.readAsStringSync()),
         isFalse,
         reason: file.path,
       );

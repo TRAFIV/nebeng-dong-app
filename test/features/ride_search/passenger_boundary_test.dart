@@ -47,9 +47,10 @@ void main() {
       expect(find.text('Data latihan · bukan perjalanan nyata'), findsNothing);
     },
   );
-  for (final path in [AppRoutes.postRoute, AppRoutes.myRoutes]) {
+  // Halaman pengemudi lama sudah dihapus; alamatnya harus berakhir di 404.
+  for (final path in ['/post-route', '/my-routes']) {
     testWidgets(
-      'Archived route $path is blocked even with arbitrary arguments',
+      'Old driver route $path shows 404 even with arbitrary arguments',
       (tester) async {
         expect(
           AppRoutes.onGenerateRoute(

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:praktikum_mobile/legacy/driver/data/legacy_driver_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_search_request.dart';
 import 'package:praktikum_mobile/features/ride_search/data/fixtures/demo_rides.dart';
@@ -16,10 +15,8 @@ import 'package:praktikum_mobile/shared/maps/views/location_picker_screen.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 import 'package:praktikum_mobile/shared/maps/services/open_map_service.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/open_street_map_view.dart';
-import 'package:praktikum_mobile/legacy/driver/views/my_routes_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/shared/views/ride_detail_screen.dart';
-import 'package:praktikum_mobile/legacy/driver/views/post_route_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/ride_filter_screen.dart';
 import 'package:praktikum_mobile/theme/app_theme.dart';
 import 'package:praktikum_mobile/theme/app_text_styles.dart';
@@ -56,9 +53,7 @@ ThemeData _reviewTheme() {
 /// Screenshot opt-in dari widget asli, bukan mockup atau golden acuan palsu.
 /// flutter test test/visual/visual_review_test.dart --dart-define=SAVE_SCREENSHOTS=true
 void main() {
-  testWidgets('Review passenger screens and legacy archive at 360×800', (
-    tester,
-  ) async {
+  testWidgets('Review passenger screens at 360×800', (tester) async {
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -89,9 +84,7 @@ void main() {
       );
       await icons.load();
     }
-    final repository = LegacyDriverRepository(rides: []);
     final passengerRepository = LocalRideRepository(delay: Duration.zero);
-    addTearDown(repository.dispose);
     addTearDown(passengerRepository.dispose);
     final mapService = FakeMapService();
     final offlineService = FakeMapService()
@@ -107,52 +100,29 @@ void main() {
       origin: khatibPlace,
       destination: unandPlace,
     );
-    repository.post(
-      driverName: 'Mikail',
-      origin: 'Jl. Khatib Sulaiman',
-      destination: 'Kampus Unand Limau Manis',
-      departureTime: '07.30',
-      capacity: 3,
-    );
-    final returning = repository.post(
-      driverName: 'Mikail',
-      origin: 'Kampus Unand Limau Manis',
-      destination: 'Jl. Khatib Sulaiman',
-      departureTime: '16.30',
-      capacity: 1,
-    );
-    repository.acceptBooking(routeId: returning.id, bookingId: 'review-full');
     final screens = <String, Widget>{
-      '01-posting-rute': PostRouteScreen(
-        repository: repository,
-        driverName: 'Mikail',
-      ),
-      '02-rute-saya': MyRoutesScreen(
-        repository: repository,
-        userName: 'Mikail',
-      ),
-      '03-filter-pencarian': const RideFilterScreen(
+      '01-filter-pencarian': const RideFilterScreen(
         initialFilter: RideFilter(
           window: DepartureWindow.morning,
           minimumSeats: 2,
         ),
       ),
-      '04-beranda': HomeScreen(
+      '02-beranda': HomeScreen(
         userName: 'Mikail',
         repository: passengerRepository,
       ),
-      '05-detail-tebengan': RideDetailScreen(ride: demoRides.first),
-      '06-cari-terisi': HomeScreen(
+      '03-detail-tebengan': RideDetailScreen(ride: demoRides.first),
+      '04-cari-terisi': HomeScreen(
         userName: 'Mikail',
         repository: passengerRepository,
         initialOrigin: khatibPlace,
         initialDestination: unandPlace,
       ),
-      '07-hasil-pencarian': RideResultsScreen(
+      '05-hasil-pencarian': RideResultsScreen(
         request: request,
         repository: passengerRepository,
       ),
-      '08-hasil-kosong': RideResultsScreen(
+      '06-hasil-kosong': RideResultsScreen(
         request: const RideSearchRequest(
           origin: MapLocation(
             label: 'Lokasi jauh',
@@ -162,32 +132,32 @@ void main() {
         ),
         repository: passengerRepository,
       ),
-      '09-hasil-gagal': RideResultsScreen(
+      '07-hasil-gagal': RideResultsScreen(
         request: request,
         repository: passengerRepository,
         simulateError: true,
       ),
-      '10-pilih-tempat': PlaceSearchScreen(label: 'Dari', service: mapService),
-      '11-hasil-tempat': PlaceSearchScreen(label: 'Dari', service: mapService),
-      '12-pin-siap': LocationPickerScreen(
+      '08-pilih-tempat': PlaceSearchScreen(label: 'Dari', service: mapService),
+      '09-hasil-tempat': PlaceSearchScreen(label: 'Dari', service: mapService),
+      '10-pin-siap': LocationPickerScreen(
         title: 'Pin Dari',
         service: mapService,
         initialLocation: khatibPlace,
       ),
-      '13-hasil-loading': RideResultsScreen(
+      '11-hasil-loading': RideResultsScreen(
         request: request,
         repository: loadingRepository,
       ),
-      '14-tempat-gagal': PlaceSearchScreen(
+      '12-tempat-gagal': PlaceSearchScreen(
         label: 'Ke',
         service: offlineService,
       ),
-      '15-pin-gagal': LocationPickerScreen(
+      '13-pin-gagal': LocationPickerScreen(
         title: 'Pin Ke',
         service: offlineService,
         initialLocation: unandPlace,
       ),
-      '16-pin-manual': LocationPickerScreen(
+      '14-pin-manual': LocationPickerScreen(
         title: 'Pin Ke',
         service: offlineService,
         initialLocation: unandPlace,
@@ -218,13 +188,13 @@ void main() {
         ),
       );
       await tester.tap(find.text('Review'));
-      if (entry.key == '13-hasil-loading') {
+      if (entry.key == '11-hasil-loading') {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 400));
       } else {
         await tester.pumpAndSettle();
       }
-      if (entry.key == '11-hasil-tempat' || entry.key == '14-tempat-gagal') {
+      if (entry.key == '09-hasil-tempat' || entry.key == '12-tempat-gagal') {
         await tester.enterText(
           find.byKey(const ValueKey('place-query')),
           'Khatib',
@@ -234,13 +204,13 @@ void main() {
         tester.testTextInput.hide();
         await tester.pumpAndSettle();
       }
-      if (entry.key == '15-pin-gagal' || entry.key == '16-pin-manual') {
+      if (entry.key == '13-pin-gagal' || entry.key == '14-pin-manual') {
         tester.widget<OpenStreetMapView>(find.byType(OpenStreetMapView)).onTap!(
           unandPlace.point,
         );
         await tester.pump(const Duration(milliseconds: 750));
         await tester.pumpAndSettle();
-        if (entry.key == '16-pin-manual') {
+        if (entry.key == '14-pin-manual') {
           await tester.enterText(
             find.widgetWithText(TextFormField, 'Alamat dari titik di peta'),
             'Universitas Andalas, Limau Manis, Padang',
@@ -263,7 +233,7 @@ void main() {
           image.dispose();
         });
       }
-      if (entry.key == '13-hasil-loading') {
+      if (entry.key == '11-hasil-loading') {
         await tester.pump(const Duration(seconds: 5));
         await tester.pumpAndSettle();
       }

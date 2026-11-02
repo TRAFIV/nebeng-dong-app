@@ -1,5 +1,7 @@
 # Rencana Aplikasi Penumpang — Nebeng Dong
 
+> **Catatan 14 Oktober 2026:** arsip kode pengemudi `lib/legacy/driver/` beserta test-nya sudah dihapus dari source (masih ada di riwayat git, commit `addae89`). Penyebutan "legacy" di dokumen ini adalah catatan sejarah.
+
 Tanggal: 8 Oktober 2026. Acuan: [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md).
 Keputusan satu role berasal dari masukan pembimbing yang disampaikan pengguna. Revisi dokumen selesai. Atas instruksi berikutnya, Figma bagian Mikail sudah direvisi dan ditinjau; refactor source feature-first/penumpang dan repository sesi sudah dilakukan. UI/workflow lokal Mikail sudah Cari → Hasil terpisah ↔ Filter, selector tempat/pin serta feedback async. Integrasi backend/rekan dan uji HP belum selesai.
 

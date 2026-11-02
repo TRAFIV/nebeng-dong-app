@@ -37,31 +37,4 @@ class Ride {
   final RideGeography? geography;
 
   bool get isFull => seatsAvailable <= 0;
-
-  Ride copyWith({
-    String? origin,
-    String? destination,
-    String? departureTime,
-    int? seatCapacity,
-    int? seatsAvailable,
-    RideGeography? geography,
-  }) => Ride(
-    id: id,
-    driverName: driverName,
-    driverRating: driverRating,
-    driverTripCount: driverTripCount,
-    origin: origin ?? this.origin,
-    destination: destination ?? this.destination,
-    schedule: schedule,
-    departureTime: departureTime ?? this.departureTime,
-    seatCapacity: seatCapacity ?? this.seatCapacity,
-    seatsAvailable: seatsAvailable ?? this.seatsAvailable,
-    farePerPerson: farePerPerson,
-    geography:
-        geography ??
-        ((origin != null && origin != this.origin) ||
-                (destination != null && destination != this.destination)
-            ? null
-            : this.geography),
-  );
 }

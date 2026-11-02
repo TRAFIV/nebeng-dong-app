@@ -55,6 +55,14 @@ class _RideFilterScreenState extends State<RideFilterScreen> {
       Expanded(child: Text(title, style: AppTextStyles.headingMedium)),
     ],
   );
+
+  /// Ketuk jam yang sedang terpilih sekali lagi untuk membatalkannya.
+  Widget _windowChoice(DepartureWindow window) => _choice(
+    window.label,
+    _viewModel.window == window,
+    () => _viewModel.selectWindow(_viewModel.window == window ? null : window),
+  );
+
   Widget _choice(String label, bool selected, VoidCallback onPressed) =>
       Semantics(
         selected: selected,
@@ -95,38 +103,29 @@ class _RideFilterScreenState extends State<RideFilterScreen> {
             const SizedBox(height: AppSpacing.lg),
             _heading(Icons.access_time_rounded, 'Jam cabut'),
             const SizedBox(height: AppSpacing.sm),
-            for (var row = 0; row < 2; row++) ...[
+            // Dua pilihan per baris, dibuat dari semua nilai DepartureWindow.
+            for (var i = 0; i < DepartureWindow.values.length; i += 2) ...[
+              if (i > 0) const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
-                  for (var column = 0; column < 2; column++) ...[
-                    if (column > 0) const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Builder(
-                        builder: (context) {
-                          final window =
-                              DepartureWindow.values[row * 2 + column];
-                          return _choice(
-                            window.label,
-                            _viewModel.window == window,
-                            () => _viewModel.selectWindow(
-                              _viewModel.window == window ? null : window,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                  Expanded(child: _windowChoice(DepartureWindow.values[i])),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: i + 1 < DepartureWindow.values.length
+                        ? _windowChoice(DepartureWindow.values[i + 1])
+                        : const SizedBox.shrink(),
+                  ),
                 ],
               ),
-              if (row == 0) const SizedBox(height: AppSpacing.sm),
             ],
             const SizedBox(height: AppSpacing.lg),
             _heading(Icons.event_seat_rounded, 'Minimal kursi'),
             const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
-                for (final seats in [1, 2, 3]) ...[
-                  if (seats > 1) const SizedBox(width: AppSpacing.sm),
+                for (final seats in RideFilterViewModel.seatOptions) ...[
+                  if (seats != RideFilterViewModel.seatOptions.first)
+                    const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: _choice(
                       '$seats kursi',
@@ -158,7 +157,7 @@ class _RideFilterScreenState extends State<RideFilterScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Sore: 15.00–19.00. Tanpa pilihan jam berarti semua jam. Tebengan penuh tidak ditampilkan.',
+              'Tanpa pilihan jam berarti semua jam, termasuk sebelum 06.00 dan setelah 19.00. Tebengan penuh tidak ditampilkan.',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:praktikum_mobile/core/di/map_service_scope.dart';
 import 'package:praktikum_mobile/core/di/ride_repository_scope.dart';
+import 'package:praktikum_mobile/features/ride_search/data/fixtures/demo_rides.dart';
 import 'package:praktikum_mobile/features/ride_search/data/local_ride_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
@@ -104,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _repository =
         candidate ??
         LocalRideRepository(rides: widget.rides, delay: widget.loadDelay);
-    _viewModel = HomeViewModel(repository: _repository);
+    _viewModel = HomeViewModel();
     _viewModel.setLocations(origin, destination);
     _viewModel.applyFilter(filter);
     _initialized = true;
@@ -138,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: label,
                   service: _mapService!,
                   initialLocation: initial,
+                  quickPlaces: demoPlaces,
                 ),
         ),
       );

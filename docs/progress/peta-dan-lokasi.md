@@ -1,5 +1,7 @@
 # Peta, pencarian tempat, dan pin — Nebeng Dong
 
+> **Catatan 14 Oktober 2026:** arsip kode pengemudi `lib/legacy/driver/` beserta test-nya sudah dihapus dari source (masih ada di riwayat git, commit `addae89`). Penyebutan "legacy" di dokumen ini adalah catatan sejarah.
+
 > Pembaruan 8 Oktober: source aktif sekarang feature-first MVVM penumpang; driver hanya arsip tanpa akses app. Path/penjelasan versi 6 Oktober di bawah merupakan baseline historis. Lihat [MVVM](../architecture/mvvm.md) dan [PROGRESS](PROGRESS.md) untuk struktur/status terbaru. Fixture aplikasi sekarang memiliki geometry jalan nyata; backend/HP belum diintegrasikan/diuji.
 
 Implementasi 6 Oktober 2026 memakai layanan terbuka, tanpa Google Maps SDK, API key, atau akun billing. Ini konfigurasi demo kecil, bukan jaminan layanan gratis tanpa batas untuk produksi.

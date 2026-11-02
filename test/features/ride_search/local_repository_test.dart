@@ -65,9 +65,7 @@ void main() {
     },
   );
   test('Unselected location does not replace previously applied request', () {
-    final repo = LocalRideRepository(delay: Duration.zero);
-    addTearDown(repo.dispose);
-    final vm = HomeViewModel(repository: repo);
+    final vm = HomeViewModel();
     addTearDown(vm.dispose);
     vm.setLocations(khatibPlace, unandPlace);
     vm.search();

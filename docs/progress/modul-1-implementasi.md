@@ -1,5 +1,7 @@
 # Modul 1 Mikail — Implementasi Flutter
 
+> **Catatan 14 Oktober 2026:** arsip kode pengemudi `lib/legacy/driver/` beserta test-nya sudah dihapus dari source (masih ada di riwayat git, commit `addae89`). Penyebutan "legacy" di dokumen ini adalah catatan sejarah.
+
 ## Implementasi aktif — 8 Oktober 2026
 
 UI/workflow lokal Mikail mengikuti [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md): **Cari Tebengan → Hasil Pencarian ↔ Filter → shared Detail**. Dedicated pemilih Dari/Ke dan pin terhubung; tidak ada role/aksi pengemudi. Bagian berikut riwayat 6 Oktober dipertahankan, bukan alur aplikasi aktif.

@@ -1,5 +1,7 @@
 # Pembagian Tugas — Nebeng Dong
 
+> **Catatan 14 Oktober 2026:** arsip kode pengemudi `lib/legacy/driver/` beserta test-nya sudah dihapus dari source (masih ada di riwayat git, commit `addae89`). Penyebutan "legacy" di dokumen ini adalah catatan sejarah.
+
 Revisi 8 Oktober 2026 mengikuti [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md): aplikasi mobile hanya penumpang. Satu modul per anggota tetap; **layar berikut adalah usulan yang perlu dikonfirmasi tim**, bukan klaim rekan sudah menyetujui atau mengimplementasikannya.
 
 | Modul | Anggota | NIM | Requirement | Tiga layar target yang diusulkan |

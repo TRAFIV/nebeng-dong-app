@@ -1,5 +1,7 @@
 # Panduan Desain Figma — Nebeng Dong
 
+> **Catatan 14 Oktober 2026:** arsip kode pengemudi `lib/legacy/driver/` beserta test-nya sudah dihapus dari source (masih ada di riwayat git, commit `addae89`). Penyebutan "legacy" di dokumen ini adalah catatan sejarah.
+
 Jawaban **Instruksi Prompt 2: Panduan Design Figma** (Modul 1, Bagian E) berdasarkan PRD Nebeng Dong.
 
 Revisi 8 Oktober 2026: acuan [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md) dan [rencana penumpang](../progress/rencana-aplikasi-penumpang.md). Target mobile hanya penerima/pencari tebengan. Figma bagian Mikail sudah direvisi dan ditinjau; node aktif dan arsip tercatat di JSON. Pada refactor source berikutnya tanggal 8 Oktober, struktur/role Flutter menjadi feature-first penumpang; UI/workflow lokal Mikail Cari → Hasil terpisah ↔ Filter serta dedicated tempat/pin kini terhubung. Implementasi memakai token dan Material Rounded native, bukan bitmap/skema peta Figma; screenshot widget/state ditinjau, bukan klaim pixel parity seluruh prototype. Backend/rekan dan uji HP tetap pending. Bagian Figma bersama/rekan tetap baseline. Pernyataan source tidak diubah pada revisi Figma di bawah adalah riwayat tahap desain, bukan status setelah refactor kode.

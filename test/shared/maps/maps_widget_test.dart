@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:praktikum_mobile/legacy/driver/data/legacy_driver_repository.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
+import 'package:praktikum_mobile/shared/models/ride.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/shared/maps/views/location_picker_screen.dart';
-import 'package:praktikum_mobile/legacy/driver/views/post_route_screen.dart';
 import 'package:praktikum_mobile/theme/app_theme.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/location_field.dart';
@@ -70,21 +69,6 @@ Future<void> openPicker(
   );
   await tester.tap(find.text('Buka peta'));
   await tester.pumpAndSettle();
-}
-
-Future<void> fillPost(WidgetTester tester) async {
-  await selectTestLocation(
-    tester,
-    field('Contoh: Jl. Khatib Sulaiman'),
-    'Air Tawar',
-  );
-  await selectTestLocation(
-    tester,
-    field('Contoh: Kampus Unand Limau Manis'),
-    'Unand',
-  );
-  await tester.enterText(field('07.30'), '07.30');
-  await tester.enterText(field('3'), '3');
 }
 
 void main() {
@@ -313,94 +297,9 @@ void main() {
     },
   );
 
-  testWidgets('Gagal OSRM tidak posting; retry menyimpan geometry', (
-    tester,
-  ) async {
-    final repo = LegacyDriverRepository(rides: []);
-    final service = FakeMapService()..routeError = 'Jalur belum tersedia';
-    await pumpTestWidget(
-      tester,
-      MaterialApp(
-        theme: AppTheme.light,
-        home: PostRouteScreen(repository: repo, driverName: 'Mikail'),
-      ),
-      service: service,
-    );
-    await fillPost(tester);
-    await tester.tap(find.text('Posting Rutenya!'));
-    await tester.pumpAndSettle();
-    expect(find.text('Jalur belum tersedia'), findsOneWidget);
-    expect(repo.rides, isEmpty);
-    service.routeError = null;
-    await tester.tap(find.text('Posting Rutenya!'));
-    await tester.pumpAndSettle();
-    expect(repo.rides.single.geography, isNotNull);
-    expect(service.routeCalls, 2);
-  });
-
-  testWidgets(
-    'Kembali saat perhitungan belum selesai tidak memposting diam-diam',
-    (tester) async {
-      final repo = LegacyDriverRepository(rides: []);
-      final pending = Completer<RoadRoute>();
-      final service = FakeMapService()..routeHandler = (_, _) => pending.future;
-      await pumpTestWidget(
-        tester,
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: TextButton(
-                onPressed: () => Navigator.push<void>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        PostRouteScreen(repository: repo, driverName: 'Mikail'),
-                  ),
-                ),
-                child: const Text('Buka posting'),
-              ),
-            ),
-          ),
-        ),
-        service: service,
-      );
-      await tester.tap(find.text('Buka posting'));
-      await tester.pumpAndSettle();
-      await fillPost(tester);
-      await tester.tap(find.text('Posting Rutenya!'));
-      await tester.pump();
-      expect(
-        tester
-            .widget<AppButton>(
-              find.widgetWithText(AppButton, 'Menghitung Jalur...'),
-            )
-            .onPressed,
-        isNull,
-      );
-      await tester.pageBack();
-      // Complete while the popped screen is still mounted in its animation.
-      await tester.pump(const Duration(milliseconds: 10));
-      pending.complete(
-        RoadRoute(
-          points: [
-            FakeMapService.place('Air Tawar').point,
-            FakeMapService.place('Unand').point,
-          ],
-          distanceMeters: 5000,
-          durationSeconds: 600,
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(repo.rides, isEmpty);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
   testWidgets(
     'Home cocok berdasarkan koordinat berbeda nama, bukan rute contoh tanpa geo',
     (tester) async {
-      final repo = LegacyDriverRepository(rides: []);
       final origin = FakeMapService.place('Air Tawar');
       final destination = FakeMapService.place('Unand');
       final road = RoadRoute(
@@ -408,25 +307,40 @@ void main() {
         distanceMeters: 5000,
         durationSeconds: 600,
       );
-      repo.post(
-        driverName: 'Pengemudi cocok',
-        origin: 'Nama A',
-        destination: 'Nama B',
+      Ride ride(
+        String driver,
+        String from,
+        String to, {
+        RideGeography? geography,
+      }) => Ride(
+        id: driver,
+        driverName: driver,
+        driverRating: 0,
+        driverTripCount: 0,
+        origin: from,
+        destination: to,
+        schedule: 'Senin–Jumat',
         departureTime: '07.30',
-        capacity: 3,
-        geography: RideGeography(
-          origin: origin,
-          destination: destination,
-          route: road,
+        seatCapacity: 3,
+        seatsAvailable: 3,
+        farePerPerson: 0,
+        geography: geography,
+      );
+      final rides = [
+        // Nama berbeda dari pencarian; cocok karena koordinat jalurnya.
+        ride(
+          'Pengemudi cocok',
+          'Nama A',
+          'Nama B',
+          geography: RideGeography(
+            origin: origin,
+            destination: destination,
+            route: road,
+          ),
         ),
-      );
-      repo.post(
-        driverName: 'Tanpa koordinat',
-        origin: 'Air Tawar',
-        destination: 'Unand',
-        departureTime: '07.30',
-        capacity: 3,
-      );
+        // Nama sama persis tetapi tanpa jalur, jadi tidak boleh cocok.
+        ride('Tanpa koordinat', 'Air Tawar', 'Unand'),
+      ];
       await pumpTestWidget(
         tester,
         MaterialApp(
@@ -435,7 +349,7 @@ void main() {
           home: HomeScreen(
             // New results page uses the active typed router.
             userName: 'Mikail',
-            rides: repo.rides,
+            rides: rides,
             loadDelay: Duration.zero,
           ),
         ),

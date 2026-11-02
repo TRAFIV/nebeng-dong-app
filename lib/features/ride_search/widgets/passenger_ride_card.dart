@@ -7,7 +7,7 @@ import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/theme/app_spacing.dart';
 import 'package:praktikum_mobile/theme/app_text_styles.dart';
 
-/// Compact M1 card. Shared/legacy RideCard stays available to its consumers.
+/// Kartu tebengan di Hasil Pencarian: pemberi, rute, jam, sisa kursi, ongkos.
 class PassengerRideCard extends StatelessWidget {
   const PassengerRideCard({super.key, required this.ride, required this.onTap});
   final Ride ride;

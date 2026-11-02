@@ -65,7 +65,7 @@ BACA DAHULU (Markdown, bukan PDF)
 - docs/design/panduan-desain-figma.md dan docs/architecture/mvvm.md
 - docs/progress/peta-dan-lokasi.md untuk geometry/layanan/pin
 PDF PRD v1.0 arsip dua role. Source sudah feature-first MVVM penumpang;
-driver di legacy, named routes ditolak. UI lokal Mikail Cari -> Hasil terpisah <->
+kode pengemudi lama sudah dihapus. UI lokal Mikail Cari -> Hasil terpisah <->
 Filter dan PlaceSearch/pin tersedia; backend/rekan/uji HP belum selesai.
 
 CAKUPAN
@@ -75,7 +75,7 @@ Login dan Detail Tebengan adalah layar bersama yang sudah ada.
 Jika diminta migrasi satu role, hilangkan akses driver dari UI DAN named routes:
 tidak ada Beri Tebengan, Posting/Edit/Hapus Rute, Rute Saya pengemudi,
 Permintaan Masuk/ACC, konfirmasi pelunasan oleh pengemudi.
-Isolasi kode legacy yang perlu reuse; jangan menghapus perubahan pengguna.
+Jangan memulihkan kode pengemudi yang sudah dihapus; jangan menghapus perubahan pengguna.
 Jangan membangun aplikasi pengemudi atau dashboard admin tanpa instruksi.
 Integrasi modul rekan mengikuti kontrak dan pembagian yang disepakati.
 
@@ -130,7 +130,7 @@ RideFilterViewModel: draft/validasi/apply. Jangan saling mengimpor ViewModel.
 shared/models, shared/maps/models, ride_search/models: entitas immutable.
 ride_search/data: kontrak abstract baca + LocalRideRepository/fixtures jalan nyata.
 shared/maps/services: adapter peta. core/di: satu repository sesi, ownership/dispose.
-Tidak import legacy dari source aktif; mutasi driver hanya archive/test.
+Repository penumpang hanya membaca data; tidak ada mutasi data pengemudi di aplikasi.
 lib/core: lifecycle/DI bersama; lib/theme: token; lib/routes: named routes.
 Dispose listener/resource, guard generation/lifecycle pada async.
 Jangan mengembalikan operasi data/state bisnis ke setState di View.

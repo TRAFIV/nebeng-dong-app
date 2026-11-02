@@ -2,6 +2,10 @@ import 'package:praktikum_mobile/core/view_model.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 
 class RideFilterViewModel extends ViewModel {
+  /// Pilihan minimal kursi di layar Filter. Tambah angka di sini untuk
+  /// menambah pilihan; layar membuat tombolnya otomatis.
+  static const seatOptions = [1, 2, 3];
+
   RideFilterViewModel({RideFilter initialFilter = const RideFilter()})
     : _window = initialFilter.window,
       _seats = initialFilter.minimumSeats;

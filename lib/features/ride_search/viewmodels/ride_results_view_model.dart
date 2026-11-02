@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:praktikum_mobile/core/view_model.dart';
 import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
@@ -13,6 +14,8 @@ class RideResultsViewModel extends ViewModel {
     required this.request,
     this.simulateError = false,
   }) : _filter = request.filter {
+    // Kalau data repository berubah (misalnya pembaruan dari backend nanti,
+    // FR-07), hasil dihitung ulang tanpa memuat ulang layar.
     repository.addListener(refresh);
   }
   final RideRepository repository;
@@ -27,7 +30,6 @@ class RideResultsViewModel extends ViewModel {
   RideFilter get filter => _filter;
   SearchResultsStatus get status => _status;
   List<Ride> get results => List.unmodifiable(_results);
-  List<Ride> get allRides => List.unmodifiable(_rides);
   String get errorMessage => _errorMessage;
 
   void applyFilter(RideFilter filter) {
@@ -56,8 +58,10 @@ class RideResultsViewModel extends ViewModel {
       _rides = List.of(rides);
       _results = matchPassengerRides(_rides, request, _filter);
       _status = SearchResultsStatus.success;
-    } catch (_) {
+    } catch (error, stackTrace) {
       if (isDisposed || generation != _generation) return;
+      // Detail teknis untuk debugging; pengguna hanya melihat pesan ramah.
+      debugPrint('Gagal memuat tebengan: $error\n$stackTrace');
       _status = SearchResultsStatus.error;
       _errorMessage = 'Periksa koneksi internet, lalu coba lagi. Lokasi dan filtermu tetap tersimpan.';
     }

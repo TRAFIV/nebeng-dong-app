@@ -10,6 +10,7 @@ import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/ride_filter_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/ride_results_screen.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
+import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 import 'package:praktikum_mobile/shared/maps/services/open_map_service.dart';
 import 'package:praktikum_mobile/shared/maps/views/place_search_screen.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/location_selection_tile.dart';
@@ -43,6 +44,22 @@ class _RetryRepository extends RideRepository {
   }
 }
 
+/// Salinan tebengan yang sama dengan sisa satu kursi.
+Ride _withOneSeat(Ride ride) => Ride(
+  id: '${ride.id}-satu-kursi',
+  driverName: ride.driverName,
+  driverRating: ride.driverRating,
+  driverTripCount: ride.driverTripCount,
+  origin: ride.origin,
+  destination: ride.destination,
+  schedule: ride.schedule,
+  departureTime: ride.departureTime,
+  seatCapacity: ride.seatCapacity,
+  seatsAvailable: 1,
+  farePerPerson: ride.farePerPerson,
+  geography: ride.geography,
+);
+
 Widget _app(Widget home) => MaterialApp(
   theme: AppTheme.light,
   onGenerateRoute: AppRoutes.onGenerateRoute,
@@ -66,6 +83,31 @@ Future<void> _tap(WidgetTester tester, String label) async {
 }
 
 void main() {
+  testWidgets('Quick places can be chosen while the map service is slow', (
+    tester,
+  ) async {
+    final slow = Completer<List<MapLocation>>();
+    final service = FakeMapService()..searchHandler = (_) => slow.future;
+    await pumpTestWidget(
+      tester,
+      _app(const HomeScreen(userName: 'Mikail', loadDelay: Duration.zero)),
+      service: service,
+    );
+    await tester.tap(find.byKey(const ValueKey('select-Dari')));
+    await tester.pumpAndSettle();
+    expect(find.text('Saran cepat'), findsOneWidget);
+    expect(find.text('Jl. Khatib Sulaiman'), findsOneWidget);
+    await tester.enterText(find.byKey(const ValueKey('place-query')), 'unand');
+    await tester.pump();
+    expect(find.text('Jl. Khatib Sulaiman'), findsNothing);
+    await tester.tap(find.text('Kampus Unand Limau Manis'));
+    await tester.pumpAndSettle();
+    expect(_locations(tester)[0].location, same(unandPlace));
+    slow.complete([]);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Ke first, typed query and cancel preserve the chosen location', (
     tester,
   ) async {
@@ -236,7 +278,7 @@ void main() {
   ) async {
     final repository = LocalRideRepository(
       delay: Duration.zero,
-      rides: [demoRides.first, demoRides.first.copyWith(seatsAvailable: 1)],
+      rides: [demoRides.first, _withOneSeat(demoRides.first)],
     );
     addTearDown(repository.dispose);
     await pumpTestWidget(

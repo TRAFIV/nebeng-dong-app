@@ -1,13 +1,10 @@
 import 'package:praktikum_mobile/core/view_model.dart';
-import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_search_request.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 
 /// Form state only. Fetch/matching/loading belong to RideResultsViewModel.
 class HomeViewModel extends ViewModel {
-  HomeViewModel({required this.repository});
-  final RideRepository repository;
   MapLocation? _originPlace;
   MapLocation? _destinationPlace;
   RideFilter _filter = const RideFilter();

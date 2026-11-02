@@ -18,11 +18,10 @@ lib/
     reputation/          Duha: README ownership, belum implementasi
   shared/                models, views, viewmodels, widgets, utils
     maps/                services, models, views, viewmodels, widgets
-  legacy/driver/         arsip dua role, tidak diimpor aplikasi aktif
   routes/                named routes penumpang dan fallback 404
   theme/                 token bersama tetap di lokasi semula
 test/                    architecture/, core/, features/, integration/,
-                         shared/, regression/, legacy/, visual/, support/
+                         shared/, regression/, visual/, support/
 docs/                    sumber Markdown dan log
 ```
 
@@ -35,7 +34,6 @@ docs/                    sumber Markdown dan log
 | reputation | Duha, FR-13–16; README ownership, bukan klaim fitur selesai. |
 | shared/maps | Picker/autocomplete, peta/tile, service Photon/reverse/OSRM dan model lokasi. |
 | shared | Detail Tebengan/VM lintas modul, model Ride, UI/validator/formatter reusable. |
-| legacy/driver | Posting/Rute Saya, VM/repository/harness arsip; tidak boleh diimpor source aktif. |
 
 Nama folder berdasarkan fitur, bukan anggota. Pembagian rinci rekan tetap usulan yang perlu
 kesepakatan tim; refactor ini tidak mengimplementasikan modul rekan sepihak. Theme tetap
@@ -79,13 +77,12 @@ kursi, pembatalan, konfirmasi ongkos dan eligibility rating tetap otoritas backe
 
 ## Penumpang dan arsip
 
-AppRoutes tidak mengimpor legacy dan mengembalikan null untuk /post-route dan /my-routes,
-terlepas dari arguments; onUnknownRoute menampilkan 404. Home tanpa role switch/CTA driver.
+Halaman pengemudi lama (Posting Rute/Rute Saya) sudah dihapus 14 Oktober 2026; alamat
+/post-route dan /my-routes tidak dikenal router sehingga berakhir di 404. Home tanpa role switch/CTA driver.
 Pesanan/Ongkos/Profil nonaktif sampai fitur rekan terintegrasi, bukan aksi kosong seolah bekerja.
 
-`LegacyDriverRepository` dan `LegacyDriverRoutes` hanya untuk arsip/regresi. Tes unit
-CRUD/quota/idempotensi lama dipertahankan; workflow legacy diuji lewat harness khusus, bukan
-membuka kembali driver dari router penumpang. Memberikan hasil pending tidak mengurangi kuota.
+Arsip pengemudi beserta tesnya tersedia di riwayat git (commit `addae89`), bukan di source.
+Memberikan hasil pending tidak mengurangi kuota.
 Detail request/note masih presentasi lokal dan hilang ketika VM dibuat ulang.
 
 ## Async, lokasi dan data latihan
@@ -113,8 +110,7 @@ utama tidak berarti seluruh contoh prototype identik piksel atau backend/rekan s
 
 ## Pengujian
 
-`test/architecture/` memindai seluruh Dart **rekursif**: batas VM/View, larangan import legacy
-dari source aktif, kontrak repository penumpang tanpa mutasi driver, dan lokasi core.
+`test/architecture/` memindai seluruh Dart **rekursif**: batas VM/View, kontrak repository penumpang tanpa mutasi driver, dan lokasi core.
 `test/core/di/` memeriksa instance bersama, rebinding, ownership/disposal dan app injection.
 `test/features/ride_search/` memeriksa deny route driver, UI/menu nonaktif dan fixture
 searah/terbalik/penuh/tidak cocok dan workflow selector/pin/filter/retry/back/loading.

@@ -23,6 +23,8 @@ Menurut informasi pengguna, demo dan code review **diundur ke Kamis, 15 Oktober 
 
 Pemeriksaan 13 Oktober pada working tree `Latihan2-2411523016`: analyzer tanpa masalah, format tanpa perubahan, 128/128 tes lulus setelah tiga perbaikan kecil workflow Filter (batas ongkos `0` ditolak, 404 tampil untuk navigasi bertipe, batas ongkos tampil berpemisah ribuan saat dibuka ulang). Malam harinya build debug dari working tree itu dipasang ke HP Infinix X6855 dan aplikasi terbuka tanpa exception di log. Alur demo di HP dan hot reload masih perlu dicoba sendiri sebelum hari demo.
 
+Pembersihan 14 Oktober: kode tak terpakai dihapus (arsip pengemudi, widget dan fungsi tanpa pemakai), pilihan jam/kursi di Filter kini dibuat dari data, dan error muat hasil dicatat ke log debug. Analyzer bersih dan 100/100 tes lulus; jumlah tes turun karena tes khusus kode pengemudi ikut dihapus.
+
 ## Cakupan proyek yang direvisi — 8 Oktober 2026
 
 [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md) menargetkan satu role penumpang berdasarkan masukan pembimbing yang disampaikan pengguna. Instruksi asli dosen di atas tetap sama; bagian berikut pemetaan proyek, bukan tambahan ketentuan ujian.
@@ -71,9 +73,9 @@ FR-03 aktual memakai geometry OSRM, koridor 500 m dan urutan jemput sebelum turu
 
 Arsitektur [MVVM](../architecture/mvvm.md): View menangani input/controller/feedback/navigasi; HomeViewModel menangani form/validasi/snapshot request, RideResultsViewModel menangani fetch/matcher/filter/loading/error; RideFilterViewModel menangani draft/validasi/apply; repository/service menangani data/jaringan; core adalah lifecycle/DI. Untuk perubahan aturan filter, mulai dari RideFilterViewModel/model RideFilter; untuk tampilan dari theme/View. Pahami ChangeNotifier/ListenableBuilder, dependency injection, dispose dan guard async. Ini pemetaan source, bukan kewajiban baru dosen.
 
-### Workflow pengemudi legacy — bukan demo utama PRD 1.1
+### Kode pengemudi lama
 
-Posting Rute/Rute Saya masih ada pada source baseline 6 Oktober dan pernah memenuhi unsur workflow lokal, tetapi tidak sesuai target penumpang baru. Catatan historis source/tes tetap tersedia di implementasi Modul 1 dan PROGRESS. Driver di lib/legacy/driver sekarang diblokir oleh router/UI penumpang. Jangan menjadikan posting pengemudi sebagai demo app aktif.
+Posting Rute/Rute Saya (dua role) sudah dihapus dari source pada 14 Oktober 2026 dan tidak didemokan. Jika ditanya: aplikasi sekarang hanya untuk penumpang sesuai PRD 1.1, sedangkan data pengemudi akan datang dari backend. Versi lama tetap tersimpan di riwayat git.
 
 ## Persiapan laptop
 
