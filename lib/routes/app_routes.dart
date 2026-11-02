@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:praktikum_mobile/core/di/rating_repository_scope.dart';
+import 'package:praktikum_mobile/features/reputation/data/local_rating_repository.dart';
+import 'package:praktikum_mobile/features/reputation/views/rating_history_screen.dart';
 import 'package:praktikum_mobile/routes/ride_results_arguments.dart';
 import 'package:praktikum_mobile/features/ride_search/views/ride_results_screen.dart';
 
@@ -31,6 +34,7 @@ abstract final class AppRoutes {
   static const String costs = '/ongkos';
   static const String costDetail = '/ongkos/rincian';
   static const String paymentStatus = '/ongkos/status';
+  static const String profil = '/profil';
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -133,6 +137,15 @@ abstract final class AppRoutes {
           );
         }
         return null;
+      case profil:
+        return MaterialPageRoute<void>(
+          builder: (context) => RatingHistoryScreen(
+            repository:
+                RatingRepositoryScope.maybeOf(context) ??
+                LocalRatingRepository(LocalRatingStorage()),
+          ),
+          settings: settings,
+        );
       default:
         return null;
     }

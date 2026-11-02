@@ -5,6 +5,7 @@ import 'package:praktikum_mobile/theme/app_colors.dart';
 /// Navigasi bawah penumpang yang dipakai bersama semua modul.
 ///
 /// Tab tanpa route (`null`) belum terintegrasi sehingga tetap nonaktif.
+/// Profil saat ini memuat Riwayat & Rating (Modul 4); rekap profil menyusul.
 class PassengerNavigation extends StatelessWidget {
   const PassengerNavigation({super.key, this.selectedIndex = 0});
 
@@ -14,7 +15,7 @@ class PassengerNavigation extends StatelessWidget {
     AppRoutes.home,
     AppRoutes.pesananSaya,
     AppRoutes.costs,
-    null,
+    AppRoutes.profil,
   ];
 
   void _openTab(BuildContext context, int index) {

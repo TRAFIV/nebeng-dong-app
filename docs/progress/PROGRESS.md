@@ -21,7 +21,7 @@ Nomor 17–19 adalah arah aktif PRD 1.1. Nomor 1–16 berikutnya mencatat pekerj
 - [x] 18a.1. Perinci pemilih Dari/Ke dan pin Figma: 18 state pendukung, nama/alamat terpisah, contoh Ke lebih dulu/pin loading-gagal-manual/swap, 14 cabang aksi diperiksa; jelaskan tugas Shiddiq.
 - [x] 18b.1. Refactor source feature-first MVVM penumpang, blokir driver UI/named routes, isolasi legacy, injeksikan abstract repository sesi dan local fixture jalan nyata; pengujian diperbarui.
 - [x] 18b.2a. Implementasikan tiga layar Mikail sesuai Figma: Cari → Hasil terpisah ↔ Filter, pemilih Dari/Ke dedicated dan pin; verifikasi workflow/state/visual/build. Dicentang 13 Oktober: 128/128 tes, analyzer, build debug terpasang di HP, dan pengguna mengonfirmasi alur Cari → Hasil → Filter → Detail berjalan di HP. Capture visual tidak diulang hari itu; hot reload belum dicoba.
-- [ ] 18b.2b. Integrasi modul rekan/backend dan uji HP setelah izin; tidak termasuk implementasi lokal Mikail.
+- [ ] 18b.2b. Integrasi modul rekan/backend dan uji HP setelah izin; tidak termasuk implementasi lokal Mikail. **Modul rekan sudah digabung lokal di branch `integrasi` (2 November 2026); backend dan uji HP masih pending.**
 - [x] 21. Modul 3 Shiddiq (FR-09–12) di branch `feat/modul-3-ongkos`: Riwayat Ongkos, Rincian Ongkos, Status Pembayaran dengan deklarasi "Sudah bayar", repository sesi + fixture lokal, tab Ongkos aktif. Belum diuji di HP; integrasi Modul 2/backend menunggu kontrak.
 - [ ] 19. Konfirmasikan backend/kontrak tim untuk rute, keputusan booking, kuota, ongkos, akun, dan persistensi; integrasi belum dimulai.
 - [x] 20. Modul 2 (Taris): Implementasi lengkap FR-05–08 di branch `dev-taris`.
@@ -53,6 +53,7 @@ Nomor 17–19 adalah arah aktif PRD 1.1. Nomor 1–16 berikutnya mencatat pekerj
 
 ## Status saat ini
 
+- 2026-11-02 — **Empat modul digabung jadi satu aplikasi** di branch lokal `integrasi` (dari `origin/main` 3d001be) atas instruksi pengguna, dengan persetujuan tim yang disampaikan pengguna. Urutan merge: `mikail-uts` (termasuk commit `3e448cb` berisi perubahan lokal 14 Oktober) → `origin/dev-taris` → `origin/feat/modul-3-ongkos` (dipilih karena paling baru dan paling lengkap; `uts-modul3-konfirmasi-pembayaran` tidak digabung) → `origin/uts-rating-duha`. Penyelesaian: navigasi bawah dipindah ke `lib/shared/widgets/passenger_navigation.dart` dan dipakai Home/Hasil (Cari), Pesanan Saya, Riwayat Ongkos, dan Riwayat Perjalanan Duha (Profil); keempat tab aktif. `EmptyView`/`ErrorView`/`ErrorBanner` dan `SectionHeader` dikembalikan karena dipakai Modul 2/3. Modul 4 kini masuk lewat route `/profil` dengan `RatingRepositoryProvider` di `core/di` (`lib/main_rating.dart` tetap ada sebagai entry demo). Provider `main.dart`: Booking → Ride → Cost → Rating → Map. Golden rating diperbarui karena navigasi bawah ditambahkan (diperiksa visual). Identitas Android dikembalikan ke aplikasi kelompok (`com.example.praktikum_mobile`, label Nebeng Dong); perubahan `id.nebengdong.duha.ratingdemo`/"Nebeng Dong Rating" dari branch Duha khusus demo rating sehingga tidak dibawa. Verifikasi: format 114 file tanpa perubahan, analyzer bersih, **169/169 tes lulus**. Build APK debug **gagal karena file di `build/` dan `ios|windows/.../ephemeral` dikunci proses lain** (Gradle/IDE/antivirus), bukan error kode; uji HP belum dilakukan. Belum di-push. Penyimpanan data: semua modul masih fixture/in-memory, rating Duha hanya `shared_preferences` di HP; belum ada server.
 - 2026-10-14 (malam) — **Dikerjakan atas instruksi pengguna:** (A) jam cabut kini bersambung 06.00–19.00 dengan tambahan `DepartureWindow.midday` "Siang 09.00–15.00" dan label "Sore 15.00–19.00"; di luar itu cukup tanpa pilihan jam. (B) Temuan 1 di bawah **sudah diperbaiki**: `RouteMatcher` hanya memakai proyeksi jalur terdekat (toleransi 100 m, `_nearest`). Data asli: gerbang Unand → 300 m sebelum gerbang kini ditolak; perjalanan searah (400/200 m sebelum gerbang, Bypass → Unand, Khatib → Unand) tetap cocok. Temuan 2 dan 3 tetap catatan. Tes baru jam bersambung + arah terbalik jarak pendek; analyze bersih, 104/104 tes.
 - 2026-10-14 — **Temuan & rencana (temuan 1 sudah diperbaiki, lihat atas; 2–3 masih catatan):**
   1. **Kelemahan FR-03 (RouteMatcher):** untuk perjalanan pendek (< ±500 m), arah terbalik ikut dianggap searah. Uji: Gerbang Unand → titik 300 m sebelum gerbang (jarak lurus 212 m) **cocok**, padahal berlawanan arah. Penyebab: koridor 500 m lebih lebar dari perjalanan, sehingga jemput/turun memakai proyeksi jalur yang salah. Perjalanan jauh tidak terdampak (Unand → Jalan Bypass ±8 km benar ditolak). **Usulan perbaikan:** saat menentukan urutan, pakai hanya proyeksi yang dekat dengan jarak minimum tiap titik (toleransi ±100 m), bukan semua proyeksi ≤ 500 m; tambah tes arah terbalik jarak pendek. File: `lib/features/ride_search/utils/route_matcher.dart`.
@@ -64,6 +65,18 @@ Nomor 17–19 adalah arah aktif PRD 1.1. Nomor 1–16 berikutnya mencatat pekerj
 - 2026-10-08 — Mulai penyelesaian UI/workflow lokal Mikail atas instruksi pengguna. Skill Figma design-to-code dipakai membaca frame aktif Cari/Hasil/Filter dan pemilih tempat/pin; source mengikuti MVVM/token bersama. Tidak mengimplementasikan modul rekan, mengarang backend atau menggunakan HP; commit/push tahap ini belum diminta.
 - 2026-10-12 — Implementasi Modul 2 (Taris — Pemesanan & Koordinasi) selesai di branch `dev-taris`: tiga layar utama penumpang (Pesanan Saya, Ajukan Tebengan, Detail Pesanan) beserta variasi status Diterima, Menunggu, Ditolak, Dibatalkan, dan bottom sheet konfirmasi batal sesuai desain Figma. Arsitektur MVVM murni (ViewModel extend core, View bebas setState), model Booking & linimasa, abstract BookingRepository & LocalBookingRepository dengan 4 fixture latihan, root DI scope `BookingRepositoryProvider`, named routes terdaftar, dan integrasi tombol dari Detail Tebengan. Verifikasi: 128/128 tes lulus (18 tes baru Modul 2), flutter analyze bersih (0 issue).
 - 2026-10-18 — Modul 3 (Shiddiq) dibuat di branch `feat/modul-3-ongkos`, belum di-merge ke `main`. Keputusan tim: tarif tetap per penumpang memakai `Ride.farePerPerson` (opsi A, tanpa pembagian/pembulatan); status pembayaran tiga (belum dilaporkan → menunggu konfirmasi → terkonfirmasi); "Sudah bayar" hanya setelah perjalanan selesai; Riwayat hanya perjalanan selesai, batal tidak ditampilkan; Taris setuju kontrak data + fixture dulu; irisan riwayat/rekap disesuaikan Duha. Konfirmasi tetap otoritas backend/admin; di data latihan status terkonfirmasi berasal dari fixture, tanpa tombol admin di app. Tab Ongkos di Home diaktifkan (perubahan kecil pada `home_screen.dart` milik Mikail dan tes batas nav). Verifikasi: format, analyzer, dan seluruh tes lulus (137). Belum diuji di HP.
+- 2026-10-11 — Duha: integrasi workflow rating lama ke main 3d001be pada branch
+  `codex/duha-passenger-rating`. Backup source dan stash dibuat sebelum migrasi.
+  [x] Alur khusus penumpang → rating pengemudi; MVVM feature reputation,
+  tema/widget bersama, hasil bintang dan Sudah dinilai pada kartu yang sama.
+  [x] Penyimpanan demo v2 terpisah dari v1 dua role; source/data lama dipertahankan.
+  [x] Verifikasi: pub get berhasil (override desktop hanya proses/launcher Android),
+  analyzer tanpa masalah; format 82 Dart tanpa perubahan; 123/123 tes lulus
+  (110 baseline + 13 reputasi); tiga capture UI 360×800 diperiksa;
+  APK debug `lib/main_rating.dart` berhasil dibangun. Belum dipasang/diuji di HP.
+  Backend, profil/rekap dan integrasi tab Pesanan/Figma tetap pending.
+  Tidak commit/push dan tidak membuka HP.
+
 
 - 2026-10-08 — Refactor source selesai pada tahap struktur/role: feature-first auth/ride_search/booking/costs/reputation, core/DI dan shared/maps; driver di legacy tidak diimpor app dan route driver 404. Kontrak repository penumpang read-only, LocalRideRepository/geometry jalan nyata terpisah, satu instance sesi dari root. Source hasil masih di Home; belum seluruh UI Figma atau backend/rekan selesai. Modul rekan tidak diimplementasikan sepihak; README ownership tersedia. Verifikasi: 110/110 tes lulus, analyzer tanpa masalah, format 69 Dart tanpa perubahan, capture enam tampilan lulus dan screenshot Cari/kosong/filter ditinjau; APK release arm64 17,8 MB berhasil. Commit source/dokumen `2b981ef` dan handoff `b66047e` kini tersedia di `main` melalui push fast-forward atas instruksi terbaru pengguna; branch pengembangan tetap `Latihan2-2411523016`. HP tidak dipakai. APK masih memakai signing debug bawaan, bukan paket distribusi produksi.
 
@@ -250,3 +263,45 @@ Format: `YYYY-MM-DD — [AI] — apa yang dikerjakan — file/objek yang berubah
 - 2026-09-26 — AI — Desain Modul 1 (tugas Mikail) di halaman `08 Tugas Tim`: Posting Rute (31:13), Rute Saya (31:17), Filter Pencarian (31:21), semuanya dari komponen + prototype Rute Saya <-> Posting Rute. Implementasi Flutter-nya belum.
 - 2026-09-26 — AI — Blok tugas di halaman 08 diubah jadi Section (50:71–50:74) supaya frame layar tetap top-level dan bisa di-prototype.
 - 2026-09-30 — Codex — Selesaikan Latihan Praktikum 2: repository async + UI states, validator, named routes, data passing Ride, form catatan, fallback 404, dan widget test — `lib/`, `test/widget_test.dart`.
+
+- 2026-10-11 — Workflow Duha selesai diuji lokal: FR-13/14 khusus penumpang,
+  feature-first MVVM + SharedPreferences v2, penjagaan ownership/status selesai,
+  anti-duplikat, draft gagal/retry, disposal async, status/bintang dalam kartu.
+  Format/analyzer/123 tests dan APK debug berhasil. Panduan DEMO_RATING, README
+  dan arsitektur diperbarui. Branch codex/duha-passenger-rating, belum commit/push;
+  stash dan backup source lama tetap ada. Figma/backend/HP belum diubah.
+
+- 2026-10-11 — Atas permintaan Duha, demo penumpang dipasang dan dibuka pada
+  Infinix X6885; layar riwayat dikonfirmasi melalui screenshot. Setelah itu
+  badge Peran kamu/Penumpang dihapus karena aplikasi satu role; label Pengemudi
+  dipertahankan. Tes visual lulus, analyzer bersih; APK diperbarui dan demo dibuka kembali di HP.
+  Screenshot perangkat diperiksa: badge peran sudah tidak tampil.
+
+- 2026-10-11 — Atas permintaan Duha, teks keterangan demo/perjalanan contoh
+  di layar riwayat dihapus. Batas data simulasi tetap dijelaskan di DEMO_RATING.md.
+  Tes visual lulus dan capture ditinjau, analyzer bersih; APK terbaru berhasil
+  dipasang dan dibuka pada Infinix X6885. Flutter dilepas dengan detach agar
+  aplikasi tetap berjalan di HP.
+
+- 2026-10-15 — Duha: ketuk area kosong form rating melepaskan fokus komentar
+  dan menutup keyboard tanpa menghapus draft atau keluar dari form.
+  Verifikasi: 14 tes modul reputasi lulus, termasuk tap kosong menutup keyboard,
+  mempertahankan draft dan fokus ulang; analyzer bersih. APK berhasil dibangun,
+  dipasang dan dibuka kembali pada Infinix X6885 atas izin demo HP yang sudah ada.
+
+- 2026-10-15 — Duha: loading saat mengirim rating diganti dari garis di bawah
+  menjadi spinner bulat di tengah layar, dengan lapisan penghalang interaksi.
+  Lock simpan dan navigasi kembali tetap mengikuti state ViewModel.
+  Verifikasi: 14 tes reputasi lulus, analyzer bersih, build APK berhasil;
+  pembaruan dipasang dan dibuka pada Infinix X6885.
+
+- 2026-10-15 — Panduan belajar Duha dibuat dalam dokumen Word 22 halaman di
+  docs/belajar/Panduan_Belajar_Rating_Nebeng_Dong.docx, berisi lokasi file,
+  penjelasan kode sederhana, penanda materi dosen, dan latihan ujian lisan.
+  Seluruh halaman diperiksa secara visual; source aplikasi tidak diubah.
+
+- 2026-10-18 — Duha: siapkan publikasi workflow UTS rating pengemudi pada branch
+  uts-rating-duha. Panduan belajar docs/belajar tetap lokal sesuai permintaan
+  dan tidak disertakan dalam commit/push. Format 82 file tanpa perubahan;
+  analyzer bersih; seluruh 124 tes lulus sebelum publikasi.
+- 2026-11-02 — AI — Gabungkan Modul 1–4 ke branch lokal `integrasi`: selesaikan konflik route/Home/main/tes/dokumen, navigasi bawah bersama dengan empat tab aktif, kembalikan state view/SectionHeader yang dipakai rekan, sambungkan rating Duha ke tab Profil lewat `RatingRepositoryProvider`, perbarui golden rating. Format/analyzer bersih, 169/169 tes lulus; build APK terhalang file terkunci; belum push.

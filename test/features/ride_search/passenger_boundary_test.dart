@@ -43,11 +43,11 @@ void main() {
         'Ongkos',
         'Profil',
       ]);
-      // Cari, Pesanan dan Ongkos aktif; Profil menunggu integrasi.
+      // Keempat tab sudah terhubung ke modul masing-masing.
       expect(destinations[0].enabled, isTrue);
       expect(destinations[1].enabled, isTrue);
       expect(destinations[2].enabled, isTrue);
-      expect(destinations[3].enabled, isFalse);
+      expect(destinations[3].enabled, isTrue);
       expect(find.text('Data latihan · bukan perjalanan nyata'), findsNothing);
     },
   );
