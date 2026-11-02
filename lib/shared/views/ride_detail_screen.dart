@@ -43,15 +43,32 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
     super.dispose();
   }
 
-  void _requestToJoin() {
+  Future<void> _requestToJoin() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     if (!_viewModel.requestToJoin(_pickupController.text)) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Sip! Permintaanmu udah dikirim, tinggal nunggu di-ACC.'),
-      ),
+
+    // Buka AjukanTebengan dan tunggu hasilnya (booking berhasil atau null).
+    final result = await Navigator.pushNamed<Object?>(
+      context,
+      AppRoutes.ajukanTebengan,
+      arguments: _viewModel.ride,
     );
+
+    if (!mounted) return;
+
+    if (result != null) {
+      // Booking berhasil dikirim — tampilkan SnackBar dan kembali ke Pesanan.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Permintaan terkirim! Tunggu kabar ya.')),
+      );
+      // Arahkan ke tab Pesanan Saya agar user bisa memantau pesanannya.
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.pesananSaya,
+        (route) => false,
+      );
+    }
   }
 
   Future<void> _openNoteForm() async {

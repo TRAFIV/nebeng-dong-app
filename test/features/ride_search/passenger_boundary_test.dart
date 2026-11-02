@@ -43,8 +43,34 @@ void main() {
         'Ongkos',
         'Profil',
       ]);
-      expect(destinations.skip(1).every((d) => !d.enabled), isTrue);
+      // Cari dan Pesanan aktif; Ongkos dan Profil menunggu integrasi.
+      expect(destinations[0].enabled, isTrue);
+      expect(destinations[1].enabled, isTrue);
+      expect(destinations[2].enabled, isFalse);
+      expect(destinations[3].enabled, isFalse);
       expect(find.text('Data latihan · bukan perjalanan nyata'), findsNothing);
+    },
+  );
+  testWidgets(
+    'Tapping Pesanan tab in navigation bar navigates to PesananSayaScreen',
+    (tester) async {
+      await pumpTestWidget(
+        tester,
+        MaterialApp(
+          theme: AppTheme.light,
+          home: const HomeScreen(userName: 'Mikail', loadDelay: Duration.zero),
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final pesananTab = find.text('Pesanan');
+      expect(pesananTab, findsOneWidget);
+      await tester.tap(pesananTab);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pesanan Saya'), findsOneWidget);
+      expect(find.text('Pesanan Aktif'), findsOneWidget);
     },
   );
   // Halaman pengemudi lama sudah dihapus; alamatnya harus berakhir di 404.
