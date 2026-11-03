@@ -6,7 +6,6 @@ import '../models/trip_rating.dart';
 
 import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
-import 'package:praktikum_mobile/shared/widgets/passenger_navigation.dart';
 
 import '../widgets/rating_trip_card.dart';
 import 'rating_screen.dart';
@@ -106,7 +105,6 @@ class _RatingHistoryScreenState extends State<RatingHistoryScreen> {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: _viewModel,
     builder: (context, _) => Scaffold(
-      bottomNavigationBar: const PassengerNavigation(selectedIndex: 3),
       appBar: AppBar(
         title: const Text('Riwayat Perjalanan'),
         actions: [

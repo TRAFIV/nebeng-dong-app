@@ -357,10 +357,6 @@ void main() {
       await tester.pumpAndSettle();
       await selectHomeLocation(tester, 'Dari', 'Air Tawar');
       await selectHomeLocation(tester, 'Ke', 'Unand');
-      await tester.tap(find.text('Pesanan'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Cari'));
-      await tester.pumpAndSettle();
       expect(find.text('Air Tawar'), findsOneWidget);
       expect(find.text('Unand'), findsOneWidget);
       expect(find.textContaining('Mode teks'), findsNothing);

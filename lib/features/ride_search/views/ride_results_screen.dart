@@ -5,7 +5,6 @@ import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart'
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_search_request.dart';
 import 'package:praktikum_mobile/features/ride_search/viewmodels/ride_results_view_model.dart';
-import 'package:praktikum_mobile/shared/widgets/passenger_navigation.dart';
 import 'package:praktikum_mobile/features/ride_search/widgets/passenger_ride_card.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
@@ -166,7 +165,6 @@ class _RideResultsScreenState extends State<RideResultsScreen> {
           title: const Text('Hasil Pencarian'),
           leading: BackButton(onPressed: _leave),
         ),
-        bottomNavigationBar: const PassengerNavigation(),
         body: SafeArea(
           top: false,
           child: ListView(

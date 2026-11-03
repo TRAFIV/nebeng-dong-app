@@ -10,7 +10,6 @@ import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/theme/app_spacing.dart';
 import 'package:praktikum_mobile/theme/app_text_styles.dart';
-import 'package:praktikum_mobile/shared/widgets/passenger_navigation.dart';
 import 'package:praktikum_mobile/shared/widgets/section_header.dart';
 import 'package:praktikum_mobile/shared/widgets/state_views.dart';
 
@@ -66,7 +65,6 @@ class _CostHistoryScreenState extends State<CostHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ongkos')),
-      bottomNavigationBar: const PassengerNavigation(selectedIndex: 2),
       body: SafeArea(
         child: ListenableBuilder(
           listenable: _viewModel,

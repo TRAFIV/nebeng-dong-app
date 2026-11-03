@@ -10,6 +10,7 @@ import 'package:praktikum_mobile/features/costs/data/cost_repository.dart';
 import 'package:praktikum_mobile/features/reputation/data/rating_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
+import 'package:praktikum_mobile/shared/widgets/passenger_shell_scope.dart';
 import 'package:praktikum_mobile/shared/maps/services/open_map_service.dart';
 import 'package:praktikum_mobile/theme/app_theme.dart';
 
@@ -48,13 +49,15 @@ class NebengDongApp extends StatelessWidget {
             child: MapServiceProvider(
               service: mapService ?? parent?.service,
               enableTiles: parent?.enableTiles ?? enableMapTiles,
-              child: MaterialApp(
-                title: 'Nebeng Dong',
-                debugShowCheckedModeBanner: false,
-                theme: AppTheme.light,
-                initialRoute: AppRoutes.login,
-                onGenerateRoute: AppRoutes.onGenerateRoute,
-                onUnknownRoute: AppRoutes.onUnknownRoute,
+              child: PassengerShellProvider(
+                child: MaterialApp(
+                  title: 'Nebeng Dong',
+                  debugShowCheckedModeBanner: false,
+                  theme: AppTheme.light,
+                  initialRoute: AppRoutes.login,
+                  onGenerateRoute: AppRoutes.onGenerateRoute,
+                  onUnknownRoute: AppRoutes.onUnknownRoute,
+                ),
               ),
             ),
           ),

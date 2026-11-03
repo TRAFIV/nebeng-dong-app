@@ -10,7 +10,6 @@ import 'package:praktikum_mobile/shared/models/ride.dart';
 import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/theme/app_spacing.dart';
 import 'package:praktikum_mobile/theme/app_text_styles.dart';
-import 'package:praktikum_mobile/shared/widgets/passenger_navigation.dart';
 import 'package:praktikum_mobile/shared/widgets/state_views.dart';
 import 'package:praktikum_mobile/shared/widgets/status_badge.dart';
 import 'package:praktikum_mobile/shared/widgets/user_avatar.dart';
@@ -126,7 +125,6 @@ class _PesananSayaScreenState extends State<PesananSayaScreen> {
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
-        bottomNavigationBar: const PassengerNavigation(selectedIndex: 1),
       ),
     );
   }

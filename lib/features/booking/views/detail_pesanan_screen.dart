@@ -5,6 +5,8 @@ import 'package:praktikum_mobile/features/booking/data/booking_repository.dart';
 import 'package:praktikum_mobile/features/booking/data/local_booking_repository.dart';
 import 'package:praktikum_mobile/features/booking/models/booking.dart';
 import 'package:praktikum_mobile/features/booking/viewmodels/detail_pesanan_view_model.dart';
+import 'package:praktikum_mobile/shared/viewmodels/passenger_shell_view_model.dart';
+import 'package:praktikum_mobile/shared/widgets/passenger_shell_scope.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
 import 'package:praktikum_mobile/shared/widgets/status_badge.dart';
@@ -127,6 +129,7 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
   }
 
   void _backToHome() {
+    if (PassengerShellScope.openTab(context, PassengerTab.cari)) return;
     Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.home,

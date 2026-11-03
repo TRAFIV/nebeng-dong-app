@@ -6,7 +6,6 @@ import 'package:praktikum_mobile/features/ride_search/data/local_ride_repository
 import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/ride_search/viewmodels/home_view_model.dart';
-import 'package:praktikum_mobile/shared/widgets/passenger_navigation.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/routes/ride_results_arguments.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
@@ -184,7 +183,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: _viewModel,
     builder: (context, _) => Scaffold(
-      bottomNavigationBar: const PassengerNavigation(),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.md),

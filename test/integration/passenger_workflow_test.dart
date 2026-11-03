@@ -53,7 +53,7 @@ void main() {
     await _login(tester, 'mikail@student.unand.ac.id');
     expect(find.text('Hai, Mikail!'), findsOneWidget);
     expect(
-      tester.state<NavigatorState>(find.byType(Navigator)).canPop(),
+      tester.state<NavigatorState>(find.byType(Navigator).first).canPop(),
       isFalse,
     );
 
@@ -160,7 +160,9 @@ void main() {
   ) async {
     await pumpTestWidget(tester, const NebengDongApp());
 
-    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    final navigator = tester.state<NavigatorState>(
+      find.byType(Navigator).first,
+    );
     navigator.pushNamed('/tidak-ada');
     await tester.pumpAndSettle();
 

@@ -14,11 +14,11 @@ import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/costs/views/cost_detail_screen.dart';
 import 'package:praktikum_mobile/features/costs/views/cost_history_screen.dart';
 import 'package:praktikum_mobile/features/costs/views/payment_status_screen.dart';
-import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/ride_filter_screen.dart';
 import 'package:praktikum_mobile/features/auth/views/login_screen.dart';
 import 'package:praktikum_mobile/shared/models/ride.dart';
 import 'package:praktikum_mobile/shared/views/not_found_screen.dart';
+import 'package:praktikum_mobile/shared/views/passenger_shell_screen.dart';
 import 'package:praktikum_mobile/shared/views/ride_detail_screen.dart';
 
 abstract final class AppRoutes {
@@ -68,7 +68,7 @@ abstract final class AppRoutes {
         if (arguments == null || arguments is String) {
           return MaterialPageRoute<void>(
             builder: (_) =>
-                HomeScreen(userName: arguments as String? ?? 'Kamu'),
+                PassengerShellScreen(userName: arguments as String? ?? 'Kamu'),
             settings: settings,
           );
         }

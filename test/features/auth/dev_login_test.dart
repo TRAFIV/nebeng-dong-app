@@ -20,7 +20,7 @@ void main() {
     expect(find.text('Hai, Mikail!'), findsOneWidget);
     expect(find.text('Gas Masuk!'), findsNothing);
     expect(
-      tester.state<NavigatorState>(find.byType(Navigator)).canPop(),
+      tester.state<NavigatorState>(find.byType(Navigator).first).canPop(),
       isFalse,
     );
     expect(tester.takeException(), isNull);
