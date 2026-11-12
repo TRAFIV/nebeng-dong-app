@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Duha — Workflow Rating",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_rating.dart",
+      "env": {
+        "FLUTTER_WINDOWS": "false",
+        "FLUTTER_LINUX": "false"
+      }
+    },
+    {
+      "name": "Aplikasi Kelompok",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "env": {
+        "FLUTTER_WINDOWS": "false",
+        "FLUTTER_LINUX": "false"
+      }
+    }
+  ]
+}

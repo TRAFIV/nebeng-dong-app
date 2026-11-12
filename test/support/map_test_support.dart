@@ -94,3 +94,21 @@ Future<void> selectTestLocation(
   await tester.tap(suggestion);
   await tester.pumpAndSettle();
 }
+
+Future<void> selectHomeLocation(
+  WidgetTester tester,
+  String endpoint,
+  String query,
+) async {
+  final field = find.byKey(ValueKey('select-$endpoint'));
+  await tester.ensureVisible(field);
+  await tester.tap(field);
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byKey(const ValueKey('place-query')), query);
+  await tester.pump(const Duration(milliseconds: 750));
+  await tester.pumpAndSettle();
+  final suggestion = find.widgetWithText(InkWell, query).first;
+  await tester.ensureVisible(suggestion);
+  await tester.tap(suggestion);
+  await tester.pumpAndSettle();
+}

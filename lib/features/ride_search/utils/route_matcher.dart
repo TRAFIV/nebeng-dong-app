@@ -17,10 +17,17 @@ abstract final class RouteMatcher {
     GeoPoint pickup,
     GeoPoint dropoff, {
     double corridorMeters = 500,
+    double nearestToleranceMeters = 100,
   }) {
     if (pickup.distanceTo(dropoff) < 50) return null;
-    final from = _projections(route.points, pickup, corridorMeters);
-    final to = _projections(route.points, dropoff, corridorMeters);
+    final from = _nearest(
+      _projections(route.points, pickup, corridorMeters),
+      nearestToleranceMeters,
+    );
+    final to = _nearest(
+      _projections(route.points, dropoff, corridorMeters),
+      nearestToleranceMeters,
+    );
     int index = 0;
     _Projection? bestPickup;
     RouteMatch? best;
@@ -38,6 +45,19 @@ abstract final class RouteMatcher {
       }
     }
     return best;
+  }
+
+  /// Hanya bagian jalur yang paling dekat dengan titiknya (ditambah toleransi).
+  /// Tanpa ini, perjalanan pendek bisa memakai bagian jalur yang salah,
+  /// sehingga arah terbalik ikut dianggap searah. Jalur yang melewati tempat
+  /// yang sama dua kali tetap tertangani karena keduanya sama-sama dekat.
+  static List<_Projection> _nearest(
+    List<_Projection> projections,
+    double tolerance,
+  ) {
+    if (projections.isEmpty) return projections;
+    final closest = projections.map((p) => p.distance).reduce(math.min);
+    return projections.where((p) => p.distance <= closest + tolerance).toList();
   }
 
   static List<_Projection> _projections(

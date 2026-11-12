@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import 'package:praktikum_mobile/theme/app_colors.dart';
@@ -26,6 +27,13 @@ abstract final class AppTheme {
         outline: AppColors.border,
       ),
       scaffoldBackgroundColor: AppColors.background,
+      // Halaman lanjutan masuk dari kanan; geser dari tepi kiri untuk kembali.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       textTheme: const TextTheme(
         headlineMedium: AppTextStyles.headingLarge,
         titleLarge: AppTextStyles.headingMedium,

@@ -1,5 +1,7 @@
 # Pembagian Tugas — Nebeng Dong
 
+> **Catatan 14 Oktober 2026:** arsip kode pengemudi `lib/legacy/driver/` beserta test-nya sudah dihapus dari source (masih ada di riwayat git, commit `addae89`). Penyebutan "legacy" di dokumen ini adalah catatan sejarah.
+
 Revisi 8 Oktober 2026 mengikuti [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md): aplikasi mobile hanya penumpang. Satu modul per anggota tetap; **layar berikut adalah usulan yang perlu dikonfirmasi tim**, bukan klaim rekan sudah menyetujui atau mengimplementasikannya.
 
 | Modul | Anggota | NIM | Requirement | Tiga layar target yang diusulkan |
@@ -18,7 +20,7 @@ Mikail mengonsumsi daftar rute backend dan menampilkan kuota; bukan lagi membuat
 Figma: https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum.
 Bagian Mikail pada `08 Tugas Tim` sudah direvisi: [Cari Tebengan · Hasil Pencarian · Filter](https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum?node-id=124-239) (`124:240`/`124:241`/`124:242`), dengan state loading/kosong/error di `130:402` dan prototype utama tersambung. Frame pengemudi asli disimpan di arsip `124:238`, tidak dihapus. Komponen M1 ada di halaman 09. Rincian [pemilih Dari/Ke dan pin](https://www.figma.com/design/8N2dvFV6aO7NJkAnFSbNRq/Praktikum?node-id=148-474) menambah 18 state pendukung dengan contoh aksi hasil tempat, alamat pin, konfirmasi, batal dan swap; tiga layar utama tetap.
 
-Bagian Taris/Shiddiq/Duha serta layar bersama tidak diubah dan masih baseline; frame Permintaan Masuk/Konfirmasi Pelunasan lama bukan target UI penumpang. **Desain Mikail selesai; source kini feature-first MVVM penumpang dan driver legacy diblokir.** `features/ride_search` milik Mikail; `booking` memuat Catatan baseline, `costs`/`reputation` baru README batas tugas, bukan fitur rekan selesai. Detail tetap shared. Hasil masih di Home; pemisahan layar/port seluruh Figma belum dilakukan. Pembagian/integrasi rekan tetap perlu koordinasi.
+Bagian Taris/Shiddiq/Duha serta layar bersama tidak diubah dan masih baseline; frame Permintaan Masuk/Konfirmasi Pelunasan lama bukan target UI penumpang. **Desain Mikail selesai; source kini feature-first MVVM penumpang dan driver legacy diblokir.** `features/ride_search` milik Mikail; `booking` memuat Catatan baseline, `costs`/`reputation` baru README batas tugas, bukan fitur rekan selesai. Detail tetap shared. UI/workflow lokal Mikail kini Cari → Hasil terpisah ↔ Filter dengan pemilih tempat dedicated/pin dan state async, sudah teruji/capture/build. Backend dan uji HP belum selesai. Pembagian/integrasi rekan tetap perlu koordinasi.
 
 ## Apa bagian Taris setelah UI pengemudi dihapus?
 
@@ -49,6 +51,8 @@ Source `features/booking` sekarang hanya memuat Catatan baseline dan README bata
 Contoh demo: buka Rincian Ongkos dari perjalanan → tekan “Sudah bayar” → tampil menunggu konfirmasi → backend/admin mengonfirmasi → status dan riwayat penumpang diperbarui. Jika backend belum tersedia, perubahan konfirmasi hanya fixture/fake yang dijelaskan, bukan aksi penumpang untuk mengesahkan pembayaran sendiri.
 
 Batas: tidak membuat Posting Rute, ACC pesanan, layar driver Konfirmasi Pelunasan, payment gateway, atau dashboard admin. Shiddiq dapat menyiapkan model ongkos, ViewModel/state/validasi, tiga UI, adapter kontrak dan tesnya; konfirmasi otoritatif tetap backend. Daftar riwayat biaya Modul 3 berbeda dari rekap agregat pribadi Modul 4 (Duha); sepakati integrasinya.
+
+Keputusan 18 Oktober 2026: ongkos memakai tarif tetap per penumpang dari rute (bukan pembagian total), tiga status pembayaran, "Sudah bayar" setelah perjalanan selesai, Riwayat hanya perjalanan selesai; Taris setuju kontrak data + fixture dulu dan Duha menyesuaikan rekap Profil. Implementasi awal ada di branch `feat/modul-3-ongkos`, lihat `lib/features/costs/README.md`.
 
 Pembagian rinci ini **usulan PRD 1.1, belum persetujuan akhir tim**. Bagian Figma Shiddiq tidak diubah pada revisi Mikail; desain lama perlu disesuaikan oleh/bersama pemilik modul.
 

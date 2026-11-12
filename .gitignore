@@ -52,3 +52,5 @@ app.*.map.json
 
 # Gradle build output di dalam android/
 /android/build/
+
+android/.kotlin/

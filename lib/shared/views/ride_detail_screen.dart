@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:praktikum_mobile/shared/models/ride.dart';
 import 'package:praktikum_mobile/shared/viewmodels/ride_detail_view_model.dart';
+import 'package:praktikum_mobile/shared/viewmodels/passenger_shell_view_model.dart';
+import 'package:praktikum_mobile/shared/widgets/passenger_shell_scope.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/theme/app_spacing.dart';
@@ -43,15 +45,34 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
     super.dispose();
   }
 
-  void _requestToJoin() {
+  Future<void> _requestToJoin() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     if (!_viewModel.requestToJoin(_pickupController.text)) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Sip! Permintaanmu udah dikirim, tinggal nunggu di-ACC.'),
-      ),
+
+    // Buka AjukanTebengan dan tunggu hasilnya (booking berhasil atau null).
+    final result = await Navigator.pushNamed<Object?>(
+      context,
+      AppRoutes.ajukanTebengan,
+      arguments: _viewModel.ride,
     );
+
+    if (!mounted) return;
+
+    if (result != null) {
+      // Booking berhasil dikirim — tampilkan SnackBar dan kembali ke Pesanan.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Permintaan terkirim! Tunggu kabar ya.')),
+      );
+      // Arahkan ke tab Pesanan Saya agar user bisa memantau pesanannya.
+      if (!PassengerShellScope.openTab(context, PassengerTab.pesanan)) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.pesananSaya,
+          (route) => false,
+        );
+      }
+    }
   }
 
   Future<void> _openNoteForm() async {

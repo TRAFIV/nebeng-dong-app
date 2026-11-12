@@ -14,15 +14,14 @@ lib/
     auth/                login bersama: views + viewmodels
     ride_search/         Mikail: views + viewmodels + models + data + utils
     booking/             Taris: catatan baseline; batas integrasi pesanan
-    costs/               Shiddiq: README ownership, belum implementasi
-    reputation/          Duha: README ownership, belum implementasi
+    costs/               Shiddiq: views + viewmodels + models + data + utils
+    reputation/          Duha: workflow lokal riwayat + rating pengemudi
   shared/                models, views, viewmodels, widgets, utils
     maps/                services, models, views, viewmodels, widgets
-  legacy/driver/         arsip dua role, tidak diimpor aplikasi aktif
   routes/                named routes penumpang dan fallback 404
   theme/                 token bersama tetap di lokasi semula
 test/                    architecture/, core/, features/, integration/,
-                         shared/, regression/, legacy/, visual/, support/
+                         shared/, regression/, visual/, support/
 docs/                    sumber Markdown dan log
 ```
 
@@ -31,11 +30,10 @@ docs/                    sumber Markdown dan log
 | auth | Login bersama, validasi lokal, shortcut dev hanya debug; bukan auth server. |
 | ride_search | Mikail, FR-01–04: rute/read, pencarian tempat/pin, matcher, filter dan kuota tampilan. |
 | booking | Taris, FR-05–08; saat ini hanya Catatan baseline. Pesanan/status/cancel/sync belum dibuat. |
-| costs | Shiddiq, FR-09–12; README ownership, bukan klaim fitur selesai. |
-| reputation | Duha, FR-13–16; README ownership, bukan klaim fitur selesai. |
+| costs | Shiddiq, FR-09–12: Riwayat/Rincian/Status Pembayaran, CostRepository sesi + fixture lokal. Konfirmasi tetap backend; detail di README modul. |
+| reputation | Duha: workflow lokal FR-13/14 riwayat + rating pengemudi; profil/rekap FR-15/16 dan backend pending. |
 | shared/maps | Picker/autocomplete, peta/tile, service Photon/reverse/OSRM dan model lokasi. |
 | shared | Detail Tebengan/VM lintas modul, model Ride, UI/validator/formatter reusable. |
-| legacy/driver | Posting/Rute Saya, VM/repository/harness arsip; tidak boleh diimpor source aktif. |
 
 Nama folder berdasarkan fitur, bukan anggota. Pembagian rinci rekan tetap usulan yang perlu
 kesepakatan tim; refactor ini tidak mengimplementasikan modul rekan sepihak. Theme tetap
@@ -48,7 +46,7 @@ dihapus; semua import menunjuk satu implementasi `core/di`.
   Tidak memanggil fetch/CRUD/searchPlaces/reverse/routeBetween langsung.
 - ViewModel: state, validasi dan commands. Tidak mengimpor View/widget/routes/theme,
   memakai BuildContext/Navigator/controller, atau bergantung pada VM lain.
-- Model: immutable Ride, MapLocation/GeoPoint/RoadRoute dan RideFilter.
+- Model: immutable Ride, MapLocation/GeoPoint/RoadRoute, RideFilter dan RideSearchRequest. Query tidak membawa repository; RideResultsArguments adalah kontrak navigasi di routes/.
 - Repository: kontrak baca rute dan sumber kebenaran bersama. Data mengalir
   repository → VM → View, event View → command VM.
 - Service peta: adapter jaringan yang sudah ada dipertahankan dengan cache/antrian/rate limit.
@@ -68,9 +66,10 @@ adalah hook praktikum/test eksplisit, bukan parameter endpoint backend.
 
 Root `NebengDongApp` memasang `RideRepositoryProvider` dan `MapServiceProvider`.
 Default dimiliki provider; instance injected dimiliki caller dan tidak didispose provider/Home.
-Home meminjam repository; saat dependensi berganti VM lama melepas listener sebelum VM baru
-dibuat. Standalone/test dapat menginjeksi repository atau data lokal; hanya fallback milik
-Home yang ditutup Home. VM meminjam service/repository dan tidak menutup dependensi bersama.
+Home dan Hasil meminjam repository sesi. Home mengirim snapshot query + repository yang sama
+melalui route arguments; hanya Hasil memasang listener/fetch. Ketika dependency Hasil berganti,
+VM lama melepas listener sebelum VM baru dibuat. Standalone/test dapat menginjeksi repository;
+fallback lokal dimiliki/ditutup layar pembuatnya. VM tidak menutup dependensi bersama.
 
 Adapter REST **belum dibuat** karena kontrak backend belum tersedia. Tidak mengarang endpoint,
 auth, schema status, atau menganggap fixture sebagai server. Keputusan booking, alokasi
@@ -78,18 +77,20 @@ kursi, pembatalan, konfirmasi ongkos dan eligibility rating tetap otoritas backe
 
 ## Penumpang dan arsip
 
-AppRoutes tidak mengimpor legacy dan mengembalikan null untuk /post-route dan /my-routes,
-terlepas dari arguments; onUnknownRoute menampilkan 404. Home tanpa role switch/CTA driver.
-Pesanan/Ongkos/Profil nonaktif sampai fitur rekan terintegrasi, bukan aksi kosong seolah bekerja.
+Halaman pengemudi lama (Posting Rute/Rute Saya) sudah dihapus 14 Oktober 2026; alamat
+/post-route dan /my-routes tidak dikenal router sehingga berakhir di 404. Home tanpa role switch/CTA driver.
+Navigasi bawah bersama ada di `shared/widgets/passenger_navigation.dart`: tab Cari, Pesanan (Modul 2) dan
+Ongkos (Modul 3) aktif; Profil nonaktif sampai fiturnya ada, bukan aksi kosong seolah bekerja.
 
-`LegacyDriverRepository` dan `LegacyDriverRoutes` hanya untuk arsip/regresi. Tes unit
-CRUD/quota/idempotensi lama dipertahankan; workflow legacy diuji lewat harness khusus, bukan
-membuka kembali driver dari router penumpang. Memberikan hasil pending tidak mengurangi kuota.
+Arsip pengemudi beserta tesnya tersedia di riwayat git (commit `addae89`), bukan di source.
+Memberikan hasil pending tidak mengurangi kuota.
 Detail request/note masih presentasi lokal dan hilang ketika VM dibuat ulang.
 
 ## Async, lokasi dan data latihan
 
-- Home: generation/isDisposed; respons load lama tidak menimpa state terbaru.
+- HomeViewModel: form Dari/Ke, swap, filter tersimpan dan validasi/snapshot request; tidak fetch.
+- RideResultsViewModel: fetch, matcher pure di utils/ride_search_matcher.dart, filter dan
+  status loading/success/error; generation/isDisposed mencegah respons lama/ditutup menimpa state.
 - Autocomplete: minimal 3 karakter, debounce 700 ms, generation; clear/swap/pilihan
   membatalkan hasil lama. Perubahan kursor/parent echo tidak merusak pilihan.
 - Picker: debounce reverse 650 ms, point/generation tepat, retry/manual, alamat lengkap
@@ -101,16 +102,20 @@ Detail request/note masih presentasi lokal dan hilang ketika VM dibuat ulang.
   Provenance/atribusi di README fixture; geometry sintetis hanya untuk tes terisolasi.
 - UI menyatakan data latihan. Bukan backend/approval/persistensi/GPS/live tracking.
 
-Hasil masih di Home dan autocomplete inline; pemisahan layar Hasil/pemilih tempat dedicated
-sesuai seluruh state Figma adalah tahap berikutnya, bukan klaim selesai karena folder berubah.
+Hasil sudah layar terpisah. Field lokasi membuka PlaceSearchScreen; panah kanan membuka pin
+langsung. Result MapLocation hanya diterapkan setelah memilih hasil/konfirmasi; batal aman.
+Filter draft dibatalkan tanpa perubahan, Terapkan memperbarui hasil, Atur Ulang mereset draft.
+Hasil mengembalikan applied RideFilter saat AppBar/system back; pencarian berikutnya memakainya.
+Peta interaktif native memakai tile OSM, bukan skema/bitmap Figma. Review screenshot/state
+utama tidak berarti seluruh contoh prototype identik piksel atau backend/rekan selesai.
 
 ## Pengujian
 
-`test/architecture/` memindai seluruh Dart **rekursif**: batas VM/View, larangan import legacy
-dari source aktif, kontrak repository penumpang tanpa mutasi driver, dan lokasi core.
+`test/architecture/` memindai seluruh Dart **rekursif**: batas VM/View, kontrak repository penumpang tanpa mutasi driver, dan lokasi core.
 `test/core/di/` memeriksa instance bersama, rebinding, ownership/disposal dan app injection.
 `test/features/ride_search/` memeriksa deny route driver, UI/menu nonaktif dan fixture
-searah/terbalik/penuh/tidak cocok. Regresi async lama ada di `test/regression/`; peta/widget
+searah/terbalik/penuh/tidak cocok dan workflow selector/pin/filter/retry/back/loading.
+Hasil/Filter/Places diuji pada 320 px dengan skala teks OS 2x. Regresi async lama ada di `test/regression/`; peta/widget
 di `test/shared/maps/`; catatan/login/workflow penumpang di `test/integration/`.
 Guard struktural bukan bukti formal seluruh arsitektur.
 
@@ -118,3 +123,20 @@ Jalankan format/analyzer/seluruh test/build setelah perubahan. Hasil nyata berad
 [PROGRESS](../progress/PROGRESS.md); instalasi/uji Android/hot reload tetap menunggu izin HP.
 Referensi: [Flutter architecture](https://docs.flutter.dev/app-architecture/guide),
 [Flutter recommendations](https://docs.flutter.dev/app-architecture/recommendations).
+
+## Integrasi workflow Duha — 11 Oktober 2026
+
+`main_rating.dart` menginjeksi satu `LocalRatingRepository` ke demo riwayat.
+Riwayat dan form meminjam instance yang sama; Views memiliki ViewModel dan
+melakukan disposal/rebinding. ViewModel memakai lifecycle `core/ViewModel`,
+menangani validasi, loading/error, filter dan perintah repository. View memiliki
+controller, konfirmasi reset, Snackbar dan typed navigation `TripRating`.
+
+Kontrak `RatingRepository` terpisah dari adapter SharedPreferences. Fixture
+memuat passengerId/driverId tanpa role pengemudi aplikasi. Adapter mengecek
+perjalanan kanonis milik penumpang dan sudah selesai sebelum menyimpan;
+state sukses diterapkan setelah write berhasil. Simpan ganda/reset bersamaan
+ditolak. Penyimpanan v2 terpisah dari demo dua role v1 yang dipertahankan.
+
+Entry demo belum menjadi tab Pesanan/Profil, tidak mengubah modul rekan.
+Backend/auth dan otoritas eligibility server belum tersedia.

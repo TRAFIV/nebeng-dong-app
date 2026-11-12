@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:praktikum_mobile/shared/maps/services/open_map_service.dart';
-import 'package:praktikum_mobile/legacy/driver/data/legacy_driver_repository.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 import 'package:praktikum_mobile/features/ride_search/utils/route_matcher.dart';
 
@@ -145,29 +144,24 @@ void main() {
     );
   });
 
-  test('Edit nama membuang geometry lama, update kursi mempertahankannya', () {
-    final geography = RideGeography(
-      origin: MapLocation.pin(start),
-      destination: MapLocation.pin(finish),
-      route: RoadRoute(
-        points: [start, finish],
-        distanceMeters: 5000,
-        durationSeconds: 600,
-      ),
+  test('Perjalanan pendek arah terbalik tidak dianggap searah', () {
+    // Jalan lurus ke selatan ±1,1 km, titik tiap ±111 m.
+    final road = RoadRoute(
+      points: [
+        for (var i = 0; i <= 10; i++) GeoPoint(-0.900 - i * 0.001, 100.35),
+      ],
+      distanceMeters: 1110,
+      durationSeconds: 120,
     );
-    final repo = LegacyDriverRepository(rides: []);
-    final ride = repo.post(
-      driverName: 'Mikail',
-      origin: 'Asal',
-      destination: 'Tujuan',
-      departureTime: '07.30',
-      capacity: 3,
-      geography: geography,
+    const nearEnd = GeoPoint(-0.909, 100.35);
+    const before = GeoPoint(-0.906, 100.35); // ±333 m sebelum nearEnd
+    expect(RouteMatcher.match(road, before, nearEnd), isNotNull);
+    expect(RouteMatcher.match(road, nearEnd, before), isNull);
+    // Titik agak jauh dari jalan (±200 m) tetap cocok searah.
+    expect(
+      RouteMatcher.match(road, const GeoPoint(-0.906, 100.3518), nearEnd),
+      isNotNull,
     );
-    expect(ride.copyWith(origin: 'Asal baru').geography, isNull);
-    expect(ride.copyWith(seatsAvailable: 2).geography, same(geography));
-    repo.acceptBooking(routeId: ride.id, bookingId: 'b1');
-    expect(repo.rides.single.geography, same(geography));
   });
 
   test('Photon query, User-Agent, parsing, input pendek dan cache', () async {

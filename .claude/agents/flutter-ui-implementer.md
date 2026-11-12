@@ -25,7 +25,7 @@ berdasarkan PRD dan desain Figma.
 - Target tiga layar Mikail: Cari Tebengan, Hasil Pencarian, Filter; usulan pembagian tim belum berarti rekan menyetujui detailnya. Kerjakan tahap yang diminta saja.
 - Widget Material bawaan; token hanya dari `lib/theme/` (warna, teks, spacing) — tidak ada angka/warna literal di widget.
 - Arsitektur MVVM: ChangeNotifier + ListenableBuilder bawaan Flutter. State/validasi/commands di `lib/features/<feature>/viewmodels/` dan `lib/shared/**/viewmodels/`; View hanya UI, controller, form/feedback/navigasi. Baca `docs/architecture/mvvm.md`; jangan mengembalikan logic data ke `setState` atau memasukkan BuildContext/controller ke ViewModel.
-- Widget berulang → `lib/shared/widgets/` atau `lib/shared/maps/widgets/`; View per file di `features/<feature>/views/`/`shared/**/views/`. Tidak mengimpor legacy dari app aktif; repository baca diinjeksikan satu sesi lewat core/di.
+- Widget berulang → `lib/shared/widgets/` atau `lib/shared/maps/widgets/`; View per file di `features/<feature>/views/`/`shared/**/views/`. Kode pengemudi lama sudah dihapus, jangan dipulihkan; repository baca diinjeksikan satu sesi lewat core/di.
 - Responsif (LayoutBuilder/MediaQuery, scroll bila perlu, tanpa overflow); target sentuh ≥ 48.
 - Aset gambar: WebP di `assets/images/`, `2.0x/`, `3.0x/`.
 - Data mengikuti model `Ride` — jangan data acak. Jangan ubah struktur folder tanpa izin.
