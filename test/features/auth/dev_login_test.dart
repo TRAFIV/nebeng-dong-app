@@ -12,6 +12,7 @@ void main() {
     tester,
   ) async {
     await pumpTestWidget(tester, const NebengDongApp());
+    expect(find.bySemanticsLabel('Logo Nebeng Dong'), findsOneWidget);
     final shortcut = find.text('Masuk cepat (Dev)');
     expect(shortcut, findsOneWidget);
     await tester.ensureVisible(shortcut);

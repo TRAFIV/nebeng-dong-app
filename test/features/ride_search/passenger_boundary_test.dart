@@ -4,6 +4,8 @@ import 'package:praktikum_mobile/main.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/booking/views/detail_pesanan_screen.dart';
+import 'package:praktikum_mobile/features/booking/views/pesanan_saya_screen.dart';
+import 'package:praktikum_mobile/features/costs/views/cost_history_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/shared/views/passenger_shell_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -93,6 +95,35 @@ void main() {
     // Isi form Cari tetap ada setelah berkeliling tab.
     expect(find.text('Air Tawar'), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
+  });
+
+  testWidgets('Swiping moves between tabs and builds a tab only when shown', (
+    tester,
+  ) async {
+    await pumpShell(tester);
+    int selectedIndex() =>
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
+    // Tab lain belum dibangun sebelum dibuka.
+    expect(find.byType(PesananSayaScreen, skipOffstage: false), findsNothing);
+
+    await tester.fling(find.byType(PageView), const Offset(-400, 0), 1500);
+    await tester.pumpAndSettle();
+    expect(selectedIndex(), 1);
+    expect(find.text('Pesanan Aktif'), findsOneWidget);
+
+    await tester.fling(find.byType(PageView), const Offset(400, 0), 1500);
+    await tester.pumpAndSettle();
+    expect(selectedIndex(), 0);
+    expect(find.text('Hai, Mikail!'), findsOneWidget);
+    // Pesanan tetap hidup setelah digeser keluar layar.
+    expect(find.byType(PesananSayaScreen, skipOffstage: false), findsOneWidget);
+
+    // Ketuk navbar melompat langsung tanpa membangun tab di antaranya.
+    await tester.tap(navTab('Profil'));
+    await tester.pumpAndSettle();
+    expect(selectedIndex(), 3);
+    expect(find.text('Riwayat Perjalanan'), findsOneWidget);
+    expect(find.byType(CostHistoryScreen, skipOffstage: false), findsNothing);
   });
 
   testWidgets('Detail opens over the navbar; back returns to the same tab', (

@@ -152,7 +152,7 @@ class _LoginHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Sementara berupa inisial; diganti gambar logo setelah tersedia.
+        // Simbol logo "ND" putih di kotak brand, sama dengan ikon aplikasi.
         Container(
           width: 64,
           height: 64,
@@ -161,11 +161,10 @@ class _LoginHeader extends StatelessWidget {
             color: AppColors.brand,
             borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
-          child: Text(
-            'ND',
-            style: AppTextStyles.headingMedium.copyWith(
-              color: AppColors.onBrand,
-            ),
+          child: Image.asset(
+            'assets/images/logo_mark.png',
+            width: 40,
+            semanticLabel: 'Logo Nebeng Dong',
           ),
         ),
         const SizedBox(height: AppSpacing.sm),

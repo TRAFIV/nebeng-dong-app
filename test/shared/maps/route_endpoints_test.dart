@@ -79,7 +79,8 @@ void main() {
     await tester.enterText(find.byKey(const ValueKey('place-query')), 'Lama');
     await tester.pump(const Duration(milliseconds: 750));
     await tester.pageBack();
-    await tester.pump(const Duration(milliseconds: 400));
+    // Tunggu transisi kembali selesai, apa pun durasi transisi halamannya.
+    await tester.pumpAndSettle();
     await swap(tester);
     pending.complete([FakeMapService.place('Hasil lama')]);
     await tester.pumpAndSettle();
