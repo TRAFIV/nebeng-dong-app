@@ -1,9 +1,10 @@
 # Kontrak REST API Nebeng Dong — DRAF
 
-> Status: **draf untuk disepakati tim**. Konvensi umum dan bagian Rute sudah
-> dipakai aplikasi (`lib/core/network/`, `RemoteRideRepository`). Bagian modul
-> lain masih kerangka; pemilik modul mengisi bentuk JSON-nya lalu tim menyetujui
-> sebelum server dan aplikasi dibuat.
+> Status: **draf untuk disepakati tim**. Konvensi umum, Akun dasar dan Rute
+> sudah dibuat di server (`server/`, Laravel) dan aplikasi (`lib/core/network/`,
+> `RemoteRideRepository`). Bagian modul lain masih kerangka; pemilik modul
+> mengisi bentuk JSON-nya lalu tim menyetujui sebelum server dan aplikasi dibuat.
+> Cara menjalankan server dan menambah endpoint: `server/README.md`.
 
 Keputusan dasar (PROGRESS 3 November 2026):
 
@@ -47,11 +48,11 @@ menampilkannya apa adanya.
 
 | Modul (pemilik) | Metode & alamat | Keterangan |
 |---|---|---|
-| Akun (Duha) | `POST /auth/login` | `{email, password}` → `{token, user}` |
-| | `POST /auth/logout` | mencabut token |
-| | `GET /me` | profil penumpang yang masuk |
+| Akun (Duha) | `POST /auth/login` | **sudah ada (dasar)**: `{email, password}` → `{token, user: {id, name, email, role}}`; salah → 422 |
+| | `POST /auth/logout` | **sudah ada**: mencabut token, 204 |
+| | `GET /me` | **sudah ada**: profil penumpang yang masuk |
 | | `POST /devices` | `{fcm_token}`; mendaftarkan HP untuk notifikasi |
-| Rute (Mikail) | `GET /rides` | tebengan aktif yang belum penuh — **bagian 3** |
+| Rute (Mikail) | `GET /rides` | **sudah ada**: tebengan aktif yang belum penuh, boleh tanpa login — **bagian 3** |
 | Pesanan (Taris) | `GET /bookings` | pesanan milik penumpang |
 | | `GET /bookings/{id}` | detail satu pesanan |
 | | `POST /bookings` | `{ride_id, pickup_location, note?}` |

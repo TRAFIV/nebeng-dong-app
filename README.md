@@ -33,6 +33,22 @@ flutter analyze
 flutter test
 ```
 
+Tanpa `--dart-define=API_BASE_URL=...` aplikasi memakai data latihan.
+
+### Server (REST API + panel admin)
+
+Folder [`server/`](server/README.md): Laravel + Filament + MySQL dengan Docker.
+
+```bash
+cd server && cp .env.example .env   # isi kata sandi di .env
+docker compose up -d
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+```
+
+API di `http://localhost:8000/api/v1`, panel admin di `http://localhost:8000/admin`.
+Kontrak: [docs/api/kontrak-api.md](docs/api/kontrak-api.md).
+
 ## Struktur folder
 
 ```text

@@ -120,12 +120,20 @@ disesuaikan saat pindah ke server:
 
 ## 5. Menjalankan dengan server
 
+Server ada di folder `server/` (Laravel + Docker); cara menyalakannya di laptop
+dan menambah endpoint: `server/README.md`.
+
 ```text
+# server di laptop, HP lewat kabel USB
+adb reverse tcp:8000 tcp:8000
+flutter run --dart-define=API_BASE_URL=http://localhost:8000/api/v1
+
+# server di VPS
 flutter run --dart-define=API_BASE_URL=https://alamat-server/api/v1
 ```
 
 - Tanpa `API_BASE_URL`, aplikasi memakai data latihan seperti biasa.
-- Android menolak `http://` biasa. Pakai **HTTPS**; bila server uji hanya HTTP,
-  bahas dulu konfigurasi khusus debug, jangan dimatikan untuk rilis.
+- `http://` hanya diizinkan di build **debug**
+  (`android/app/src/debug/AndroidManifest.xml`); build rilis wajib **HTTPS**.
 - Token login disimpan dengan SharedPreferences (belum terenkripsi). Ganti ke
   penyimpanan aman sebelum rilis; cukup buat implementasi `TokenStore` baru.

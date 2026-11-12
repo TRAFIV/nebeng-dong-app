@@ -16,7 +16,7 @@ Rencana aktif: [aplikasi penumpang — alur UI, data/backend, tahapan dan accept
 
 Arsitektur: [MVVM, core, pasangan View/ViewModel, lifecycle dan pengujian](architecture/mvvm.md).
 
-Backend: [kontrak REST API (draf)](api/kontrak-api.md) dan [panduan menyambungkan modul ke server](architecture/panduan-backend-flutter.md).
+Backend: [kontrak REST API (draf)](api/kontrak-api.md), [panduan menyambungkan modul ke server](architecture/panduan-backend-flutter.md), dan [server Laravel](../server/README.md).
 
 Implementasi Mikail: [workflow Modul 1, kode, pengujian, dan batasannya](progress/modul-1-implementasi.md).
 
