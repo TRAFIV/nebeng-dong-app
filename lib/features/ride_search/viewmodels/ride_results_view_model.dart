@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:praktikum_mobile/core/network/api_exception.dart';
 import 'package:praktikum_mobile/core/view_model.dart';
 import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
@@ -63,7 +64,10 @@ class RideResultsViewModel extends ViewModel {
       // Detail teknis untuk debugging; pengguna hanya melihat pesan ramah.
       debugPrint('Gagal memuat tebengan: $error\n$stackTrace');
       _status = SearchResultsStatus.error;
-      _errorMessage = 'Periksa koneksi internet, lalu coba lagi. Lokasi dan filtermu tetap tersimpan.';
+      final reason = error is ApiException
+          ? error.message
+          : 'Periksa koneksi internet, lalu coba lagi.';
+      _errorMessage = '$reason Lokasi dan filtermu tetap tersimpan.';
     }
     publish();
   }

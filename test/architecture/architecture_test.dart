@@ -43,6 +43,27 @@ void main() {
       );
     }
   });
+  test('Only data layers and core/network talk to the server', () {
+    final files = dartFiles()
+        .where(
+          (f) =>
+              normalized(f).contains('/views/') ||
+              normalized(f).contains('/viewmodels/') ||
+              normalized(f).contains('/widgets/'),
+        )
+        .toList();
+    // Layar dan ViewModel memanggil repository; repository yang memanggil ApiClient.
+    final forbidden = RegExp(
+      r"""(?:import|export)\s+['"](?:package:http/|[^'"]*core/network/api_client\.dart)|\bApiClient\b""",
+    );
+    for (final file in files) {
+      expect(
+        forbidden.hasMatch(file.readAsStringSync()),
+        isFalse,
+        reason: file.path,
+      );
+    }
+  });
   test('Passenger repository exposes no driver command', () {
     final contract = File('lib/features/ride_search/data/ride_repository.dart')
         .readAsStringSync();
