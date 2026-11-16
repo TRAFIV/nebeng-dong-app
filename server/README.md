@@ -119,6 +119,22 @@ docker compose exec app php artisan migrate --seed --force    # production: hany
 docker compose exec app php artisan db:seed --class=DemoSeeder --force   # opsional: data demo
 ```
 
+Panel `/admin` polos tanpa gaya? Aset Filament dibuat skrip Composer; bila skrip
+itu sempat gagal (mis. `.env` salah), buat ulang dengan
+`docker compose exec app php artisan filament:upgrade`.
+
+**Bila port 80/443 sudah dipakai web server lain** (nginx/OpenResty dari panel
+VPS; cek dengan `sudo ss -tlnp | grep -E ':(80|443) '`), jangan pakai
+`--profile https`. Jalankan `docker compose up -d`, pilih `APP_PORT`
+yang belum terpakai (mis. `127.0.0.1:8081`), lalu buat reverse proxy di web
+server itu ke `http://127.0.0.1:8081` dengan header `Host`, `X-Forwarded-For`
+dan `X-Forwarded-Proto`, dan aktifkan HTTPS dari sana. Laravel sudah
+mempercayai header proxy (`bootstrap/app.php`), jadi tautan tetap `https://`.
+
+Belum punya domain? Pakai `<ip-dengan-strip>.sslip.io` (mis.
+`43-157-229-10.sslip.io`), yang otomatis mengarah ke IP VPS dan bisa diberi
+sertifikat Let's Encrypt. Ganti dengan domain sendiri kapan saja lewat `.env`.
+
 Buka port 80 dan 443 di firewall VPS. API tersedia di
 `https://api.namadomain.com/api/v1` dan aplikasi dijalankan dengan
 `--dart-define=API_BASE_URL=https://api.namadomain.com/api/v1`.

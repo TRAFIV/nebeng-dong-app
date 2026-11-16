@@ -18,6 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Di VPS, HTTPS diurus proxy di depan (nginx panel atau Caddy) yang
+        // meneruskan ke container lewat http. Percayai header X-Forwarded-*
+        // agar tautan (aset panel admin, URL) tetap https. Aman karena port
+        // aplikasi di VPS hanya dibuka untuk 127.0.0.1 (APP_PORT).
+        $middleware->trustProxies(at: '*');
+
         // Tamu di API dijawab 401 JSON (lihat render di bawah), bukan diarahkan
         // ke halaman login; tamu di halaman web diarahkan ke login panel admin.
         $middleware->redirectGuestsTo(
