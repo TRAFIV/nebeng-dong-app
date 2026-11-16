@@ -14,7 +14,9 @@ import 'package:praktikum_mobile/shared/maps/views/location_picker_screen.dart';
 import 'package:praktikum_mobile/shared/maps/views/place_search_screen.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/location_selection_tile.dart';
 import 'package:praktikum_mobile/shared/models/ride.dart';
+import 'package:praktikum_mobile/shared/viewmodels/passenger_shell_view_model.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
+import 'package:praktikum_mobile/shared/widgets/passenger_shell_scope.dart';
 import 'package:praktikum_mobile/shared/widgets/user_avatar.dart';
 import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/theme/app_spacing.dart';
@@ -207,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),
-                UserAvatar(name: widget.userName),
+                _ProfileAvatar(name: widget.userName),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -293,4 +295,28 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ),
   );
+}
+
+/// Avatar di sapaan. Di dalam shell penumpang, ketuk untuk membuka tab Profil.
+class _ProfileAvatar extends StatelessWidget {
+  const _ProfileAvatar({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final avatar = UserAvatar(name: name);
+    if (PassengerShellScope.maybeOf(context) == null) return avatar;
+    return IconButton(
+      tooltip: 'Buka profil',
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(
+        minWidth: AppSizes.touchTarget,
+        minHeight: AppSizes.touchTarget,
+      ),
+      onPressed: () =>
+          PassengerShellScope.openTab(context, PassengerTab.profil),
+      icon: avatar,
+    );
+  }
 }

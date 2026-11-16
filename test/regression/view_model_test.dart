@@ -269,27 +269,28 @@ void main() {
         );
       }
     });
-    test(
-      'Request validates, guards duplicate; never reduces repository seats',
-      () {
-        final ride = testRide();
-        final vm = RideDetailViewModel(ride: ride);
-        addTearDown(vm.dispose);
-        expect(vm.requestToJoin(''), isFalse);
-        expect(vm.requestSent, isFalse);
-        expect(vm.requestToJoin('Gerbang'), isTrue);
-        expect(vm.requestToJoin('Gerbang'), isFalse);
-        expect(vm.canRequest, isFalse);
-        expect(vm.buttonLabel, 'Nunggu di-ACC...');
-        expect(vm.ride.seatsAvailable, 3);
-        vm.saveNote('Gerbang depan');
-        expect(vm.note, 'Gerbang depan');
-      },
-    );
+    test('Request opens the form once and re-enables when not sent', () {
+      final ride = testRide();
+      final vm = RideDetailViewModel(ride: ride);
+      addTearDown(vm.dispose);
+      expect(vm.startRequest(), isTrue);
+      expect(vm.canRequest, isFalse, reason: 'form sudah terbuka');
+      expect(vm.startRequest(), isFalse, reason: 'ketukan ganda');
+      vm.finishRequest(sent: false);
+      expect(vm.requestSent, isFalse);
+      expect(vm.canRequest, isTrue);
+      expect(vm.buttonLabel, 'Ikut Nebeng!');
+      expect(vm.startRequest(), isTrue);
+      vm.finishRequest(sent: true);
+      expect(vm.requestSent, isTrue);
+      expect(vm.canRequest, isFalse);
+      expect(vm.buttonLabel, 'Nunggu di-ACC...');
+      expect(vm.ride.seatsAvailable, 3);
+    });
     test('Full route cannot request even if command called directly', () {
       final vm = RideDetailViewModel(ride: testRide(seats: 0));
       addTearDown(vm.dispose);
-      expect(vm.requestToJoin('Gerbang'), isFalse);
+      expect(vm.startRequest(), isFalse);
       expect(vm.buttonLabel, 'Yah, Udah Penuh');
     });
   });

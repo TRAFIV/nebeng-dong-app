@@ -10,14 +10,13 @@ import 'package:praktikum_mobile/theme/app_spacing.dart';
 import 'package:praktikum_mobile/theme/app_text_styles.dart';
 import 'package:praktikum_mobile/shared/utils/rupiah_format.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
-import 'package:praktikum_mobile/shared/widgets/app_text_field.dart';
 import 'package:praktikum_mobile/shared/widgets/info_tile.dart';
 import 'package:praktikum_mobile/shared/widgets/user_avatar.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/open_street_map_view.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/route_endpoints.dart';
 
-/// Detail tebengan: kursi, ongkos, titik jemput, dan ajukan gabung
-/// (FR-04, FR-05, FR-06, FR-09).
+/// Info Tebengan: pengemudi, rute, kursi dan ongkos, lalu tombol untuk
+/// membuka Ajukan Tebengan (FR-04, FR-05, FR-09).
 class RideDetailScreen extends StatefulWidget {
   const RideDetailScreen({super.key, required this.ride});
 
@@ -28,8 +27,6 @@ class RideDetailScreen extends StatefulWidget {
 }
 
 class _RideDetailScreenState extends State<RideDetailScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _pickupController = TextEditingController();
   late final RideDetailViewModel _viewModel;
 
   @override
@@ -41,16 +38,14 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
   @override
   void dispose() {
     _viewModel.dispose();
-    _pickupController.dispose();
     super.dispose();
   }
 
+  /// Buka Ajukan Tebengan; titik jemput dan catatan diisi di sana.
   Future<void> _requestToJoin() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!_viewModel.startRequest()) return;
 
-    if (!_viewModel.requestToJoin(_pickupController.text)) return;
-
-    // Buka AjukanTebengan dan tunggu hasilnya (booking berhasil atau null).
+    // Hasilnya Booking bila terkirim, null bila pengguna kembali tanpa mengirim.
     final result = await Navigator.pushNamed<Object?>(
       context,
       AppRoutes.ajukanTebengan,
@@ -58,34 +53,20 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
     );
 
     if (!mounted) return;
+    _viewModel.finishRequest(sent: result != null);
+    if (result == null) return;
 
-    if (result != null) {
-      // Booking berhasil dikirim — tampilkan SnackBar dan kembali ke Pesanan.
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permintaan terkirim! Tunggu kabar ya.')),
-      );
-      // Arahkan ke tab Pesanan Saya agar user bisa memantau pesanannya.
-      if (!PassengerShellScope.openTab(context, PassengerTab.pesanan)) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.pesananSaya,
-          (route) => false,
-        );
-      }
-    }
-  }
-
-  Future<void> _openNoteForm() async {
-    final result = await Navigator.pushNamed<String>(
-      context,
-      AppRoutes.catatanForm,
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Permintaan terkirim! Tunggu kabar ya.')),
     );
-    if (!mounted || result == null) return;
-
-    _viewModel.saveNote(result);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Catatan berhasil disimpan')));
+    // Arahkan ke tab Pesanan Saya agar user bisa memantau pesanannya.
+    if (!PassengerShellScope.openTab(context, PassengerTab.pesanan)) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.pesananSaya,
+        (route) => false,
+      );
+    }
   }
 
   @override
@@ -96,93 +77,60 @@ class _RideDetailScreenState extends State<RideDetailScreen> {
       builder: (context, _) => Scaffold(
         appBar: AppBar(title: const Text('Info Tebengan')),
         body: SafeArea(
-          child: Form(
-            key: _formKey,
-            // Keep every field mounted: the sticky submit button must validate
-            // pickup even before it has been scrolled into view.
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _DriverCard(ride: ride),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _DriverCard(ride: ride),
+                const SizedBox(height: AppSpacing.md),
+                _RouteCard(ride: ride),
+                if (ride.geography != null) ...[
                   const SizedBox(height: AppSpacing.md),
-                  _RouteCard(ride: ride),
-                  if (ride.geography != null) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    SizedBox(
-                      height: 340,
-                      child: OpenStreetMapView(geography: ride.geography),
-                    ),
-                    Text(
-                      '${(ride.geography!.route.distanceMeters / 1000).toStringAsFixed(1)} km · '
-                      'sekitar ${(ride.geography!.route.durationSeconds / 60).ceil()} menit (profil mobil)',
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.md),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: InfoTile(
-                            icon: Icons.event_seat_outlined,
-                            positive: true,
-                            label: 'Sisa kursi',
-                            value:
-                                '${ride.seatsAvailable} dari ${ride.seatCapacity}',
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: InfoTile(
-                            icon: Icons.payments_outlined,
-                            label: 'Patungan per orang',
-                            value: ride.farePerPerson == 0
-                                ? 'Belum diatur'
-                                : formatRupiah(ride.farePerPerson),
-                          ),
-                        ),
-                      ],
-                    ),
+                  SizedBox(
+                    height: 340,
+                    child: OpenStreetMapView(geography: ride.geography),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  AppTextField(
-                    label: 'Mau dijemput di mana?',
-                    icon: Icons.person_pin_circle_outlined,
-                    hint: 'Contoh: depan gerbang Kompleks Veteran',
-                    controller: _pickupController,
-                    textInputAction: TextInputAction.done,
-                    validator: _viewModel.validatePickup,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: AppDecorations.outlined,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text('Catatan', style: AppTextStyles.labelLarge),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          _viewModel.note ?? 'Belum ada catatan.',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: _viewModel.note == null
-                                ? AppColors.textSecondary
-                                : AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        AppButton(
-                          label: 'Tulis Catatan',
-                          onPressed: _openNoteForm,
-                          variant: AppButtonVariant.secondary,
-                        ),
-                      ],
-                    ),
+                  Text(
+                    '${(ride.geography!.route.distanceMeters / 1000).toStringAsFixed(1)} km · '
+                    'sekitar ${(ride.geography!.route.durationSeconds / 60).ceil()} menit (profil mobil)',
                   ),
                 ],
-              ),
+                const SizedBox(height: AppSpacing.md),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: InfoTile(
+                          icon: Icons.event_seat_outlined,
+                          positive: true,
+                          label: 'Sisa kursi',
+                          value:
+                              '${ride.seatsAvailable} dari ${ride.seatCapacity}',
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: InfoTile(
+                          icon: Icons.payments_outlined,
+                          label: 'Patungan per orang',
+                          value: ride.farePerPerson == 0
+                              ? 'Belum diatur'
+                              : formatRupiah(ride.farePerPerson),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'Titik jemput dan catatan buat pengemudi diisi di langkah berikutnya.',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

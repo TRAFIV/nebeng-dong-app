@@ -81,8 +81,15 @@ void main() {
     await tester.ensureVisible(find.text('Ikut Nebeng!'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Ikut Nebeng!'));
-    await tester.pump();
-    expect(find.text('Titik jemputnya diisi dulu, ya'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Ajukan Tebengan'), findsOneWidget);
+
+    // Kembali tanpa mengirim: tombol di Info Tebengan bisa dipakai lagi.
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Info Tebengan'), findsOneWidget);
+    final button = find.widgetWithText(FilledButton, 'Ikut Nebeng!');
+    expect(tester.widget<FilledButton>(button).onPressed, isNotNull);
   });
 
   testWidgets('Hasil menangani loading, kosong dan error', (tester) async {
@@ -112,47 +119,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Belum bisa memuat tebengan'), findsOneWidget);
     expect(find.text('Coba Lagi'), findsOneWidget);
-  });
-
-  testWidgets('Catatan dari form kembali dan tampil di Detail', (tester) async {
-    await pumpTestWidget(tester, const NebengDongApp());
-    await _login(tester, 'mikail@student.unand.ac.id');
-
-    await selectHomeLocation(tester, 'Dari', 'khatib');
-    await selectHomeLocation(tester, 'Ke', 'Universitas Andalas');
-    await tester.tap(find.text('Cariin Tebengan!'));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Taris Rafivdean'),
-      100,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await Scrollable.ensureVisible(
-      tester.element(find.text('Taris Rafivdean')),
-      alignment: 0.5,
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Taris Rafivdean'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.text('Tulis Catatan'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Tulis Catatan'));
-    await tester.pumpAndSettle();
-    expect(find.text('Tulis Catatan'), findsOneWidget);
-
-    await tester.tap(find.text('Simpan'));
-    await tester.pump();
-    expect(find.text('Catatan wajib diisi'), findsOneWidget);
-
-    await tester.enterText(
-      _fieldWithHint('Tulis catatan untuk tebengan ini'),
-      'Tunggu di gerbang utama',
-    );
-    await tester.tap(find.text('Simpan'));
-    await tester.pumpAndSettle();
-    expect(find.text('Tunggu di gerbang utama'), findsOneWidget);
-    expect(find.text('Catatan berhasil disimpan'), findsOneWidget);
   });
 
   testWidgets('Route yang tidak dikenal menampilkan halaman 404', (

@@ -8,6 +8,7 @@ import 'package:praktikum_mobile/features/booking/views/pesanan_saya_screen.dart
 import 'package:praktikum_mobile/features/costs/views/cost_history_screen.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
 import 'package:praktikum_mobile/shared/views/passenger_shell_screen.dart';
+import 'package:praktikum_mobile/shared/widgets/passenger_shell_scope.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:praktikum_mobile/theme/app_theme.dart';
 import 'package:praktikum_mobile/theme/app_colors.dart';
@@ -124,6 +125,25 @@ void main() {
     expect(selectedIndex(), 3);
     expect(find.text('Riwayat Perjalanan'), findsOneWidget);
     expect(find.byType(CostHistoryScreen, skipOffstage: false), findsNothing);
+  });
+
+  testWidgets('Avatar on Cari opens the Profil tab', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    // Seperti main.dart: provider tab dipasang di atas MaterialApp.
+    await pumpTestWidget(
+      tester,
+      PassengerShellProvider(
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: const PassengerShellScreen(userName: 'Mikail'),
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Buka profil'));
+    await tester.pumpAndSettle();
+    expect(find.text('Riwayat Perjalanan'), findsOneWidget);
   });
 
   testWidgets('Detail opens over the navbar; back returns to the same tab', (
