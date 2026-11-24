@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Rides\Schemas;
 
+use App\Models\Driver;
+use App\Support\Schedule;
 use Closure;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -27,11 +30,14 @@ class RideForm
                             ->searchable()
                             ->preload()
                             ->required(),
-                        TextInput::make('schedule')
-                            ->label('Hari berangkat')
-                            ->placeholder('Senin–Jumat')
+                        CheckboxList::make('schedule_days')
+                            ->label('Hari jalan')
+                            ->options(Schedule::DAYS)
+                            ->default([1, 2, 3, 4, 5])
+                            ->columns(4)
+                            ->columnSpanFull()
                             ->required()
-                            ->maxLength(50),
+                            ->validationMessages(['required' => 'Pilih minimal satu hari.']),
                         TextInput::make('departure_time')
                             ->label('Jam cabut (HH.mm)')
                             ->placeholder('07.30')
@@ -50,7 +56,13 @@ class RideForm
                             ->integer()
                             ->minValue(1)
                             ->maxValue(8)
-                            ->required(),
+                            ->required()
+                            ->rule(fn (Get $get) => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                                $driver = Driver::find($get('driver_id'));
+                                if ($driver?->vehicle_type === Driver::VEHICLE_MOTOR && (int) $value > 1) {
+                                    $fail('Motor hanya muat 1 penumpang.');
+                                }
+                            }),
                         TextInput::make('seats_available')
                             ->label('Sisa kursi')
                             ->integer()

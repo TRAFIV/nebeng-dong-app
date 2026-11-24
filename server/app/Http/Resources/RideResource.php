@@ -23,6 +23,8 @@ class RideResource extends JsonResource
                 'name' => $this->driver->name,
                 'rating' => $this->driver->rating,
                 'trip_count' => $this->driver->trip_count,
+                // car | motor
+                'vehicle_type' => $this->driver->vehicle_type,
             ],
             'origin' => [
                 'label' => $this->origin_label,
@@ -37,6 +39,8 @@ class RideResource extends JsonResource
                 'lng' => $this->destination_lng,
             ],
             'schedule' => $this->schedule,
+            // Hari jalan ISO 1 = Senin … 7 = Minggu; null = tidak diketahui.
+            'schedule_days' => $this->schedule_days,
             'departure_time' => $this->departure_time,
             'seat_capacity' => $this->seat_capacity,
             'seats_available' => $this->seats_available,

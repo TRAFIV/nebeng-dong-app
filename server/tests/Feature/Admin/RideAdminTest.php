@@ -25,7 +25,7 @@ class RideAdminTest extends TestCase
     {
         return [
             'driver_id' => $driver->id,
-            'schedule' => 'Senin–Jumat',
+            'schedule_days' => ['1', '2', '3', '4', '5'],
             'departure_time' => '07.30',
             'is_active' => true,
             'seat_capacity' => 3,
@@ -84,5 +84,24 @@ class RideAdminTest extends TestCase
             ->assertHasFormErrors(['departure_time', 'seats_available', 'route_coordinates']);
 
         $this->assertSame(0, Ride::count());
+    }
+
+    public function test_schedule_label_follows_checked_days_and_motor_has_one_seat(): void
+    {
+        $this->actingAs($this->admin());
+
+        Livewire::test(CreateRide::class)
+            ->fillForm([...$this->validForm(Driver::factory()->create()), 'schedule_days' => ['6', '7']])
+            ->call('create')
+            ->assertHasNoFormErrors();
+        $ride = Ride::sole();
+        $this->assertSame([6, 7], $ride->schedule_days);
+        $this->assertSame('Sabtu, Minggu', $ride->schedule);
+
+        Livewire::test(CreateRide::class)
+            ->fillForm([...$this->validForm(Driver::factory()->motor()->create()), 'seats_available' => 1])
+            ->call('create')
+            ->assertHasFormErrors(['seat_capacity']);
+        $this->assertSame(1, Ride::count());
     }
 }

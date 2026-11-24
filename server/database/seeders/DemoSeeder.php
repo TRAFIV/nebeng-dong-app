@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Driver;
 use App\Models\Ride;
 use App\Models\User;
+use App\Support\Schedule;
 use Illuminate\Database\Seeder;
 
 /**
@@ -31,7 +32,11 @@ class DemoSeeder extends Seeder
         foreach ($rides as $data) {
             $driver = Driver::updateOrCreate(
                 ['name' => $data['driver']['name']],
-                ['rating' => $data['driver']['rating'], 'trip_count' => $data['driver']['trip_count']],
+                [
+                    'rating' => $data['driver']['rating'],
+                    'trip_count' => $data['driver']['trip_count'],
+                    'vehicle_type' => $data['driver']['vehicle_type'] ?? 'car',
+                ],
             );
 
             Ride::updateOrCreate(
@@ -49,6 +54,7 @@ class DemoSeeder extends Seeder
                     'destination_lat' => $data['destination']['lat'],
                     'destination_lng' => $data['destination']['lng'],
                     'schedule' => $data['schedule'],
+                    'schedule_days' => Schedule::parse($data['schedule']),
                     'seat_capacity' => $data['seat_capacity'],
                     'seats_available' => $data['seats_available'],
                     'fare_per_person' => $data['fare_per_person'],

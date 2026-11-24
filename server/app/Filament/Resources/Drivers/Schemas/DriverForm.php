@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Drivers\Schemas;
 
+use App\Models\Driver;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -20,9 +22,15 @@ class DriverForm
                     ->label('No. HP (hanya untuk admin)')
                     ->tel()
                     ->maxLength(30),
+                Select::make('vehicle_type')
+                    ->label('Jenis kendaraan')
+                    ->options(Driver::VEHICLE_TYPES)
+                    ->default(Driver::VEHICLE_CAR)
+                    ->required()
+                    ->helperText('Motor hanya muat 1 penumpang.'),
                 TextInput::make('vehicle')
-                    ->label('Kendaraan')
-                    ->placeholder('Motor / Mobil, plat nomor')
+                    ->label('Detail kendaraan (hanya untuk admin)')
+                    ->placeholder('Plat nomor, warna')
                     ->maxLength(255),
                 TextInput::make('rating')
                     ->label('Rating')

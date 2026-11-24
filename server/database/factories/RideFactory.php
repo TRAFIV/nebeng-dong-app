@@ -22,6 +22,7 @@ class RideFactory extends Factory
             'destination_lat' => -0.9148733,
             'destination_lng' => 100.4627099,
             'schedule' => 'Senin–Jumat',
+            'schedule_days' => [1, 2, 3, 4, 5],
             'departure_time' => '07.30',
             'seat_capacity' => 3,
             'seats_available' => 2,

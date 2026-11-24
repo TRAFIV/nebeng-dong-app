@@ -13,9 +13,16 @@ class DriverFactory extends Factory
         return [
             'name' => fake()->name(),
             'phone' => fake()->phoneNumber(),
-            'vehicle' => 'Motor',
+            'vehicle_type' => 'car',
+            'vehicle' => 'Avanza putih BA 1234 XY',
             'rating' => 4.5,
             'trip_count' => 10,
         ];
+    }
+
+    /** Pengemudi motor (satu penumpang). */
+    public function motor(): static
+    {
+        return $this->state(['vehicle_type' => 'motor', 'vehicle' => 'Beat merah']);
     }
 }

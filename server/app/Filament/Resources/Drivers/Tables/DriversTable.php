@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Drivers\Tables;
 
+use App\Models\Driver;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -20,6 +21,10 @@ class DriversTable
                 TextColumn::make('phone')
                     ->label('No. HP')
                     ->searchable(),
+                TextColumn::make('vehicle_type')
+                    ->label('Jenis')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state) => Driver::VEHICLE_TYPES[$state] ?? '-'),
                 TextColumn::make('vehicle')
                     ->label('Kendaraan')
                     ->searchable(),

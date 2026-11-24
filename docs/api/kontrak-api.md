@@ -52,10 +52,10 @@ menampilkannya apa adanya.
 | | `POST /auth/logout` | **sudah ada**: mencabut token, 204 |
 | | `GET /me` | **sudah ada**: profil penumpang yang masuk |
 | | `POST /devices` | `{fcm_token}`; mendaftarkan HP untuk notifikasi |
-| Rute (Mikail) | `GET /rides` | **sudah ada**: tebengan aktif yang belum penuh, boleh tanpa login — **bagian 3** |
+| Rute (Mikail) | `GET /rides[?date=YYYY-MM-DD]` | **sudah ada**: tebengan aktif yang belum penuh, opsional hanya yang jalan di tanggal itu, boleh tanpa login — **bagian 3** |
 | Pesanan (Taris) | `GET /bookings` | pesanan milik penumpang |
 | | `GET /bookings/{id}` | detail satu pesanan |
-| | `POST /bookings` | `{ride_id, pickup_location, note?}` |
+| | `POST /bookings` | `{ride_id, trip_date, pickup_location, note?}` — `trip_date` `YYYY-MM-DD`, maks. 7 hari ke depan, harus hari jalan rute |
 | | `POST /bookings/{id}/cancel` | batal sesuai aturan status |
 | Ongkos (Shiddiq) | `GET /cost-shares` | ongkos milik penumpang |
 | | `POST /cost-shares/{id}/declare-payment` | "Sudah bayar"; idempotent |
@@ -75,12 +75,21 @@ Mengembalikan tebengan aktif yang belum penuh. Pencocokan "searah" untuk saat
 ini tetap dihitung di aplikasi (`RouteMatcher`), jadi server cukup mengirim jalur
 lengkap tiap rute.
 
+Parameter opsional `date=YYYY-MM-DD`: hanya rute yang `schedule_days`-nya memuat
+hari itu (rute tanpa daftar hari tidak disaring). Format salah → 422
+`errors.date`. Aplikasi saat ini juga menyaring per tanggal sendiri dan
+menyaring jam ±15 menit dari perkiraan jam lewat titik jemput.
+
+**Belum:** `seats_available` masih satu angka untuk semua tanggal. Setelah tabel
+pesanan ada, sisa kursi dihitung per `trip_date` (kapasitas − pesanan diterima
+di tanggal itu) dan dikirim untuk `date` yang diminta.
+
 ```json
 {
   "data": [
     {
       "id": 7,
-      "driver": { "name": "Taris Rafivdean", "rating": 4.8, "trip_count": 32 },
+      "driver": { "name": "Taris Rafivdean", "rating": 4.8, "trip_count": 32, "vehicle_type": "car" },
       "origin": {
         "label": "Jl. Khatib Sulaiman",
         "address": "Jalan Khatib Sulaiman, Ulak Karang Utara, Padang",
@@ -94,6 +103,7 @@ lengkap tiap rute.
         "lng": 100.4627099
       },
       "schedule": "Senin–Jumat",
+      "schedule_days": [1, 2, 3, 4, 5],
       "departure_time": "07.30",
       "seat_capacity": 3,
       "seats_available": 2,
@@ -112,8 +122,10 @@ lengkap tiap rute.
 |---|---|---|---|
 | `id` | angka/teks | ya | |
 | `driver.name`, `driver.rating`, `driver.trip_count` | teks, angka, bulat | ya | profil publik saja, tanpa email/HP |
+| `driver.vehicle_type` | `car` / `motor` | ya (server baru) | dipakai filter Mobil/Motor dan gambar kendaraan; motor = 1 penumpang. Aplikasi menebak dari kapasitas bila tidak ada |
 | `origin`, `destination` | objek tempat | ya | `address` boleh tidak ada |
-| `schedule` | teks | ya | contoh `Senin–Jumat` |
+| `schedule` | teks | ya | label dari hari jalan, contoh `Senin–Jumat`; tidak ditampilkan ke penumpang |
+| `schedule_days` | daftar bulat 1–7 / null | ya (server baru) | hari jalan ISO, 1 = Senin … 7 = Minggu; null = tidak diketahui |
 | `departure_time` | teks `HH.mm` | ya | dipakai filter jam |
 | `seat_capacity`, `seats_available` | bulat | ya | sisa kursi dihitung server (FR-04) |
 | `fare_per_person` | bulat | ya | `0` = ongkos belum diatur, bukan gratis |
