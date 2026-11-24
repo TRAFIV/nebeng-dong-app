@@ -5,7 +5,7 @@ import 'package:praktikum_mobile/theme/app_spacing.dart';
 import 'package:praktikum_mobile/theme/app_text_styles.dart';
 
 /// Nada warna badge, sama dengan varian komponen Figma `Badge`.
-enum StatusTone { success, brand, neutral }
+enum StatusTone { success, brand, neutral, warning }
 
 /// Label status kecil (komponen Figma `Badge`).
 class StatusBadge extends StatelessWidget {
@@ -25,26 +25,27 @@ class StatusBadge extends StatelessWidget {
     final (background, foreground) = switch (tone) {
       StatusTone.success => (AppColors.successSubtle, AppColors.successText),
       StatusTone.brand => (AppColors.brandSubtle, AppColors.brandStrong),
-      StatusTone.neutral => (AppColors.border, AppColors.textSecondary),
+      StatusTone.neutral => (AppColors.subtleFill, AppColors.textPrimary),
+      StatusTone.warning => (AppColors.accentWarm, AppColors.onAccentWarm),
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: AppRadius.mdAll,
+        borderRadius: AppRadius.pill,
       ),
       child: Wrap(
         spacing: AppSpacing.xs,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          if (icon != null) Icon(icon, size: AppSpacing.md, color: foreground),
+          if (icon != null) Icon(icon, size: 14, color: foreground),
           Text(
             label,
-            style: AppTextStyles.labelLarge.copyWith(color: foreground),
+            style: AppTextStyles.caption.copyWith(
+              color: foreground,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),

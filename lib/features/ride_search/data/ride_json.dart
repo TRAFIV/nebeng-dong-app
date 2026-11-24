@@ -1,6 +1,7 @@
 import 'package:praktikum_mobile/core/network/json_reader.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 import 'package:praktikum_mobile/shared/models/ride.dart';
+import 'package:praktikum_mobile/shared/models/vehicle_kind.dart';
 
 /// Membaca satu tebengan dari JSON server. Bentuknya mengikuti
 /// `docs/api/kontrak-api.md` bagian Rute (`GET /rides`).
@@ -25,6 +26,12 @@ Ride rideFromJson(Object? value) {
     seatCapacity: json.read<int>('seat_capacity'),
     seatsAvailable: json.read<int>('seats_available'),
     farePerPerson: json.read<int>('fare_per_person'),
+    scheduleDays: _days(json.readOrNull<List<Object?>>('schedule_days')),
+    vehicleType: switch (driver.readOrNull<String>('vehicle_type')) {
+      'motor' => VehicleKind.motor,
+      'car' => VehicleKind.car,
+      _ => null,
+    },
     geography: RideGeography(
       origin: origin,
       destination: destination,
@@ -42,6 +49,18 @@ Ride rideFromJson(Object? value) {
 
 List<Ride> ridesFromJson(Object? value) =>
     asJsonMapList(value).map(rideFromJson).toList();
+
+/// Hari ISO 1–7; nilai lain membuat JSON dianggap tidak sah.
+Set<int>? _days(List<Object?>? values) {
+  if (values == null) return null;
+  return {
+    for (final value in values)
+      if (value is int && value >= 1 && value <= 7)
+        value
+      else
+        throw const FormatException('schedule_days harus berisi angka 1–7'),
+  };
+}
 
 MapLocation _location(JsonMap json) => MapLocation(
   label: json.read<String>('label'),

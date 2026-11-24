@@ -101,7 +101,8 @@ Future<void> selectHomeLocation(
   String query,
 ) async {
   final field = find.byKey(ValueKey('select-$endpoint'));
-  await tester.ensureVisible(field);
+  // Gulir hanya bila perlu, agar posisi halaman tetap seperti dilihat pengguna.
+  if (!tester.any(field.hitTestable())) await tester.ensureVisible(field);
   await tester.tap(field);
   await tester.pumpAndSettle();
   await tester.enterText(find.byKey(const ValueKey('place-query')), query);

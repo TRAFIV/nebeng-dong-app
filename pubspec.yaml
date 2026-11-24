@@ -64,6 +64,19 @@ flutter:
   assets:
     - assets/images/logo_mark.png
   fonts:
+    # Huruf utama aplikasi (OFL, lihat assets/fonts/plusjakartasans_license.txt).
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/plusjakartasans-regular.ttf
+        - asset: assets/fonts/plusjakartasans-medium.ttf
+          weight: 500
+        - asset: assets/fonts/plusjakartasans-semibold.ttf
+          weight: 600
+        - asset: assets/fonts/plusjakartasans-bold.ttf
+          weight: 700
+        - asset: assets/fonts/plusjakartasans-extrabold.ttf
+          weight: 800
+    # Roboto tetap dipakai tes golden agar hasil gambar stabil.
     - family: Roboto
       fonts:
         - asset: assets/fonts/roboto-regular.ttf

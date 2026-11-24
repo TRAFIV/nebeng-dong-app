@@ -100,7 +100,7 @@ Act as a senior software engineer responsible for producing maintainable, produc
 
 - Use `docs/prd/prd-nebeng-dong-kel-4.md` as the product source of truth.
 - Use reusable components, Auto Layout, variables, text styles, and effect styles.
-- Use Roboto unless the project documentation or implementation defines another font.
+- Font: Plus Jakarta Sans (bundled in `assets/fonts/`, design "Garis & Titik", 24 November 2026). Roboto remains bundled only for legacy use; Figma still shows Roboto until updated.
 - Keep Figma token names and Flutter theme names traceable to each other.
 - Update `docs/design/design-system-state-nebeng-dong.json` after every successful Figma creation step.
 - Validate created screens visually and structurally before implementing them in Flutter.

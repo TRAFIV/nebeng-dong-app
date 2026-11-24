@@ -14,7 +14,6 @@ import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/costs/views/cost_detail_screen.dart';
 import 'package:praktikum_mobile/features/costs/views/cost_history_screen.dart';
 import 'package:praktikum_mobile/features/costs/views/payment_status_screen.dart';
-import 'package:praktikum_mobile/features/ride_search/views/ride_filter_screen.dart';
 import 'package:praktikum_mobile/features/auth/views/login_screen.dart';
 import 'package:praktikum_mobile/shared/models/ride.dart';
 import 'package:praktikum_mobile/shared/views/not_found_screen.dart';
@@ -26,7 +25,6 @@ abstract final class AppRoutes {
   static const String home = '/home';
   static const String detail = '/detail';
   static const String catatanForm = '/catatan-form';
-  static const String rideFilter = '/ride-filter';
   static const String rideResults = '/ride-results';
   static const String pesananSaya = '/pesanan-saya';
   static const String ajukanTebengan = '/ajukan-tebengan';
@@ -47,15 +45,6 @@ abstract final class AppRoutes {
             request: args.request,
             repository: args.repository,
             simulateError: args.simulateError,
-          ),
-        );
-      case rideFilter:
-        final args = settings.arguments;
-        if (args != null && args is! RideFilter) return null;
-        return MaterialPageRoute<RideFilter>(
-          settings: settings,
-          builder: (_) => RideFilterScreen(
-            initialFilter: args as RideFilter? ?? const RideFilter(),
           ),
         );
       case login:

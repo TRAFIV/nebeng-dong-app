@@ -7,7 +7,7 @@ import 'package:praktikum_mobile/features/ride_search/data/local_ride_repository
 import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_search_request.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
-import 'package:praktikum_mobile/features/ride_search/views/ride_filter_screen.dart';
+import 'package:praktikum_mobile/features/ride_search/views/ride_filter_sheet.dart';
 import 'package:praktikum_mobile/features/ride_search/views/ride_results_screen.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
@@ -71,6 +71,20 @@ List<LocationSelectionTile> _locations(WidgetTester tester) => tester
     .widgetList<LocationSelectionTile>(find.byType(LocationSelectionTile))
     .toList();
 
+/// Tombol Filter di AppBar berupa ikon; dikenali dari tooltip-nya.
+Future<void> _tapFilter(WidgetTester tester, {bool active = false}) async {
+  await tester.tap(find.byTooltip(active ? 'Filter aktif' : 'Filter'));
+  await tester.pumpAndSettle();
+}
+
+/// Pin peta dibuka lewat layar pencarian tempat ("Pilih langsung di peta").
+Future<void> _openPin(WidgetTester tester, String endpoint) async {
+  await tester.tap(find.byKey(ValueKey('select-$endpoint')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Pilih langsung di peta'));
+  await tester.pumpAndSettle();
+}
+
 Future<void> _tap(WidgetTester tester, String label) async {
   final target = find.text(label);
   await tester.scrollUntilVisible(
@@ -115,7 +129,14 @@ void main() {
     addTearDown(repository.dispose);
     await pumpTestWidget(
       tester,
-      _app(HomeScreen(userName: 'Mikail', repository: repository)),
+      _app(
+        HomeScreen(
+          userName: 'Mikail',
+          repository: repository,
+          // Bagian ini memuat data sendiri; tes ini menguji form saja.
+          showUpcoming: false,
+        ),
+      ),
     );
     expect(repository.calls, 0); // Form never waits for route data.
     await selectHomeLocation(tester, 'Ke', 'Universitas Andalas');
@@ -148,6 +169,7 @@ void main() {
       tester,
       _app(
         HomeScreen(
+          showUpcoming: false,
           userName: 'Mikail',
           repository: repository,
           initialOrigin: khatibPlace,
@@ -155,8 +177,7 @@ void main() {
       ),
       service: service,
     );
-    await tester.tap(find.byKey(const ValueKey('pin-Ke')));
-    await tester.pumpAndSettle();
+    await _openPin(tester, 'Ke');
     expect(find.text('Pin Ke'), findsOneWidget);
     final map = tester.widget<OpenStreetMapView>(
       find.byType(OpenStreetMapView),
@@ -183,11 +204,13 @@ void main() {
     expect(find.text(locations[1].location!.address), findsOneWidget);
     // An unconfirmed replacement pin must not mutate the committed point.
     final selected = locations[1].location;
-    await tester.tap(find.byKey(const ValueKey('pin-Ke')));
-    await tester.pumpAndSettle();
+    await _openPin(tester, 'Ke');
     tester.widget<OpenStreetMapView>(find.byType(OpenStreetMapView)).onTap!(
       veteranPlace.point,
     );
+    // Kembali dari peta lalu dari pencarian tempat tanpa memilih.
+    await tester.pageBack();
+    await tester.pumpAndSettle();
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(_locations(tester)[1].location, same(selected));
@@ -251,6 +274,7 @@ void main() {
       tester,
       _app(
         HomeScreen(
+          showUpcoming: false,
           userName: 'Mikail',
           repository: repository,
           initialOrigin: khatibPlace,
@@ -285,6 +309,7 @@ void main() {
       tester,
       _app(
         HomeScreen(
+          showUpcoming: false,
           userName: 'Mikail',
           repository: repository,
           initialOrigin: khatibPlace,
@@ -294,21 +319,22 @@ void main() {
     );
     await _tap(tester, 'Cariin Tebengan!');
     expect(find.text('2 tebengan searah'), findsOneWidget);
-    await _tap(tester, 'Filter');
+    await _tapFilter(tester);
     await _tap(tester, '2 kursi');
-    await tester.pageBack();
+    // Tutup tanpa menerapkan: hasil tidak berubah.
+    await tester.tap(find.byTooltip('Tutup'));
     await tester.pumpAndSettle();
     expect(find.text('2 tebengan searah'), findsOneWidget);
-    await _tap(tester, 'Filter');
+    await _tapFilter(tester);
     await _tap(tester, '2 kursi');
     await _tap(tester, 'Terapkan');
     expect(find.text('1 tebengan searah'), findsOneWidget);
     await tester.pageBack();
     await tester.pumpAndSettle();
     await _tap(tester, 'Cariin Tebengan!');
-    expect(find.text('Filter aktif'), findsOneWidget);
+    expect(find.byTooltip('Filter aktif'), findsOneWidget);
     expect(find.text('1 tebengan searah'), findsOneWidget);
-    await _tap(tester, 'Filter aktif');
+    await _tapFilter(tester, active: true);
     await _tap(tester, 'Atur Ulang');
     await _tap(tester, 'Terapkan');
     expect(find.text('2 tebengan searah'), findsOneWidget);
@@ -324,6 +350,7 @@ void main() {
       tester,
       _app(
         HomeScreen(
+          showUpcoming: false,
           userName: 'Mikail',
           repository: repository,
           initialOrigin: khatibPlace,
@@ -336,15 +363,15 @@ void main() {
         .controller!
         .text;
     await _tap(tester, 'Cariin Tebengan!');
-    await _tap(tester, 'Filter');
+    await _tapFilter(tester);
     await tester.enterText(find.byType(TextFormField), '0');
     await _tap(tester, 'Terapkan');
     expect(find.text('Batas ongkos harus lebih dari Rp0'), findsOneWidget);
-    expect(find.byType(RideFilterScreen), findsOneWidget);
+    expect(find.byType(RideFilterSheet), findsOneWidget);
     await tester.enterText(find.byType(TextFormField), '10000');
     await _tap(tester, 'Terapkan');
     expect(find.textContaining('Maks. Rp10.000'), findsOneWidget);
-    await _tap(tester, 'Filter aktif');
+    await _tapFilter(tester, active: true);
     expect(fareText(), '10.000');
     await _tap(tester, 'Terapkan');
     expect(find.textContaining('Maks. Rp10.000'), findsOneWidget);
@@ -360,6 +387,7 @@ void main() {
       tester,
       _app(
         HomeScreen(
+          showUpcoming: false,
           userName: 'Mikail',
           repository: repository,
           initialOrigin: khatibPlace,
@@ -411,7 +439,7 @@ void main() {
       ),
       repository: LocalRideRepository(delay: Duration.zero),
     ),
-    'filter': const RideFilterScreen(),
+    'filter': const Scaffold(body: RideFilterSheet()),
     'places': PlaceSearchScreen(label: 'Ke', service: FakeMapService()),
   }.entries) {
     testWidgets('${entry.key} supports 320px with 2x text', (tester) async {

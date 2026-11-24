@@ -6,14 +6,19 @@ import 'package:praktikum_mobile/theme/app_colors.dart';
 abstract final class AppSpacing {
   static const double xs = 4;
   static const double sm = 8; // spacing/sm
+  static const double ms = 12; // antara sm dan md
   static const double md = 16; // spacing/md
   static const double lg = 24; // spacing/lg
 }
 
-/// Sudut membulat, sama dengan variabel Figma `radius/md`.
+/// Sudut membulat: kartu 16, kontrol (kolom, tombol) 12, pill bulat penuh.
 abstract final class AppRadius {
-  static const double md = 20;
+  static const double md = 16;
+  static const double control = 12;
   static const BorderRadius mdAll = BorderRadius.all(Radius.circular(md));
+  static const BorderRadius controlAll = BorderRadius.all(
+    Radius.circular(control),
+  );
   static const BorderRadius pill = BorderRadius.all(Radius.circular(40));
 }
 
@@ -31,11 +36,19 @@ abstract final class AppDecorations {
   static const card = BoxDecoration(
     color: AppColors.surface,
     borderRadius: AppRadius.mdAll,
+    border: Border.fromBorderSide(BorderSide(color: AppColors.border)),
+  );
+
+  /// Kartu yang mengambang di atas pita oranye (kartu rute di Cari).
+  static const floating = BoxDecoration(
+    color: AppColors.surface,
+    borderRadius: AppRadius.mdAll,
     boxShadow: [
       BoxShadow(
-        color: AppColors.cardShadow,
-        blurRadius: 16,
-        offset: Offset(0, 6),
+        color: Color(0x261B2440),
+        blurRadius: 24,
+        offset: Offset(0, 10),
+        spreadRadius: -12,
       ),
     ],
   );

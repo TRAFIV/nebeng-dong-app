@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
 import 'package:praktikum_mobile/features/ride_search/viewmodels/ride_filter_view_model.dart';
+import 'package:praktikum_mobile/shared/models/vehicle_kind.dart';
 import 'package:praktikum_mobile/shared/utils/rupiah_format.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
 import 'package:praktikum_mobile/shared/widgets/app_text_field.dart';
@@ -8,17 +9,34 @@ import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/theme/app_spacing.dart';
 import 'package:praktikum_mobile/theme/app_text_styles.dart';
 
-class RideFilterScreen extends StatefulWidget {
-  const RideFilterScreen({super.key, this.initialFilter = const RideFilter()});
+/// Membuka Filter sebagai lembar dari bawah di atas Hasil.
+/// Mengembalikan filter baru, atau `null` bila ditutup tanpa diterapkan.
+Future<RideFilter?> showRideFilterSheet(
+  BuildContext context,
+  RideFilter initialFilter,
+) => showModalBottomSheet<RideFilter>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  showDragHandle: true,
+  backgroundColor: AppColors.surface,
+  builder: (_) => RideFilterSheet(initialFilter: initialFilter),
+);
+
+/// Isi Filter: kendaraan, minimal kursi dan batas ongkos. Jam dipilih di Cari
+/// (±15 menit), jadi tidak diulang di sini.
+class RideFilterSheet extends StatefulWidget {
+  const RideFilterSheet({super.key, this.initialFilter = const RideFilter()});
   final RideFilter initialFilter;
   @override
-  State<RideFilterScreen> createState() => _RideFilterScreenState();
+  State<RideFilterSheet> createState() => _RideFilterSheetState();
 }
 
-class _RideFilterScreenState extends State<RideFilterScreen> {
+class _RideFilterSheetState extends State<RideFilterSheet> {
   final _formKey = GlobalKey<FormState>();
   late final RideFilterViewModel _viewModel;
   late final TextEditingController _fare;
+
   @override
   void initState() {
     super.initState();
@@ -50,34 +68,31 @@ class _RideFilterScreenState extends State<RideFilterScreen> {
 
   Widget _heading(IconData icon, String title) => Row(
     children: [
-      Icon(icon, color: AppColors.brandStrong),
+      Icon(icon, size: 18, color: AppColors.brand),
       const SizedBox(width: AppSpacing.sm),
-      Expanded(child: Text(title, style: AppTextStyles.headingMedium)),
+      Expanded(child: Text(title, style: AppTextStyles.title)),
     ],
   );
 
-  /// Ketuk jam yang sedang terpilih sekali lagi untuk membatalkannya.
-  Widget _windowChoice(DepartureWindow window) => _choice(
-    window.label,
-    _viewModel.window == window,
-    () => _viewModel.selectWindow(_viewModel.window == window ? null : window),
-  );
-
-  Widget _choice(String label, bool selected, VoidCallback onPressed) =>
+  Widget _choice(String label, bool selected, VoidCallback? onPressed) =>
       Semantics(
         selected: selected,
         child: TextButton(
           style: TextButton.styleFrom(
             backgroundColor: selected
                 ? AppColors.brandSubtle
-                : AppColors.border,
+                : AppColors.subtleFill,
             foregroundColor: selected
                 ? AppColors.brandStrong
-                : AppColors.textSecondary,
+                : AppColors.textPrimary,
+            side: BorderSide(
+              color: selected ? AppColors.brand : AppColors.subtleFill,
+            ),
             minimumSize: const Size.fromHeight(AppSizes.touchTarget),
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            alignment: Alignment.centerLeft,
-            shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+            shape: const RoundedRectangleBorder(
+              borderRadius: AppRadius.controlAll,
+            ),
           ),
           onPressed: onPressed,
           child: Text(label),
@@ -87,39 +102,60 @@ class _RideFilterScreenState extends State<RideFilterScreen> {
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: _viewModel,
-    builder: (context, _) => Scaffold(
-      appBar: AppBar(title: const Text('Filter Pencarian')),
-      body: Form(
+    builder: (context, _) => Padding(
+      // Naik bersama keyboard saat mengetik ongkos.
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            0,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
           children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Filter', style: AppTextStyles.headingMedium),
+                ),
+                IconButton(
+                  tooltip: 'Tutup',
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
+            ),
             Text(
               'Sesuaikan tebengan dengan kebutuhanmu.',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            _heading(Icons.access_time_rounded, 'Jam cabut'),
+            const SizedBox(height: AppSpacing.md),
+            _heading(Icons.directions_car_outlined, 'Kendaraan'),
             const SizedBox(height: AppSpacing.sm),
-            // Dua pilihan per baris, dibuat dari semua nilai DepartureWindow.
-            for (var i = 0; i < DepartureWindow.values.length; i += 2) ...[
-              if (i > 0) const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  Expanded(child: _windowChoice(DepartureWindow.values[i])),
-                  const SizedBox(width: AppSpacing.sm),
+            Row(
+              children: [
+                for (final (index, option) in <VehicleKind?>[
+                  null,
+                  ...VehicleKind.values,
+                ].indexed) ...[
+                  if (index > 0) const SizedBox(width: AppSpacing.sm),
                   Expanded(
-                    child: i + 1 < DepartureWindow.values.length
-                        ? _windowChoice(DepartureWindow.values[i + 1])
-                        : const SizedBox.shrink(),
+                    child: _choice(
+                      option?.label ?? 'Semua',
+                      _viewModel.vehicle == option,
+                      () => _viewModel.selectVehicle(option),
+                    ),
                   ),
                 ],
-              ),
-            ],
-            const SizedBox(height: AppSpacing.lg),
-            _heading(Icons.event_seat_rounded, 'Minimal kursi'),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _heading(Icons.event_seat_outlined, 'Minimal kursi'),
             const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
@@ -130,14 +166,23 @@ class _RideFilterScreenState extends State<RideFilterScreen> {
                     child: _choice(
                       '$seats kursi',
                       _viewModel.seats == seats,
-                      () => _viewModel.selectSeats(seats),
+                      _viewModel.canSelectSeats(seats)
+                          ? () => _viewModel.selectSeats(seats)
+                          : null,
                     ),
                   ),
                 ],
               ],
             ),
-            const SizedBox(height: AppSpacing.lg),
-            _heading(Icons.account_balance_wallet_rounded, 'Batas ongkos'),
+            if (_viewModel.vehicle == VehicleKind.motor) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Motor hanya muat 1 penumpang.',
+                style: AppTextStyles.caption,
+              ),
+            ],
+            const SizedBox(height: AppSpacing.md),
+            _heading(Icons.account_balance_wallet_outlined, 'Batas ongkos'),
             const SizedBox(height: AppSpacing.sm),
             AppTextField(
               label: 'Ongkos paling mahal',
@@ -150,28 +195,12 @@ class _RideFilterScreenState extends State<RideFilterScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Kosongkan untuk semua ongkos. Ongkos yang belum diatur tidak dianggap gratis.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
+              'Kosongkan untuk semua ongkos. Ongkos yang belum diatur tidak '
+              'dianggap gratis. Tebengan penuh tidak ditampilkan.',
+              style: AppTextStyles.caption,
             ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Tanpa pilihan jam berarti semua jam, termasuk sebelum 06.00 dan setelah 19.00. Tebengan penuh tidak ditampilkan.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: ColoredBox(
-        color: AppColors.surface,
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
+            const SizedBox(height: AppSpacing.lg),
+            Row(
               children: [
                 Expanded(
                   child: AppButton(
@@ -180,13 +209,13 @@ class _RideFilterScreenState extends State<RideFilterScreen> {
                     onPressed: _reset,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
+                const SizedBox(width: AppSpacing.ms),
                 Expanded(
                   child: AppButton(label: 'Terapkan', onPressed: _apply),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:praktikum_mobile/shared/maps/widgets/location_selection_tile.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 import 'package:praktikum_mobile/shared/models/ride.dart';
 import 'package:praktikum_mobile/features/ride_search/views/home_screen.dart';
@@ -351,13 +352,21 @@ void main() {
             userName: 'Mikail',
             rides: rides,
             loadDelay: Duration.zero,
+            // Tes ini menguji pencocokan jalur, bukan "Berangkat sebentar lagi".
+            showUpcoming: false,
           ),
         ),
       );
       await tester.pumpAndSettle();
       await selectHomeLocation(tester, 'Dari', 'Air Tawar');
       await selectHomeLocation(tester, 'Ke', 'Unand');
-      expect(find.text('Air Tawar'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(LocationSelectionTile),
+          matching: find.text('Air Tawar'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Unand'), findsOneWidget);
       expect(find.textContaining('Mode teks'), findsNothing);
       expect(find.textContaining('Mode jalur'), findsNothing);

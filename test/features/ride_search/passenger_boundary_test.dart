@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:praktikum_mobile/shared/maps/widgets/location_selection_tile.dart';
 import 'package:praktikum_mobile/main.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
@@ -18,7 +19,7 @@ import '../../support/map_test_support.dart';
 void main() {
   test('Location palette aliases shared colors', () {
     expect(AppColors.locationFill, AppColors.surface);
-    expect(AppColors.routeOrigin, AppColors.brandStrong);
+    expect(AppColors.routeOrigin, AppColors.brand);
     expect(AppColors.routeDestination, AppColors.successText);
   });
   Finder navTab(String label) => find.descendant(
@@ -94,7 +95,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Hai, Mikail!'), findsOneWidget);
     // Isi form Cari tetap ada setelah berkeliling tab.
-    expect(find.text('Air Tawar'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(LocationSelectionTile),
+        matching: find.text('Air Tawar'),
+      ),
+      findsOneWidget,
+    );
     expect(find.byType(NavigationBar), findsOneWidget);
   });
 
@@ -127,7 +134,7 @@ void main() {
     expect(find.byType(CostHistoryScreen, skipOffstage: false), findsNothing);
   });
 
-  testWidgets('Avatar on Cari opens the Profil tab', (tester) async {
+  testWidgets('Mascot badge on Cari opens the Profil tab', (tester) async {
     SharedPreferences.setMockInitialValues({});
     // Seperti main.dart: provider tab dipasang di atas MaterialApp.
     await pumpTestWidget(
@@ -204,7 +211,6 @@ void main() {
     );
   }
   for (final entry in <String, String>{
-    'filter with wrong arguments': AppRoutes.rideFilter,
     'results with wrong arguments': AppRoutes.rideResults,
     'an unknown route': '/tidak-ada',
   }.entries) {

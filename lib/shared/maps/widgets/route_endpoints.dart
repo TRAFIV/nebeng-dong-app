@@ -105,6 +105,8 @@ class RouteEndpoints extends StatelessWidget {
 }
 
 /// Ringkasan rute Dari → Ke di layar Detail Tebengan.
+/// Ringkasan Dari/Ke bergaya "Garis & Titik": pin oranye/hijau, label
+/// DARI/KE berwarna, nama tebal dan alamat kecil.
 class RouteLocationSummary extends StatelessWidget {
   const RouteLocationSummary({
     super.key,
@@ -118,32 +120,69 @@ class RouteLocationSummary extends StatelessWidget {
   final String? originAddress;
   final String? destinationAddress;
 
-  Widget _location(String label, String value, String? address) => LocationPill(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          ),
+  Widget _stop({
+    required String label,
+    required Color pin,
+    required Color labelColor,
+    required String value,
+    String? address,
+  }) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(Icons.location_on_rounded, size: 20, color: pin),
+      const SizedBox(width: AppSpacing.sm),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label.toUpperCase(),
+              semanticsLabel: label,
+              style: AppTextStyles.overline.copyWith(color: labelColor),
+            ),
+            Text(value, style: AppTextStyles.labelLarge),
+            if (address != null && address.isNotEmpty && address != value)
+              Text(
+                address,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption,
+              ),
+          ],
         ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(value, style: AppTextStyles.bodyMedium),
-        if (address != null && address.isNotEmpty && address != value) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(address, style: AppTextStyles.bodyMedium),
-        ],
-      ],
-    ),
+      ),
+    ],
   );
 
   @override
-  Widget build(BuildContext context) => RouteEndpoints(
-    origin: _location('Dari', origin, originAddress),
-    destination: _location('Ke', destination, destinationAddress),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _stop(
+        label: 'Dari',
+        pin: AppColors.brand,
+        labelColor: AppColors.brandStrong,
+        value: origin,
+        address: originAddress,
+      ),
+      // Garis penghubung tipis di bawah pin asal.
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          width: 2,
+          height: 12,
+          margin: const EdgeInsets.only(left: 9, top: 2, bottom: 2),
+          color: AppColors.border,
+        ),
+      ),
+      _stop(
+        label: 'Ke',
+        pin: AppColors.successText,
+        labelColor: AppColors.successText,
+        value: destination,
+        address: destinationAddress,
+      ),
+    ],
   );
 }
 

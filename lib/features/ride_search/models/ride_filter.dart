@@ -1,4 +1,5 @@
 import 'package:praktikum_mobile/shared/models/ride.dart';
+import 'package:praktikum_mobile/shared/models/vehicle_kind.dart';
 
 /// Rentang jam cabut, bersambung dari 06.00 sampai 19.00.
 /// Di luar itu, penumpang cukup tidak memilih jam (semua jam ditampilkan).
@@ -17,17 +18,29 @@ enum DepartureWindow {
 
 /// Filter immutable: layar filter mengubah draft, bukan hasil Home langsung.
 class RideFilter {
-  const RideFilter({this.window, this.minimumSeats = 1, this.maximumFare});
+  const RideFilter({
+    this.window,
+    this.minimumSeats = 1,
+    this.maximumFare,
+    this.vehicle,
+  });
 
   final DepartureWindow? window;
   final int minimumSeats;
   final int? maximumFare;
 
+  /// `null` = mobil dan motor.
+  final VehicleKind? vehicle;
+
   bool get isActive =>
-      window != null || minimumSeats != 1 || maximumFare != null;
+      window != null ||
+      minimumSeats != 1 ||
+      maximumFare != null ||
+      vehicle != null;
 
   bool matches(Ride ride) {
     if (ride.seatsAvailable < minimumSeats || ride.isFull) return false;
+    if (vehicle != null && ride.vehicle != vehicle) return false;
     // Nilai 0 pada demo berarti ongkos belum diatur, bukan tebengan gratis.
     if (maximumFare != null &&
         (ride.farePerPerson == 0 || ride.farePerPerson > maximumFare!)) {
