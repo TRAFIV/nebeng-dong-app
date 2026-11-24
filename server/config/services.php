@@ -28,6 +28,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Jalur jalan otomatis untuk form Rute admin (OSRM, sama dengan aplikasi).
+    'routing' => [
+        'url' => env('ROUTING_URL', 'https://routing.openstreetmap.de/routed-car'),
+        'user_agent' => env('ROUTING_USER_AGENT', 'NebengDongServer/1.0 (+https://github.com/TRAFIV/nebeng-dong-app)'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

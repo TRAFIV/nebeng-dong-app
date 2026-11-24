@@ -7,6 +7,7 @@ use App\Models\Driver;
 use App\Models\Ride;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -103,5 +104,56 @@ class RideAdminTest extends TestCase
             ->call('create')
             ->assertHasFormErrors(['seat_capacity']);
         $this->assertSame(1, Ride::count());
+    }
+
+    public function test_empty_route_is_calculated_from_origin_and_destination(): void
+    {
+        Http::fake(['routing.openstreetmap.de/*' => Http::response([
+            'code' => 'Ok',
+            'routes' => [[
+                'distance' => 16812.4,
+                'duration' => 1168.2,
+                'geometry' => ['coordinates' => [[100.3548088, -0.9099249], [100.40, -0.912], [100.4627099, -0.9148733]]],
+            ]],
+            'waypoints' => [['distance' => 12.3], ['distance' => 30.1]],
+        ])]);
+        $this->actingAs($this->admin());
+
+        Livewire::test(CreateRide::class)
+            ->fillForm([
+                ...$this->validForm(Driver::factory()->create()),
+                'route_coordinates' => null,
+                'route_distance_m' => null,
+                'route_duration_s' => null,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $ride = Ride::sole();
+        $this->assertCount(3, $ride->route_coordinates);
+        $this->assertSame(16812, $ride->route_distance_m);
+        $this->assertSame(1168, $ride->route_duration_s);
+        Http::assertSent(fn ($request) => str_contains(
+            $request->url(),
+            '/route/v1/driving/100.3548088,-0.9099249;100.4627099,-0.9148733',
+        ));
+    }
+
+    public function test_route_failure_stops_saving(): void
+    {
+        Http::fake(['routing.openstreetmap.de/*' => Http::response(['code' => 'NoRoute', 'routes' => []])]);
+        $this->actingAs($this->admin());
+
+        Livewire::test(CreateRide::class)
+            ->fillForm([
+                ...$this->validForm(Driver::factory()->create()),
+                'route_coordinates' => null,
+                'route_distance_m' => null,
+                'route_duration_s' => null,
+            ])
+            ->call('create')
+            ->assertNotified('Jalur belum bisa dihitung');
+
+        $this->assertSame(0, Ride::count());
     }
 }

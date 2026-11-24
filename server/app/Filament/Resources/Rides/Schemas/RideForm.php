@@ -3,16 +3,22 @@
 namespace App\Filament\Resources\Rides\Schemas;
 
 use App\Models\Driver;
+use App\Services\RoadRouting;
 use App\Support\Schedule;
 use Closure;
+use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use RuntimeException;
 
 /** Form "Posting Rute" admin atas nama pengemudi (Modul 1). */
 class RideForm
@@ -85,34 +91,108 @@ class RideForm
                     ->columns(2)
                     ->schema(self::place('destination')),
                 Section::make('Jalur jalan')
+                    ->description('Kosongkan untuk dihitung otomatis dari asal dan tujuan saat disimpan, atau tekan "Hitung jalur otomatis" untuk melihatnya dulu.')
                     ->columns(2)
                     ->schema([
+                        Actions::make([
+                            Action::make('hitungJalur')
+                                ->label('Hitung jalur otomatis')
+                                ->icon('heroicon-o-map')
+                                ->action(function (Get $get, Set $set): void {
+                                    try {
+                                        $route = self::routeFrom($get);
+                                    } catch (RuntimeException $error) {
+                                        Notification::make()->title($error->getMessage())->danger()->send();
+
+                                        return;
+                                    }
+                                    $set('route_coordinates', json_encode($route['coordinates']));
+                                    $set('route_distance_m', $route['distance_m']);
+                                    $set('route_duration_s', $route['duration_s']);
+                                    Notification::make()
+                                        ->title('Jalur dihitung: '.number_format($route['distance_m'] / 1000, 1, ',', '.').' km')
+                                        ->success()
+                                        ->send();
+                                }),
+                        ])->columnSpanFull(),
                         Textarea::make('route_coordinates')
                             ->label('Koordinat jalur (GeoJSON [lng, lat])')
-                            ->helperText('Daftar titik jalan, contoh [[100.3548, -0.9099], [100.4627, -0.9148]]. Minimal 2 titik.')
+                            ->helperText('Terisi otomatis. Isi manual hanya bila perlu: contoh [[100.3548, -0.9099], [100.4627, -0.9148]].')
                             ->rows(4)
-                            ->required()
                             ->columnSpanFull()
                             // Kolom disimpan sebagai array; form menampilkannya sebagai teks JSON.
                             ->formatStateUsing(fn ($state) => is_array($state) ? json_encode($state) : $state)
                             ->dehydrateStateUsing(fn (?string $state) => json_decode((string) $state, true))
                             ->rule(fn () => function (string $attribute, mixed $value, Closure $fail): void {
-                                if (! self::validCoordinates($value)) {
+                                if (filled($value) && ! self::validCoordinates($value)) {
                                     $fail('Isi daftar minimal 2 titik [lng, lat] dalam format JSON.');
                                 }
                             }),
                         TextInput::make('route_distance_m')
                             ->label('Jarak (meter)')
                             ->integer()
-                            ->minValue(1)
-                            ->required(),
+                            ->minValue(1),
                         TextInput::make('route_duration_s')
                             ->label('Durasi (detik)')
                             ->integer()
-                            ->minValue(0)
-                            ->required(),
+                            ->minValue(0),
                     ]),
             ]);
+    }
+
+    /**
+     * Jalur dari koordinat asal/tujuan di form.
+     *
+     * @return array{coordinates: list<array{0: float, 1: float}>, distance_m: int, duration_s: int}
+     *
+     * @throws RuntimeException
+     */
+    public static function routeFrom(Get|array $data): array
+    {
+        $value = fn (string $key) => is_array($data) ? ($data[$key] ?? null) : $data($key);
+        foreach (['origin_lat', 'origin_lng', 'destination_lat', 'destination_lng'] as $key) {
+            if (! is_numeric($value($key))) {
+                throw new RuntimeException('Isi lintang dan bujur asal serta tujuan dulu.');
+            }
+        }
+
+        return app(RoadRouting::class)->between(
+            (float) $value('origin_lat'),
+            (float) $value('origin_lng'),
+            (float) $value('destination_lat'),
+            (float) $value('destination_lng'),
+        );
+    }
+
+    /**
+     * Dipanggil halaman Buat/Ubah sebelum menyimpan: jalur kosong dihitung
+     * otomatis. Gagal = notifikasi dan penyimpanan dibatalkan.
+     */
+    public static function withRoute(array $data): ?array
+    {
+        if (filled($data['route_coordinates'] ?? null)
+            && filled($data['route_distance_m'] ?? null)
+            && filled($data['route_duration_s'] ?? null)) {
+            return $data;
+        }
+        try {
+            $route = self::routeFrom($data);
+        } catch (RuntimeException $error) {
+            Notification::make()
+                ->title('Jalur belum bisa dihitung')
+                ->body($error->getMessage())
+                ->danger()
+                ->send();
+
+            return null;
+        }
+
+        return [
+            ...$data,
+            'route_coordinates' => $route['coordinates'],
+            'route_distance_m' => $route['distance_m'],
+            'route_duration_s' => $route['duration_s'],
+        ];
     }
 
     /** Kolom label, alamat dan koordinat untuk asal atau tujuan. */

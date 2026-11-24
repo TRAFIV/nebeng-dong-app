@@ -30,6 +30,11 @@ docker compose exec app php artisan migrate --seed    # tabel + admin + data dem
 | http://localhost:8000/api/v1/rides | daftar rute (JSON) |
 | http://localhost:8000/admin | panel admin — masuk dengan `ADMIN_EMAIL` / `ADMIN_PASSWORD` |
 
+Membuat rute di admin: isi asal dan tujuan (nama + lintang/bujur), centang hari
+jalan, lalu simpan. Jalur jalan dihitung otomatis lewat layanan rute OSRM (atau
+tekan **Hitung jalur otomatis** untuk melihatnya dulu). Server perlu akses internet
+ke `routing.openstreetmap.de`; alamat lain bisa diatur dengan `ROUTING_URL` di `.env`.
+
 Akun penumpang demo: `mikail@student.unand.ac.id` / `nebengdong`.
 
 Perintah yang sering dipakai:
