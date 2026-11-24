@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:praktikum_mobile/core/di/auth_repository_scope.dart';
 import 'package:praktikum_mobile/core/di/rating_repository_scope.dart';
+import 'package:praktikum_mobile/features/auth/data/auth_repository.dart';
+import 'package:praktikum_mobile/features/auth/viewmodels/session_view_model.dart';
+import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/features/booking/views/pesanan_saya_screen.dart';
 import 'package:praktikum_mobile/features/costs/views/cost_history_screen.dart';
 import 'package:praktikum_mobile/features/reputation/data/local_rating_repository.dart';
@@ -51,6 +55,7 @@ class _PassengerShellScreenState extends State<PassengerShellScreen> {
   void dispose() {
     _viewModel?.removeListener(_syncPage);
     _ownedViewModel?.dispose();
+    _session?.dispose();
     _pages?.dispose();
     super.dispose();
   }
@@ -67,6 +72,39 @@ class _PassengerShellScreenState extends State<PassengerShellScreen> {
     if (pages != null && pages.hasClients && pages.page?.round() != target) {
       pages.jumpToPage(target);
     }
+  }
+
+  SessionViewModel? _session;
+
+  Future<void> _confirmLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar dari akun?'),
+        content: const Text('Kamu perlu masuk lagi untuk memakai aplikasi.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final session = _session ??= SessionViewModel(
+      repository:
+          AuthRepositoryScope.maybeOf(context) ?? const LocalAuthRepository(),
+    );
+    await session.logout();
+    if (!mounted) return;
+    // Masuk berikutnya dimulai dari tab Cari.
+    _viewModel!.select(PassengerTab.cari);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
   }
 
   void _onTabSelected(PassengerTab tab) {
@@ -86,6 +124,7 @@ class _PassengerShellScreenState extends State<PassengerShellScreen> {
     PassengerTab.pesanan => const PesananSayaScreen(),
     PassengerTab.ongkos => const CostHistoryScreen(),
     PassengerTab.profil => RatingHistoryScreen(
+      onLogout: _confirmLogout,
       repository:
           RatingRepositoryScope.maybeOf(context) ??
           (_fallbackRatingRepository ??= LocalRatingRepository(

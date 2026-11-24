@@ -69,7 +69,7 @@ class ControlledRepository extends RideRepository {
 
 void main() {
   group('Login/Note ViewModels without widgets', () {
-    test('Campus domain, password and trimmed display name', () {
+    test('Campus domain, password and trimmed display name', () async {
       final vm = LoginViewModel();
       addTearDown(vm.dispose);
       expect(vm.validateEmail(''), 'Email wajib diisi');
@@ -77,16 +77,17 @@ void main() {
       expect(vm.validateEmail('x@evilunand.ac.id'), isNotNull);
       expect(vm.validateEmail('x@student.unand.ac.id'), isNull);
       expect(vm.validateEmail('x@UNAND.AC.ID'), isNull);
-      expect(vm.login(email: 'x@gmail.com', password: '12345678'), isNull);
-      expect(vm.login(email: 'x@unand.ac.id', password: 'short'), isNull);
       expect(
-        vm.login(
-          email: ' mikail.samyth@student.unand.ac.id ',
-          password: '12345678',
-        ),
-        'Mikail',
+        await vm.login(email: 'x@gmail.com', password: '12345678'),
+        isNull,
       );
-      expect(vm.devLogin(), kDebugMode ? 'Mikail' : null);
+      expect(await vm.login(email: 'x@unand.ac.id', password: 'short'), isNull);
+      final user = await vm.login(
+        email: ' mikail.samyth@student.unand.ac.id ',
+        password: '12345678',
+      );
+      expect(user!.firstName, 'Mikail');
+      expect((await vm.devLogin())?.name, kDebugMode ? 'Mikail' : null);
     });
     test('Note validation and result stay outside Navigator', () {
       final vm = CatatanFormViewModel();

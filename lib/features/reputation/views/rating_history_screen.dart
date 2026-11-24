@@ -16,9 +16,13 @@ class RatingHistoryScreen extends StatefulWidget {
     super.key,
     required this.repository,
     this.userId = ratingDemoUserId,
+    this.onLogout,
   });
   final RatingRepository repository;
   final String userId;
+
+  /// Bila ada, menu ⋮ menampilkan "Keluar" (dipasang oleh shell penumpang).
+  final VoidCallback? onLogout;
   @override
   State<RatingHistoryScreen> createState() => _RatingHistoryScreenState();
 }
@@ -111,12 +115,15 @@ class _RatingHistoryScreenState extends State<RatingHistoryScreen> {
           PopupMenuButton<String>(
             tooltip: 'Opsi demo',
             enabled: !_viewModel.loading,
-            onSelected: (_) => _reset(),
+            onSelected: (value) =>
+                value == 'logout' ? widget.onLogout?.call() : _reset(),
             itemBuilder: (_) => [
               const PopupMenuItem(
                 value: 'reset',
                 child: Text('Ulangi demo rating'),
               ),
+              if (widget.onLogout != null)
+                const PopupMenuItem(value: 'logout', child: Text('Keluar')),
             ],
           ),
         ],

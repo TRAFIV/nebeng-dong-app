@@ -27,6 +27,10 @@ class ApiClient {
 
   final Uri baseUrl;
   final TokenStore _tokens;
+
+  /// Dipanggil saat server menolak token yang dikirim (401): sesi habis.
+  /// Tidak dipanggil untuk 401 tanpa token (mis. login salah).
+  void Function()? onUnauthorized;
   final http.Client _http;
   final Duration timeout;
 
@@ -86,6 +90,9 @@ class ApiClient {
 
     final json = _decode(response);
     final status = response.statusCode;
+    if (status == 401 && token != null && token.isNotEmpty) {
+      onUnauthorized?.call();
+    }
     if (status >= 200 && status < 300) {
       // Jawaban sukses dibungkus `{"data": ...}`; tanpa amplop dipakai apa adanya.
       return json is Map && json.containsKey('data') ? json['data'] : json;

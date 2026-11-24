@@ -13,11 +13,15 @@ class ApiClientProvider extends StatefulWidget {
     super.key,
     this.client,
     this.tokenStore,
+    this.onSessionExpired,
     required this.child,
   });
 
   final ApiClient? client;
   final TokenStore? tokenStore;
+
+  /// Server menolak token (401): token sudah dihapus, tinggal arahkan ke Login.
+  final VoidCallback? onSessionExpired;
   final Widget child;
 
   @override
@@ -39,6 +43,21 @@ class _ApiClientProviderState extends State<ApiClientProvider> {
         baseUrl: Uri.parse(ApiConfig.baseUrl),
         tokenStore: _tokens,
       );
+    }
+    _client?.onUnauthorized = _expired;
+  }
+
+  bool _handlingExpiry = false;
+
+  /// Beberapa permintaan bisa gagal bersamaan; tangani sekali saja.
+  Future<void> _expired() async {
+    if (_handlingExpiry) return;
+    _handlingExpiry = true;
+    try {
+      await _tokens.clear();
+      widget.onSessionExpired?.call();
+    } finally {
+      _handlingExpiry = false;
     }
   }
 
