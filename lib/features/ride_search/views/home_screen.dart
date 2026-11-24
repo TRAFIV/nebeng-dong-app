@@ -19,7 +19,9 @@ import 'package:praktikum_mobile/features/ride_search/widgets/upcoming_ride_card
 import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:praktikum_mobile/routes/ride_results_arguments.dart';
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
+import 'package:praktikum_mobile/shared/maps/services/device_location.dart';
 import 'package:praktikum_mobile/shared/maps/services/open_map_service.dart';
+import 'package:praktikum_mobile/shared/maps/viewmodels/current_location_view_model.dart';
 import 'package:praktikum_mobile/shared/maps/views/place_search_screen.dart';
 import 'package:praktikum_mobile/shared/maps/widgets/location_selection_tile.dart';
 import 'package:praktikum_mobile/shared/models/ride.dart';
@@ -48,6 +50,7 @@ class HomeScreen extends StatefulWidget {
     this.showUpcoming = true,
     this.savedPlaces,
     this.now,
+    this.deviceLocation,
   });
   final String userName;
   final RideRepository? repository;
@@ -65,6 +68,9 @@ class HomeScreen extends StatefulWidget {
 
   /// Jam sekarang, untuk tes.
   final DateTime Function()? now;
+
+  /// Sumber lokasi perangkat untuk mengisi Dari otomatis; bawaan GPS.
+  final DeviceLocation? deviceLocation;
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -77,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
     store: widget.savedPlaces ?? LocalSavedPlacesStore(),
   )..load();
   MapService? _mapService;
+  CurrentLocationViewModel? _currentLocation;
   bool _ownsRepository = false;
   bool _ownsMapService = false;
   bool _initialized = false;
@@ -95,6 +102,27 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_ownsMapService) _mapService?.close();
     _ownsMapService = candidate == null;
     _mapService = candidate ?? OpenMapService();
+    _currentLocation?.dispose();
+    _currentLocation = CurrentLocationViewModel(
+      device: widget.deviceLocation ?? const GeolocatorDeviceLocation(),
+      maps: _mapService!,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Isi Dari dari lokasi perangkat setelah layar tampil (izin diminta
+    // sekali oleh sistem). Pilihan penumpang tidak pernah ditimpa.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _locateOrigin());
+  }
+
+  Future<void> _locateOrigin() async {
+    final locator = _currentLocation;
+    if (!mounted || locator == null || _viewModel.originPlace != null) return;
+    final place = await locator.locate();
+    if (!mounted || place == null) return;
+    _viewModel.useCurrentLocation(place);
   }
 
   @override
@@ -152,6 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _viewModel.dispose();
     _upcoming?.dispose();
     _places.dispose();
+    _currentLocation?.dispose();
     if (_ownsRepository) _repository.dispose();
     if (_ownsMapService) _mapService?.close();
     super.dispose();
@@ -411,10 +440,19 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Column(
                 children: [
-                  LocationSelectionTile(
-                    label: 'Dari',
-                    location: _viewModel.originPlace,
-                    onSearch: () => _select('Dari'),
+                  ListenableBuilder(
+                    listenable: _currentLocation!,
+                    builder: (context, _) => LocationSelectionTile(
+                      label: 'Dari',
+                      location: _viewModel.originPlace,
+                      note: _viewModel.originIsCurrent
+                          ? 'lokasimu sekarang'
+                          : null,
+                      placeholder: _currentLocation!.locating
+                          ? 'Mencari lokasimu…'
+                          : null,
+                      onSearch: () => _select('Dari'),
+                    ),
                   ),
                   const SizedBox(height: 6),
                   LocationSelectionTile(

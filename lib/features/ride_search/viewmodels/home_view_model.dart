@@ -13,7 +13,11 @@ class HomeViewModel extends ViewModel {
   int _swapCount = 0;
   DateTime _date = AppClock.today();
   int? _time;
+  bool _originIsCurrent = false;
   MapLocation? get originPlace => _originPlace;
+
+  /// Dari terisi otomatis dari lokasi perangkat (belum diubah penumpang).
+  bool get originIsCurrent => _originIsCurrent;
 
   /// Tanggal berangkat; bawaan hari ini. Bisa dipilih sampai [maxDaysAhead].
   DateTime get date => _date;
@@ -42,6 +46,7 @@ class HomeViewModel extends ViewModel {
 
   void selectOrigin(MapLocation? place) {
     _originPlace = place;
+    _originIsCurrent = false;
     publish();
   }
 
@@ -52,6 +57,7 @@ class HomeViewModel extends ViewModel {
 
   void setLocations(MapLocation? origin, MapLocation? destination) {
     _originPlace = origin;
+    _originIsCurrent = false;
     _destinationPlace = destination;
     publish();
   }
@@ -78,10 +84,21 @@ class HomeViewModel extends ViewModel {
     _time = time;
   }
 
+  /// Mengisi Dari dari lokasi perangkat, hanya bila Dari masih kosong agar
+  /// pilihan penumpang tidak tertimpa. `true` bila terisi.
+  bool useCurrentLocation(MapLocation place) {
+    if (isDisposed || _originPlace != null) return false;
+    _originPlace = place;
+    _originIsCurrent = true;
+    publish();
+    return true;
+  }
+
   void swapLocations() {
     final origin = _originPlace;
     _originPlace = _destinationPlace;
     _destinationPlace = origin;
+    _originIsCurrent = false;
     _swapCount++;
     publish();
   }

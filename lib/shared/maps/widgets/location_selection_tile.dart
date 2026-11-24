@@ -16,6 +16,7 @@ class LocationSelectionTile extends StatelessWidget {
     required this.onSearch,
     this.location,
     this.note,
+    this.placeholder,
   });
   final String label;
   final MapLocation? location;
@@ -23,6 +24,9 @@ class LocationSelectionTile extends StatelessWidget {
 
   /// Keterangan kecil di samping label, mis. "lokasimu sekarang".
   final String? note;
+
+  /// Teks saat kosong; bawaan "Pilih lokasi asal"/"Pilih tujuanmu".
+  final String? placeholder;
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +80,9 @@ class LocationSelectionTile extends StatelessWidget {
                           labelTone: labelTone,
                           location: location,
                           note: note,
-                          placeholder: from
-                              ? 'Pilih lokasi asal'
-                              : 'Pilih tujuanmu',
+                          placeholder:
+                              placeholder ??
+                              (from ? 'Pilih lokasi asal' : 'Pilih tujuanmu'),
                         ),
                       ),
                     ),
