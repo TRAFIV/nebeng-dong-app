@@ -19,6 +19,9 @@ const unandPlace = MapLocation(
   point: GeoPoint(-0.9148733, 100.4627099),
 );
 
+/// Tempat di rute contoh, ditawarkan sebagai saran cepat saat memilih Dari/Ke.
+const demoPlaces = [khatibPlace, veteranPlace, unandPlace];
+
 /// Example names/rating/fares are not actual driver offers.
 final demoRides = List<Ride>.unmodifiable([
   Ride(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:praktikum_mobile/routes/app_routes.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:praktikum_mobile/main.dart';
@@ -23,6 +24,8 @@ void main() {
     expect(formatRupiah(500), 'Rp500');
     expect(formatRupiah(5000), 'Rp5.000');
     expect(formatRupiah(1250000), 'Rp1.250.000');
+    expect(formatThousands(999), '999');
+    expect(formatThousands(10000), '10.000');
   });
 
   test('Validators memeriksa email, password, dan panjang catatan', () {
@@ -50,20 +53,12 @@ void main() {
     await _login(tester, 'mikail@student.unand.ac.id');
     expect(find.text('Hai, Mikail!'), findsOneWidget);
     expect(
-      tester.state<NavigatorState>(find.byType(Navigator)).canPop(),
+      tester.state<NavigatorState>(find.byType(Navigator).first).canPop(),
       isFalse,
     );
 
-    await selectTestLocation(
-      tester,
-      _fieldWithHint('Contoh: Jl. Khatib Sulaiman'),
-      'veteran',
-    );
-    await selectTestLocation(
-      tester,
-      _fieldWithHint('Contoh: Kampus Unand Limau Manis'),
-      'Universitas Andalas',
-    );
+    await selectHomeLocation(tester, 'Dari', 'veteran');
+    await selectHomeLocation(tester, 'Ke', 'Universitas Andalas');
     await tester.tap(find.text('Cariin Tebengan!'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -86,96 +81,44 @@ void main() {
     await tester.ensureVisible(find.text('Ikut Nebeng!'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Ikut Nebeng!'));
-    await tester.pump();
-    expect(find.text('Titik jemputnya diisi dulu, ya'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Ajukan Tebengan'), findsOneWidget);
+
+    // Kembali tanpa mengirim: tombol di Info Tebengan bisa dipakai lagi.
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Info Tebengan'), findsOneWidget);
+    final button = find.widgetWithText(FilledButton, 'Ikut Nebeng!');
+    expect(tester.widget<FilledButton>(button).onPressed, isNotNull);
   });
 
-  testWidgets('Home menangani data kosong dan error', (tester) async {
-    await pumpTestWidget(
-      tester,
-      MaterialApp(
-        theme: AppTheme.light,
-        home: const HomeScreen(
-          key: ValueKey('empty-home'),
-          userName: 'Mikail',
-          rides: [],
-          loadDelay: Duration(milliseconds: 100),
-        ),
+  testWidgets('Hasil menangani loading, kosong dan error', (tester) async {
+    Widget app(String id, {bool error = false}) => MaterialApp(
+      key: ValueKey(id),
+      theme: AppTheme.light,
+      onGenerateRoute: AppRoutes.onGenerateRoute,
+      home: HomeScreen(
+        userName: 'Mikail',
+        rides: [],
+        simulateError: error,
+        loadDelay: const Duration(milliseconds: 500),
+        initialOrigin: FakeMapService.place('khatib'),
+        initialDestination: FakeMapService.place('Universitas Andalas'),
       ),
     );
+    await pumpTestWidget(tester, app('empty'));
+    await tester.tap(find.text('Cariin Tebengan!'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
     expect(find.text('Nyari tebengan dulu...'), findsOneWidget);
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Belum ada tebengan.'),
-      100,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text('Belum ada tebengan.'), findsOneWidget);
-
-    await pumpTestWidget(
-      tester,
-      MaterialApp(
-        theme: AppTheme.light,
-        home: const HomeScreen(
-          key: ValueKey('error-home'),
-          userName: 'Mikail',
-          simulateError: true,
-          loadDelay: Duration.zero,
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('Oops, terjadi kesalahan'), findsOneWidget);
-    expect(find.text('Coba Lagi'), findsOneWidget);
-  });
-
-  testWidgets('Catatan dari form kembali dan tampil di Detail', (tester) async {
-    await pumpTestWidget(tester, const NebengDongApp());
-    await _login(tester, 'mikail@student.unand.ac.id');
-
-    await selectTestLocation(
-      tester,
-      _fieldWithHint('Contoh: Jl. Khatib Sulaiman'),
-      'khatib',
-    );
-    await selectTestLocation(
-      tester,
-      _fieldWithHint('Contoh: Kampus Unand Limau Manis'),
-      'Universitas Andalas',
-    );
+    expect(find.text('Belum ada yang searah'), findsOneWidget);
+    expect(find.text('Ubah Pencarian'), findsOneWidget);
+    await pumpTestWidget(tester, app('error', error: true));
     await tester.tap(find.text('Cariin Tebengan!'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Taris Rafivdean'),
-      100,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await Scrollable.ensureVisible(
-      tester.element(find.text('Taris Rafivdean')),
-      alignment: 0.5,
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Taris Rafivdean'));
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.text('Tulis Catatan'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Tulis Catatan'));
-    await tester.pumpAndSettle();
-    expect(find.text('Tulis Catatan'), findsOneWidget);
-
-    await tester.tap(find.text('Simpan'));
-    await tester.pump();
-    expect(find.text('Catatan wajib diisi'), findsOneWidget);
-
-    await tester.enterText(
-      _fieldWithHint('Tulis catatan untuk tebengan ini'),
-      'Tunggu di gerbang utama',
-    );
-    await tester.tap(find.text('Simpan'));
-    await tester.pumpAndSettle();
-    expect(find.text('Tunggu di gerbang utama'), findsOneWidget);
-    expect(find.text('Catatan berhasil disimpan'), findsOneWidget);
+    expect(find.text('Belum bisa memuat tebengan'), findsOneWidget);
+    expect(find.text('Coba Lagi'), findsOneWidget);
   });
 
   testWidgets('Route yang tidak dikenal menampilkan halaman 404', (
@@ -183,7 +126,9 @@ void main() {
   ) async {
     await pumpTestWidget(tester, const NebengDongApp());
 
-    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    final navigator = tester.state<NavigatorState>(
+      find.byType(Navigator).first,
+    );
     navigator.pushNamed('/tidak-ada');
     await tester.pumpAndSettle();
 

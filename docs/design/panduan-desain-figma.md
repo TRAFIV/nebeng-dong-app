@@ -1,8 +1,19 @@
 # Panduan Desain Figma — Nebeng Dong
 
+> **Catatan 14 Oktober 2026:** arsip kode pengemudi `lib/legacy/driver/` beserta test-nya sudah dihapus dari source (masih ada di riwayat git, commit `addae89`). Penyebutan "legacy" di dokumen ini adalah catatan sejarah.
+
 Jawaban **Instruksi Prompt 2: Panduan Design Figma** (Modul 1, Bagian E) berdasarkan PRD Nebeng Dong.
 
-Revisi 8 Oktober 2026: acuan [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md) dan [rencana penumpang](../progress/rencana-aplikasi-penumpang.md). Target mobile hanya penerima/pencari tebengan. Figma bagian Mikail sudah direvisi dan ditinjau; node aktif dan arsip tercatat di JSON. Pada refactor source berikutnya tanggal 8 Oktober, struktur/role Flutter menjadi feature-first penumpang; hasil masih di Home dan seluruh rincian visual Figma belum diport. Bagian Figma bersama/rekan tetap baseline. Pernyataan source tidak diubah pada revisi Figma di bawah adalah riwayat tahap desain, bukan status setelah refactor kode.
+Revisi 8 Oktober 2026: acuan [PRD 1.1](../prd/prd-nebeng-dong-kel-4.md) dan [rencana penumpang](../progress/rencana-aplikasi-penumpang.md). Target mobile hanya penerima/pencari tebengan. Figma bagian Mikail sudah direvisi dan ditinjau; node aktif dan arsip tercatat di JSON. Pada refactor source berikutnya tanggal 8 Oktober, struktur/role Flutter menjadi feature-first penumpang; UI/workflow lokal Mikail Cari → Hasil terpisah ↔ Filter serta dedicated tempat/pin kini terhubung. Implementasi memakai token dan Material Rounded native, bukan bitmap/skema peta Figma; screenshot widget/state ditinjau, bukan klaim pixel parity seluruh prototype. Backend/rekan dan uji HP tetap pending. Bagian Figma bersama/rekan tetap baseline. Pernyataan source tidak diubah pada revisi Figma di bawah adalah riwayat tahap desain, bukan status setelah refactor kode.
+
+> **Pembaruan 24 November 2026 — arah desain "Garis & Titik" (versi A · Berani), sudah di kode Flutter, Figma belum diperbarui.**
+> Sumber acuan sementara: pratinjau yang dipilih pengguna (artifact pribadi "Nebeng Dong Garis & Titik") dan token di `lib/theme/`.
+> - Warna utama disamakan dengan logo: `#E9461D` (sebelumnya coral `#F2603F`), ditekan `#C2380F`, lembut `#FDE7DF`; hijau `#0F7A52` untuk tujuan/kursi; kuning `#FFC542` hanya untuk peringatan; latar `#F5F6FA`.
+> - Font **Plus Jakarta Sans** (OFL, `assets/fonts/`), menggantikan Roboto. Roboto tetap dibundel untuk keperluan lama.
+> - Kartu putih bergaris tepi 1 px sudut 16; kolom/tombol sudut 12; badge berbentuk pill. Jarak 4 · 8 · 12 · 16 · 24.
+> - Label DARI (oranye) / KE (hijau) dengan pin lokasi; maskot **Si Titik** (dari titik di logo) di sapaan, kosong, dan error; loading titik berjalan di garis rute; jalan raya mini di kartu tebengan.
+> - Gerak berulang dimatikan bila animasi HP dimatikan (`AppMotion`).
+> Tabel warna/huruf di bawah adalah riwayat Figma lama sampai halaman Figma diperbarui.
 
 ## 3 Layar Utama (layar bersama)
 

@@ -5,7 +5,11 @@ import 'package:praktikum_mobile/theme/app_colors.dart';
 import 'package:praktikum_mobile/theme/app_spacing.dart';
 import 'package:praktikum_mobile/theme/app_text_styles.dart';
 import 'package:praktikum_mobile/routes/app_routes.dart';
+import 'package:praktikum_mobile/core/di/auth_repository_scope.dart';
+import 'package:praktikum_mobile/features/auth/data/auth_repository.dart';
+import 'package:praktikum_mobile/features/auth/models/auth_user.dart';
 import 'package:praktikum_mobile/features/auth/viewmodels/login_view_model.dart';
+import 'package:praktikum_mobile/shared/widgets/state_views.dart';
 import 'package:praktikum_mobile/shared/widgets/app_button.dart';
 import 'package:praktikum_mobile/shared/widgets/app_text_field.dart';
 
@@ -20,48 +24,79 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _viewModel = LoginViewModel();
+  LoginViewModel? _viewModel;
+
+  LoginViewModel get _vm => _viewModel!;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_viewModel != null) return;
+    _viewModel = LoginViewModel(
+      repository:
+          AuthRepositoryScope.maybeOf(context) ?? const LocalAuthRepository(),
+    );
+    // Token tersimpan masih berlaku: langsung masuk tanpa mengetik lagi.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _restore());
+  }
 
   @override
   void dispose() {
-    _viewModel.dispose();
+    _viewModel?.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _submit() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+  Future<void> _restore() async {
+    final user = await _vm.restoreSession();
+    if (mounted && user != null) _enterHome(user);
+  }
 
-    final userName = _viewModel.login(
+  Future<void> _submit() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final user = await _vm.login(
       email: _emailController.text,
       password: _passwordController.text,
     );
-    if (userName != null) _enterHome(userName);
+    if (mounted && user != null) _enterHome(user);
   }
 
-  void _devLogin() {
+  Future<void> _devLogin() async {
     // Compile-time guard: never enable this shortcut in profile/release.
     if (!kDebugMode) return;
-    final userName = _viewModel.devLogin();
-    if (userName != null) _enterHome(userName);
+    final user = await _vm.devLogin();
+    if (mounted && user != null) _enterHome(user);
   }
 
-  void _enterHome(String userName) {
+  void _enterHome(AuthUser user) {
     FocusScope.of(context).unfocus();
     Navigator.pushReplacementNamed(
       context,
       AppRoutes.home,
-      arguments: userName,
+      arguments: user.firstName,
     );
   }
 
   void _showRegisterUnavailable() {
-    Navigator.pushNamed(context, '/tidak-ada');
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Pendaftaran belum dibuka. Akunmu dibuatkan admin dulu, ya.',
+          ),
+        ),
+      );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _vm,
+    builder: (context, _) => _buildPage(context),
+  );
+
+  Widget _buildPage(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -92,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            validator: _viewModel.validateEmail,
+                            validator: _vm.validateEmail,
                           ),
                           const SizedBox(height: AppSpacing.md),
                           AppTextField(
@@ -101,17 +136,28 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _passwordController,
                             obscureText: true,
                             textInputAction: TextInputAction.done,
-                            validator: _viewModel.validatePassword,
+                            validator: _vm.validatePassword,
                             onFieldSubmitted: (_) => _submit(),
                           ),
                           const SizedBox(height: AppSpacing.lg),
-                          AppButton(label: 'Gas Masuk!', onPressed: _submit),
+                          if (_vm.errorMessage != null) ...[
+                            ErrorBanner(message: _vm.errorMessage!),
+                            const SizedBox(height: AppSpacing.md),
+                          ],
+                          AppButton(
+                            label: _vm.restoring
+                                ? 'Memeriksa sesi…'
+                                : _vm.submitting
+                                ? 'Lagi masuk…'
+                                : 'Gas Masuk!',
+                            onPressed: _vm.busy ? null : _submit,
+                          ),
                           if (kDebugMode) ...[
                             const SizedBox(height: AppSpacing.sm),
                             AppButton(
                               label: 'Masuk cepat (Dev)',
                               variant: AppButtonVariant.secondary,
-                              onPressed: _devLogin,
+                              onPressed: _vm.busy ? null : _devLogin,
                             ),
                           ],
                           const SizedBox(height: AppSpacing.md),
@@ -152,7 +198,7 @@ class _LoginHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Sementara berupa inisial; diganti gambar logo setelah tersedia.
+        // Simbol logo "ND" putih di kotak brand, sama dengan ikon aplikasi.
         Container(
           width: 64,
           height: 64,
@@ -161,11 +207,10 @@ class _LoginHeader extends StatelessWidget {
             color: AppColors.brand,
             borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
-          child: Text(
-            'ND',
-            style: AppTextStyles.headingMedium.copyWith(
-              color: AppColors.onBrand,
-            ),
+          child: Image.asset(
+            'assets/images/logo_mark.png',
+            width: 40,
+            semanticLabel: 'Logo Nebeng Dong',
           ),
         ),
         const SizedBox(height: AppSpacing.sm),

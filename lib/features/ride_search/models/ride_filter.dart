@@ -1,10 +1,14 @@
 import 'package:praktikum_mobile/shared/models/ride.dart';
+import 'package:praktikum_mobile/shared/models/vehicle_kind.dart';
 
+/// Rentang jam cabut, bersambung dari 06.00 sampai 19.00.
+/// Di luar itu, penumpang cukup tidak memilih jam (semua jam ditampilkan).
 enum DepartureWindow {
   early('06.00–07.00', 360, 420),
   morning('07.00–08.00', 420, 480),
   lateMorning('08.00–09.00', 480, 540),
-  afternoon('Sore', 900, 1140);
+  midday('Siang 09.00–15.00', 540, 900),
+  afternoon('Sore 15.00–19.00', 900, 1140);
 
   const DepartureWindow(this.label, this.startMinute, this.endMinute);
   final String label;
@@ -14,17 +18,29 @@ enum DepartureWindow {
 
 /// Filter immutable: layar filter mengubah draft, bukan hasil Home langsung.
 class RideFilter {
-  const RideFilter({this.window, this.minimumSeats = 1, this.maximumFare});
+  const RideFilter({
+    this.window,
+    this.minimumSeats = 1,
+    this.maximumFare,
+    this.vehicle,
+  });
 
   final DepartureWindow? window;
   final int minimumSeats;
   final int? maximumFare;
 
+  /// `null` = mobil dan motor.
+  final VehicleKind? vehicle;
+
   bool get isActive =>
-      window != null || minimumSeats != 1 || maximumFare != null;
+      window != null ||
+      minimumSeats != 1 ||
+      maximumFare != null ||
+      vehicle != null;
 
   bool matches(Ride ride) {
     if (ride.seatsAvailable < minimumSeats || ride.isFull) return false;
+    if (vehicle != null && ride.vehicle != vehicle) return false;
     // Nilai 0 pada demo berarti ongkos belum diatur, bukan tebengan gratis.
     if (maximumFare != null &&
         (ride.farePerPerson == 0 || ride.farePerPerson > maximumFare!)) {
@@ -36,24 +52,6 @@ class RideFilter {
     return minute != null &&
         minute >= selected.startMinute &&
         minute < selected.endMinute;
-  }
-
-  /// Ini pencarian teks dua titik, BUKAN pencocokan jalur geografis FR-03.
-  List<Ride> apply(
-    Iterable<Ride> rides, {
-    String origin = '',
-    String destination = '',
-  }) {
-    final from = origin.trim().toLowerCase();
-    final to = destination.trim().toLowerCase();
-    return rides
-        .where(
-          (ride) =>
-              ride.origin.toLowerCase().contains(from) &&
-              ride.destination.toLowerCase().contains(to) &&
-              matches(ride),
-        )
-        .toList();
   }
 }
 

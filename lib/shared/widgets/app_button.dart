@@ -9,9 +9,13 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.variant = AppButtonVariant.primary,
+    this.icon,
   });
 
   final String label;
+
+  /// Ikon opsional di depan label.
+  final IconData? icon;
 
   /// `null` membuat tombol nonaktif.
   final VoidCallback? onPressed;
@@ -19,7 +23,16 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = Text(label);
+    final child = icon == null
+        ? Text(label)
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 20),
+              const SizedBox(width: 8),
+              Flexible(child: Text(label)),
+            ],
+          );
     return switch (variant) {
       AppButtonVariant.primary => FilledButton(
         onPressed: onPressed,

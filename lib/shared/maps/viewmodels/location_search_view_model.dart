@@ -9,9 +9,15 @@ class LocationSearchViewModel extends ViewModel {
   factory LocationSearchViewModel({
     required MapService service,
     MapLocation? selected,
-  }) => LocationSearchViewModel._(service, selected);
-  LocationSearchViewModel._(this._service, this._selected);
+    List<MapLocation> quickPlaces = const [],
+  }) => LocationSearchViewModel._(service, selected, quickPlaces);
+  LocationSearchViewModel._(this._service, this._selected, this._quickPlaces);
   MapService _service;
+
+  /// Tempat yang sudah dikenal aplikasi. Dicocokkan langsung tanpa internet,
+  /// jadi tetap bisa dipilih walau layanan peta sedang lambat.
+  final List<MapLocation> _quickPlaces;
+  String _query = '';
   Timer? _debounce;
   int _generation = 0;
   MapLocation? _selected;
@@ -24,6 +30,18 @@ class LocationSearchViewModel extends ViewModel {
   bool get loading => _loading;
   String? get error => _error;
   bool get searched => _searched;
+
+  /// Saran cepat yang nama atau alamatnya memuat teks ketikan; semua jika kosong.
+  List<MapLocation> get quickMatches {
+    final query = _query.toLowerCase();
+    return List.unmodifiable(
+      _quickPlaces.where(
+        (place) =>
+            place.label.toLowerCase().contains(query) ||
+            place.address.toLowerCase().contains(query),
+      ),
+    );
+  }
 
   void clearSearch() {
     _debounce?.cancel();
@@ -48,8 +66,9 @@ class LocationSearchViewModel extends ViewModel {
   void queryChanged(String text) {
     if (isDisposed) return;
     _selected = null;
+    _query = text.trim();
     clearSearch();
-    final query = text.trim();
+    final query = _query;
     if (query.length < 3) return;
     final generation = _generation;
     _debounce = Timer(

@@ -25,113 +25,88 @@ class LocationPill extends StatelessWidget {
   );
 }
 
-/// Dotted endpoint rail grows with validators/autocomplete, without fixed form height.
+/// Penanda Dari (titik) dan Ke (pin) yang disambung garis titik-titik.
+/// Garisnya ikut memanjang sesuai tinggi isi Dari.
 class RouteEndpoints extends StatelessWidget {
   const RouteEndpoints({
     super.key,
     required this.origin,
     required this.destination,
-    this.onSwap,
   });
   final Widget origin;
   final Widget destination;
-  final VoidCallback? onSwap;
 
   @override
-  Widget build(BuildContext context) => Stack(
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Padding(
-        padding: EdgeInsets.only(
-          right: onSwap == null ? 0 : AppSizes.touchTarget,
-        ),
-        child: Column(
+      IntrinsicHeight(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            SizedBox(
+              width: AppSizes.routeRail,
+              child: Column(
                 children: [
-                  SizedBox(
-                    width: AppSizes.routeRail,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: AppSpacing.lg),
-                        Semantics(
-                          label: 'Titik berangkat',
-                          child: Container(
-                            width: AppSpacing.md,
-                            height: AppSpacing.md,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.routeOrigin,
-                              border: Border.all(
-                                color: AppColors.locationFill,
-                                width: 3,
-                              ),
-                            ),
-                          ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Semantics(
+                    label: 'Titik berangkat',
+                    child: Container(
+                      width: AppSpacing.md,
+                      height: AppSpacing.md,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.routeOrigin,
+                        border: Border.all(
+                          color: AppColors.locationFill,
+                          width: 3,
                         ),
-                        const SizedBox(height: AppSpacing.xs),
-                        const Expanded(
-                          child: CustomPaint(
-                            painter: _RouteDots(),
-                            child: SizedBox(width: AppSizes.routeRail),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: origin,
+                  const SizedBox(height: AppSpacing.xs),
+                  const Expanded(
+                    child: CustomPaint(
+                      painter: _RouteDots(),
+                      child: SizedBox(width: AppSizes.routeRail),
                     ),
                   ),
                 ],
               ),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: AppSpacing.md + AppSpacing.xs),
-                  child: Icon(
-                    Icons.location_on_outlined,
-                    color: AppColors.routeDestination,
-                    size: AppSizes.routeRail,
-                    semanticLabel: 'Titik tujuan',
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(child: destination),
-              ],
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: origin,
+              ),
             ),
           ],
         ),
       ),
-      if (onSwap != null)
-        Positioned(
-          right: 0,
-          top: 0,
-          bottom: 0,
-          child: Center(
-            child: IconButton.filledTonal(
-              tooltip: 'Tukar asal dan tujuan',
-              onPressed: onSwap,
-              style: IconButton.styleFrom(
-                backgroundColor: AppColors.brandSubtle,
-                foregroundColor: AppColors.routeOrigin,
-              ),
-              icon: const Icon(Icons.swap_vert_rounded),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: AppSpacing.md + AppSpacing.xs),
+            child: Icon(
+              Icons.location_on_outlined,
+              color: AppColors.routeDestination,
+              size: AppSizes.routeRail,
+              semanticLabel: 'Titik tujuan',
             ),
           ),
-        ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(child: destination),
+        ],
+      ),
     ],
   );
 }
 
-/// Same endpoint language on cards, details, and owned routes.
+/// Ringkasan rute Dari → Ke di layar Detail Tebengan.
+/// Ringkasan Dari/Ke bergaya "Garis & Titik": pin oranye/hijau, label
+/// DARI/KE berwarna, nama tebal dan alamat kecil.
 class RouteLocationSummary extends StatelessWidget {
   const RouteLocationSummary({
     super.key,
@@ -145,32 +120,69 @@ class RouteLocationSummary extends StatelessWidget {
   final String? originAddress;
   final String? destinationAddress;
 
-  Widget _location(String label, String value, String? address) => LocationPill(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          ),
+  Widget _stop({
+    required String label,
+    required Color pin,
+    required Color labelColor,
+    required String value,
+    String? address,
+  }) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(Icons.location_on_rounded, size: 20, color: pin),
+      const SizedBox(width: AppSpacing.sm),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label.toUpperCase(),
+              semanticsLabel: label,
+              style: AppTextStyles.overline.copyWith(color: labelColor),
+            ),
+            Text(value, style: AppTextStyles.labelLarge),
+            if (address != null && address.isNotEmpty && address != value)
+              Text(
+                address,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption,
+              ),
+          ],
         ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(value, style: AppTextStyles.bodyMedium),
-        if (address != null && address.isNotEmpty && address != value) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(address, style: AppTextStyles.bodyMedium),
-        ],
-      ],
-    ),
+      ),
+    ],
   );
 
   @override
-  Widget build(BuildContext context) => RouteEndpoints(
-    origin: _location('Dari', origin, originAddress),
-    destination: _location('Ke', destination, destinationAddress),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _stop(
+        label: 'Dari',
+        pin: AppColors.brand,
+        labelColor: AppColors.brandStrong,
+        value: origin,
+        address: originAddress,
+      ),
+      // Garis penghubung tipis di bawah pin asal.
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          width: 2,
+          height: 12,
+          margin: const EdgeInsets.only(left: 9, top: 2, bottom: 2),
+          color: AppColors.border,
+        ),
+      ),
+      _stop(
+        label: 'Ke',
+        pin: AppColors.successText,
+        labelColor: AppColors.successText,
+        value: destination,
+        address: destinationAddress,
+      ),
+    ],
   );
 }
 

@@ -1,51 +1,52 @@
+import 'package:praktikum_mobile/core/app_clock.dart';
 import 'package:praktikum_mobile/core/view_model.dart';
-import 'package:praktikum_mobile/features/ride_search/data/ride_repository.dart';
-import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
-import 'package:praktikum_mobile/shared/models/ride.dart';
 import 'package:praktikum_mobile/features/ride_search/models/ride_filter.dart';
-import 'package:praktikum_mobile/features/ride_search/utils/route_matcher.dart';
+import 'package:praktikum_mobile/features/ride_search/models/ride_search_request.dart';
+import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 
-enum RideViewStatus { loading, success, error }
-
+/// Form state only. Fetch/matching/loading belong to RideResultsViewModel.
 class HomeViewModel extends ViewModel {
-  HomeViewModel({required this.repository, this.simulateError = false}) {
-    repository.addListener(refresh);
-  }
-
-  final RideRepository repository;
-  final bool simulateError;
-  RideViewStatus _status = RideViewStatus.loading;
-  List<Ride> _allRides = [];
-  List<Ride> _results = [];
-  String _errorMessage = '';
-  int _selectedTab = 0;
-  RideFilter _filter = const RideFilter();
   MapLocation? _originPlace;
   MapLocation? _destinationPlace;
-  MapLocation? _appliedOrigin;
-  MapLocation? _appliedDestination;
-  String _appliedOriginText = '';
-  String _appliedDestinationText = '';
-  int _loadGeneration = 0;
-
-  RideViewStatus get status => _status;
-  List<Ride> get allRides => List.unmodifiable(_allRides);
-  List<Ride> get results => List.unmodifiable(_results);
-  String get errorMessage => _errorMessage;
-  int get selectedTab => _selectedTab;
-  RideFilter get filter => _filter;
+  RideFilter _filter = const RideFilter();
+  RideSearchRequest? _request;
+  int _swapCount = 0;
+  DateTime _date = AppClock.today();
+  int? _time;
+  bool _originIsCurrent = false;
   MapLocation? get originPlace => _originPlace;
-  MapLocation? get destinationPlace => _destinationPlace;
-  bool get geographicSearch =>
-      _appliedOrigin != null && _appliedDestination != null;
 
-  void selectTab(int index) {
-    _selectedTab = index;
-    publish();
+  /// Dari terisi otomatis dari lokasi perangkat (belum diubah penumpang).
+  bool get originIsCurrent => _originIsCurrent;
+
+  /// Tanggal berangkat; bawaan hari ini. Bisa dipilih sampai [maxDaysAhead].
+  DateTime get date => _date;
+
+  /// Jam berangkat (menit-dalam-hari); `null` = semua jam.
+  int? get time => _time;
+
+  static const maxDaysAhead = 7;
+
+  /// Pilihan tanggal: hari ini sampai 7 hari ke depan.
+  List<DateTime> get dateOptions {
+    final today = AppClock.today();
+    return [
+      for (var i = 0; i <= maxDaysAhead; i++)
+        DateTime(today.year, today.month, today.day + i),
+    ];
   }
+
+  /// Berapa kali Dari/Ke ditukar; View memutar ikon tukar setengah putaran
+  /// tiap kali.
+  int get swapCount => _swapCount;
+  MapLocation? get destinationPlace => _destinationPlace;
+  RideFilter get filter => _filter;
+  RideSearchRequest? get searchRequest => _request;
+  bool get canSearch => _originPlace != null && _destinationPlace != null;
 
   void selectOrigin(MapLocation? place) {
     _originPlace = place;
+    _originIsCurrent = false;
     publish();
   }
 
@@ -56,85 +57,72 @@ class HomeViewModel extends ViewModel {
 
   void setLocations(MapLocation? origin, MapLocation? destination) {
     _originPlace = origin;
+    _originIsCurrent = false;
     _destinationPlace = destination;
     publish();
   }
 
-  String? search({required String origin, required String destination}) {
-    if (_originPlace == null || _destinationPlace == null) {
+  void setDate(DateTime date) {
+    final day = DateTime(date.year, date.month, date.day);
+    final options = dateOptions;
+    if (day.isBefore(options.first) || day.isAfter(options.last)) return;
+    _date = day;
+    publish();
+  }
+
+  void setTime(int? minuteOfDay) {
+    if (minuteOfDay != null && (minuteOfDay < 0 || minuteOfDay >= 24 * 60)) {
+      return;
+    }
+    _time = minuteOfDay;
+    publish();
+  }
+
+  /// Dipakai saat ViewModel dibuat ulang (repository berganti).
+  void restoreWhen(DateTime date, int? time) {
+    _date = date;
+    _time = time;
+  }
+
+  /// Mengisi Dari dari lokasi perangkat, hanya bila Dari masih kosong agar
+  /// pilihan penumpang tidak tertimpa. `true` bila terisi.
+  bool useCurrentLocation(MapLocation place) {
+    if (isDisposed || _originPlace != null) return false;
+    _originPlace = place;
+    _originIsCurrent = true;
+    publish();
+    return true;
+  }
+
+  void swapLocations() {
+    final origin = _originPlace;
+    _originPlace = _destinationPlace;
+    _destinationPlace = origin;
+    _originIsCurrent = false;
+    _swapCount++;
+    publish();
+  }
+
+  void applyFilter(RideFilter filter) {
+    _filter = filter;
+    publish();
+  }
+
+  String? search() {
+    if (isDisposed) return 'Pencarian sudah ditutup.';
+    if (!canSearch) {
       return 'Pilih saran atau pin untuk asal dan tujuan agar bisa mencocokkan jalur.';
     }
-    if (_originPlace != null &&
-        _originPlace!.point.distanceTo(_destinationPlace!.point) < 50) {
+    if (_originPlace!.point.distanceTo(_destinationPlace!.point) < 50) {
       return 'Asal dan tujuan minimal 50 meter';
     }
-    _appliedOrigin = _originPlace;
-    _appliedDestination = _destinationPlace;
-    _appliedOriginText = origin;
-    _appliedDestinationText = destination;
-    _results = _filtered(_allRides);
-    publish();
+    _request = RideSearchRequest(
+      origin: _originPlace!,
+      destination: _destinationPlace!,
+      filter: _filter,
+      date: _date,
+      time: _time,
+    );
     return null;
-  }
-
-  void applyFilter(RideFilter value) {
-    _filter = value;
-    _results = _filtered(_allRides);
-    publish();
-  }
-
-  void refresh() {
-    if (isDisposed) return;
-    _allRides = repository.rides;
-    _results = _filtered(_allRides);
-    publish();
-  }
-
-  List<Ride> _filtered(List<Ride> rides) {
-    if (!geographicSearch) {
-      return _filter.apply(
-        rides,
-        origin: _appliedOriginText,
-        destination: _appliedDestinationText,
-      );
-    }
-    final matches = <(Ride, RouteMatch)>[];
-    for (final ride in rides) {
-      if (!_filter.matches(ride) || ride.geography == null) continue;
-      final match = RouteMatcher.match(
-        ride.geography!.route,
-        _appliedOrigin!.point,
-        _appliedDestination!.point,
-      );
-      if (match != null) matches.add((ride, match));
-    }
-    matches.sort((a, b) => a.$2.totalDeviation.compareTo(b.$2.totalDeviation));
-    return matches.map((match) => match.$1).toList();
-  }
-
-  Future<void> load() async {
-    if (isDisposed) return;
-    final generation = ++_loadGeneration;
-    _status = RideViewStatus.loading;
-    _errorMessage = '';
-    publish();
-    try {
-      final rides = await repository.fetchRides(simulateError: simulateError);
-      if (isDisposed || generation != _loadGeneration) return;
-      _allRides = rides;
-      _results = _filtered(rides);
-      _status = RideViewStatus.success;
-    } catch (error) {
-      if (isDisposed || generation != _loadGeneration) return;
-      _errorMessage = error.toString().replaceFirst('Exception: ', '');
-      _status = RideViewStatus.error;
-    }
-    publish();
-  }
-
-  @override
-  void dispose() {
-    repository.removeListener(refresh);
-    super.dispose();
   }
 }

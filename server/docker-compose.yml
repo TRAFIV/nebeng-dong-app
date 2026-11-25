@@ -1,0 +1,60 @@
+# Server Nebeng Dong: API Laravel + panel admin + MySQL.
+#
+# Laptop : docker compose up -d                  → http://localhost:8000
+# VPS    : docker compose --profile https up -d  → https://API_DOMAIN (perlu domain)
+#
+# Nilai ${...} dibaca dari file .env di folder ini (salin dari .env.example).
+services:
+  app:
+    build: .
+    image: nebeng-dong-api
+    restart: unless-stopped
+    ports:
+      # Di VPS dengan HTTPS, isi APP_PORT=127.0.0.1:8000 agar hanya Caddy yang terbuka.
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - .:/var/www/html
+      # vendor di volume Docker: jauh lebih cepat daripada folder laptop (Windows),
+      # diisi otomatis oleh "composer install" saat container pertama menyala.
+      - vendor:/var/www/html/vendor
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-nebeng_dong}
+      MYSQL_USER: ${DB_USERNAME:-nebeng}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Isi DB_PASSWORD di .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Isi DB_ROOT_PASSWORD di .env}
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # HTTPS otomatis (Let's Encrypt) untuk VPS; hanya aktif dengan --profile https.
+  caddy:
+    image: caddy:2
+    profiles: ["https"]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Wajib diisi sebelum memakai --profile https.
+      API_DOMAIN: ${API_DOMAIN:-}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      - app
+
+volumes:
+  vendor:
+  db-data:
+  caddy-data:

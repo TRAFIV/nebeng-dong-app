@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import 'package:praktikum_mobile/theme/app_colors.dart';
@@ -8,13 +9,14 @@ import 'package:praktikum_mobile/theme/app_text_styles.dart';
 abstract final class AppTheme {
   static ThemeData get light {
     const inputBorder = OutlineInputBorder(
-      borderRadius: AppRadius.mdAll,
+      borderRadius: AppRadius.controlAll,
       borderSide: BorderSide(color: AppColors.border),
     );
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: AppTextStyles.fontFamily,
       colorScheme: const ColorScheme.light(
         primary: AppColors.brand,
         onPrimary: AppColors.onBrand,
@@ -24,11 +26,21 @@ abstract final class AppTheme {
         onSurface: AppColors.textPrimary,
         surfaceContainerHighest: AppColors.surface,
         outline: AppColors.border,
+        tertiary: AppColors.accentWarm,
+        onTertiary: AppColors.onAccentWarm,
       ),
       scaffoldBackgroundColor: AppColors.background,
+      // Halaman lanjutan masuk dari kanan; geser dari tepi kiri untuk kembali.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       textTheme: const TextTheme(
         headlineMedium: AppTextStyles.headingLarge,
         titleLarge: AppTextStyles.headingMedium,
+        titleMedium: AppTextStyles.title,
         bodyLarge: AppTextStyles.bodyLarge,
         bodyMedium: AppTextStyles.bodyMedium,
         labelLarge: AppTextStyles.labelLarge,
@@ -63,8 +75,12 @@ abstract final class AppTheme {
           disabledBackgroundColor: AppColors.border,
           disabledForegroundColor: AppColors.textSecondary,
           minimumSize: const Size.fromHeight(AppSizes.touchTarget),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-          textStyle: AppTextStyles.labelLarge,
+          shape: const RoundedRectangleBorder(
+            borderRadius: AppRadius.controlAll,
+          ),
+          textStyle: AppTextStyles.labelLarge.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -72,7 +88,9 @@ abstract final class AppTheme {
           foregroundColor: AppColors.brandStrong,
           side: const BorderSide(color: AppColors.brand),
           minimumSize: const Size.fromHeight(AppSizes.touchTarget),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          shape: const RoundedRectangleBorder(
+            borderRadius: AppRadius.controlAll,
+          ),
           textStyle: AppTextStyles.labelLarge,
         ),
       ),
@@ -87,7 +105,7 @@ abstract final class AppTheme {
         selectedColor: AppColors.brandSubtle,
         labelStyle: AppTextStyles.labelLarge,
         side: const BorderSide(color: AppColors.border),
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.pill),
         padding: const EdgeInsets.all(AppSpacing.sm),
         showCheckmark: false,
         checkmarkColor: AppColors.brandStrong,
@@ -98,7 +116,7 @@ abstract final class AppTheme {
           color: AppColors.onBrand,
         ),
         behavior: SnackBarBehavior.floating,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.controlAll),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,

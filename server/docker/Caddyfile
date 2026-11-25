@@ -1,0 +1,6 @@
+# Caddy meminta sertifikat HTTPS otomatis untuk API_DOMAIN,
+# lalu meneruskan permintaan ke container Laravel.
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy app:80
+}

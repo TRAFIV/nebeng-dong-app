@@ -3,9 +3,18 @@ import 'dart:math' as math;
 import 'package:praktikum_mobile/shared/maps/models/map_location.dart';
 
 class RouteMatch {
-  const RouteMatch(this.pickupDeviation, this.dropoffDeviation);
+  const RouteMatch(
+    this.pickupDeviation,
+    this.dropoffDeviation, {
+    this.pickupFraction = 0,
+  });
+
+  /// Jarak lurus (meter) titik jemput penumpang ke jalur.
   final double pickupDeviation;
   final double dropoffDeviation;
+
+  /// Posisi titik jemput di sepanjang jalur: 0 = asal, 1 = tujuan pengemudi.
+  final double pickupFraction;
   double get totalDeviation => pickupDeviation + dropoffDeviation;
 }
 
@@ -17,10 +26,18 @@ abstract final class RouteMatcher {
     GeoPoint pickup,
     GeoPoint dropoff, {
     double corridorMeters = 500,
+    double nearestToleranceMeters = 100,
   }) {
     if (pickup.distanceTo(dropoff) < 50) return null;
-    final from = _projections(route.points, pickup, corridorMeters);
-    final to = _projections(route.points, dropoff, corridorMeters);
+    final from = _nearest(
+      _projections(route.points, pickup, corridorMeters),
+      nearestToleranceMeters,
+    );
+    final to = _nearest(
+      _projections(route.points, dropoff, corridorMeters),
+      nearestToleranceMeters,
+    );
+    final length = _length(route.points);
     int index = 0;
     _Projection? bestPickup;
     RouteMatch? best;
@@ -32,12 +49,39 @@ abstract final class RouteMatcher {
         }
       }
       if (bestPickup == null) continue;
-      final match = RouteMatch(bestPickup.distance, drop.distance);
+      final match = RouteMatch(
+        bestPickup.distance,
+        drop.distance,
+        pickupFraction: length == 0
+            ? 0
+            : (bestPickup.along / length).clamp(0.0, 1.0),
+      );
       if (best == null || match.totalDeviation < best.totalDeviation) {
         best = match;
       }
     }
     return best;
+  }
+
+  /// Hanya bagian jalur yang paling dekat dengan titiknya (ditambah toleransi).
+  /// Tanpa ini, perjalanan pendek bisa memakai bagian jalur yang salah,
+  /// sehingga arah terbalik ikut dianggap searah. Jalur yang melewati tempat
+  /// yang sama dua kali tetap tertangani karena keduanya sama-sama dekat.
+  static List<_Projection> _nearest(
+    List<_Projection> projections,
+    double tolerance,
+  ) {
+    if (projections.isEmpty) return projections;
+    final closest = projections.map((p) => p.distance).reduce(math.min);
+    return projections.where((p) => p.distance <= closest + tolerance).toList();
+  }
+
+  static double _length(List<GeoPoint> points) {
+    double total = 0;
+    for (int i = 0; i < points.length - 1; i++) {
+      total += points[i].distanceTo(points[i + 1]);
+    }
+    return total;
   }
 
   static List<_Projection> _projections(
